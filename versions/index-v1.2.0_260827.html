@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MAX's CREDITS  ·  v1.2</title>
+<style>
+/* ============================================================
+   MAX's CREDITS  ·  超级马里奥风（非像素 · 仅大数字像素化）
+   ============================================================ */
+:root{
+  /* 马里奥调色板 */
+  --mario-red:#E52521;
+  --mario-blue:#049CD8;
+  --mario-yellow:#FBD000;
+  --mario-green:#43B047;
+  --mario-brown:#3A2E1F;
+  --mario-sky:#7EC8F2;
+  --mario-sky-light:#BFE9FB;
+  --mario-cream:#FFFDF5;
+  --mario-cream-2:#FFF4DD;
+  --mario-cream-3:#F5E6C8;
+
+  /* 保留变量名（JS inline style 引用） */
+  --bg-0:#7EC8F2;
+  --bg-1:#FFFDF5;
+  --bg-2:#FFF4DD;
+  --bg-3:#F5E6C8;
+  --line:#3A2E1F;
+  --line-2:#5A4A36;
+  --text:#2B2118;
+  --text-2:#6B5B47;
+  --text-3:#9A8270;
+  --primary:var(--mario-red);
+  --primary-dim:#FF6B5E;
+  --accent:var(--mario-yellow);
+  --accent-2:var(--mario-green);
+  --danger:#C1121F;
+  --info:var(--mario-blue);
+  --purple:#9B5DE5;
+  --pink:#FF5DA2;
+
+  --shadow-1: 3px 3px 0 var(--mario-brown);
+  --shadow-2: 5px 5px 0 var(--mario-brown);
+  --shadow-3: 8px 8px 0 var(--mario-brown);
+  --shadow-hover: 1px 1px 0 var(--mario-brown);
+  --border:4px solid var(--mario-brown);
+  --border-thin:3px solid var(--mario-brown);
+  --radius:14px;
+  --radius-sm:10px;
+
+  --pixel-font:'Courier New', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,-apple-system,sans-serif;
+  background:linear-gradient(180deg, var(--mario-sky) 0%, var(--mario-sky-light) 60%, #E8F7C9 100%);
+  color:var(--text);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  font-weight:700;
+  letter-spacing:0.01em;
+  position:relative;
+  min-height:100vh;
+}
+
+/* 矢量云朵 + 砖块装饰（圆润，非像素） */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle at 12% 14%, #ffffff 0 26px, transparent 27px),
+    radial-gradient(circle at 18% 16%, #ffffff 0 20px, transparent 21px),
+    radial-gradient(circle at 8% 18%, #ffffff 0 18px, transparent 19px),
+    radial-gradient(circle at 72% 9%, #ffffff 0 30px, transparent 31px),
+    radial-gradient(circle at 78% 11%, #ffffff 0 22px, transparent 23px),
+    radial-gradient(circle at 66% 12%, #ffffff 0 20px, transparent 21px),
+    radial-gradient(circle at 40% 22%, #ffffff 0 22px, transparent 23px),
+    radial-gradient(circle at 45% 24%, #ffffff 0 16px, transparent 17px);
+  opacity:0.9;
+}
+/* 底部草地 + 砖块条 */
+body::after{
+  content:'';
+  position:fixed;left:0;right:0;bottom:0;height:120px;
+  pointer-events:none;z-index:0;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--mario-green) 0 60px,
+      #3a9d3e 60px 62px),
+    linear-gradient(180deg, transparent 0 40px, rgba(0,0,0,0) 40px);
+  -webkit-mask-image:linear-gradient(180deg, transparent 0 40px, #000 40px);
+  mask-image:linear-gradient(180deg, transparent 0 40px, #000 40px);
+  opacity:0.25;
+}
+
+#app{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ============================================================
+   顶栏
+   ============================================================ */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:var(--mario-red);
+  border-bottom:var(--border);
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 4px 0 rgba(0,0,0,0.15);
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:18px;font-weight:900;letter-spacing:0.04em;
+  text-transform:uppercase;color:#fff;
+}
+.brand-mark{
+  width:36px;height:36px;
+  background:var(--mario-yellow);
+  border:var(--border-thin);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  box-shadow:var(--shadow-1);
+  transform:rotate(-6deg);
+}
+.brand-mark span{transform:rotate(6deg);display:block;}
+.brand-text{color:#fff;text-shadow:2px 2px 0 var(--mario-brown);}
+.brand-text em{color:var(--mario-yellow);font-style:normal;}
+
+.view-toggle{
+  display:flex;border:var(--border-thin);
+  background:var(--mario-cream);border-radius:999px;overflow:hidden;
+}
+.view-btn{
+  padding:8px 16px;font-size:11px;font-weight:900;letter-spacing:0.08em;
+  background:transparent;color:var(--text-2);
+  border:none;cursor:pointer;text-transform:uppercase;
+  border-right:var(--border-thin);
+  transition:all .15s;
+}
+.view-btn:last-child{border-right:none;}
+.view-btn.active{background:var(--mario-yellow);color:var(--mario-brown);}
+.view-btn:not(.active):hover{background:var(--mario-cream-2);color:var(--text);}
+
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.tag{
+  padding:5px 12px;font-size:10px;font-weight:900;letter-spacing:0.1em;
+  border:var(--border-thin);background:var(--mario-cream);
+  border-radius:999px;text-transform:uppercase;color:var(--mario-brown);
+}
+.tag-red{color:#fff;background:var(--mario-brown);}
+.tag-yellow{color:var(--mario-brown);background:var(--mario-yellow);}
+
+/* ============================================================
+   余额大卡片
+   ============================================================ */
+.balance-wrap{padding:24px 20px 12px;}
+.balance{
+  background:var(--mario-cream);
+  border:var(--border);
+  box-shadow:var(--shadow-3);
+  border-radius:var(--radius);
+  padding:24px;
+  position:relative;overflow:hidden;
+}
+.balance::before{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:120px;height:120px;
+  background:radial-gradient(circle at 50% 35%, var(--mario-yellow) 0 38%, #e0b400 38% 42%, transparent 43%),
+             radial-gradient(circle at 35% 65%, var(--mario-red) 0 10px, transparent 11px),
+             radial-gradient(circle at 65% 65%, var(--mario-red) 0 10px, transparent 11px);
+  transform:rotate(12deg);
+  opacity:0.9;
+}
+.balance::after{
+  content:'';position:absolute;bottom:-24px;left:-24px;
+  width:90px;height:90px;
+  background:var(--mario-green);
+  border-radius:50%;
+  border:var(--border-thin);
+  opacity:0.5;
+}
+.balance-grid{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:end;
+  position:relative;z-index:2;
+}
+.balance-label{
+  font-size:11px;font-weight:900;letter-spacing:0.18em;
+  color:var(--text-3);text-transform:uppercase;margin-bottom:8px;
+}
+/* 大号像素数字 */
+.balance-num{
+  display:flex;align-items:baseline;gap:10px;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0;
+}
+.balance-num .unit{
+  font-size:22px;font-weight:900;color:var(--mario-red);
+  text-shadow:2px 2px 0 var(--mario-brown);
+}
+.balance-num .num{
+  font-family:var(--pixel-font);
+  font-size:74px;font-weight:900;line-height:0.9;
+  color:var(--mario-yellow);
+  -webkit-text-stroke:4px var(--mario-brown);
+  text-shadow:5px 5px 0 var(--mario-brown);
+  letter-spacing:2px;
+}
+.balance-num .num.flip{animation:numFlip .4s ease;}
+@keyframes numFlip{
+  0%{transform:translateY(-100%);opacity:0;}
+  100%{transform:translateY(0);opacity:1;}
+}
+
+.balance-stats{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-end;
+  position:relative;z-index:2;
+}
+.stat-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 12px;
+  background:var(--mario-cream-2);
+  border:var(--border-thin);
+  border-radius:999px;
+  font-size:11px;font-weight:900;letter-spacing:0.05em;color:var(--text);
+}
+.stat-pill .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--mario-brown);}
+.stat-pill.in .dot{background:var(--mario-green);}
+.stat-pill.out .dot{background:var(--mario-red);}
+.stat-pill.warn .dot{background:var(--mario-yellow);}
+
+.expire-bar{margin-top:18px;position:relative;z-index:2;}
+.expire-bar-label{
+  display:flex;justify-content:space-between;
+  font-size:10px;font-weight:900;letter-spacing:0.1em;
+  color:var(--text-2);text-transform:uppercase;margin-bottom:6px;
+}
+.expire-bar-track{
+  height:18px;background:var(--mario-cream-3);
+  border:var(--border-thin);border-radius:999px;
+  position:relative;overflow:hidden;
+}
+.expire-bar-fill{
+  position:absolute;top:0;left:0;height:100%;
+  background:repeating-linear-gradient(45deg, var(--mario-yellow) 0, var(--mario-yellow) 10px, var(--mario-red) 10px, var(--mario-red) 20px);
+  transition:width .6s cubic-bezier(.2,.8,.2,1);
+}
+
+/* ============================================================
+   Tab 导航
+   ============================================================ */
+.tabs{
+  display:flex;
+  margin:18px 20px 0;
+  border:var(--border);border-radius:var(--radius);
+  background:var(--mario-cream);
+  box-shadow:var(--shadow-1);
+  overflow:hidden;
+}
+.tab{
+  flex:1;
+  padding:14px 8px;
+  text-align:center;
+  font-size:11px;font-weight:900;letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--text-2);
+  cursor:pointer;
+  border-right:var(--border-thin);
+  transition:all .15s;
+  position:relative;background:transparent;
+}
+.tab:last-child{border-right:none;}
+.tab.active{background:var(--mario-blue);color:#fff;text-shadow:2px 2px 0 var(--mario-brown);}
+.tab:not(.active):hover{background:var(--mario-cream-2);color:var(--text);}
+.tab .icon{display:block;font-size:20px;margin-bottom:4px;}
+
+/* ============================================================
+   内容区
+   ============================================================ */
+.content{padding:18px 20px 110px;flex:1;}
+.view{display:none;}
+.view.active{display:block;animation:viewIn .3s ease;}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ============================================================
+   通用卡片
+   ============================================================ */
+.card{
+  background:var(--mario-cream);
+  border:var(--border);
+  box-shadow:var(--shadow-2);
+  border-radius:var(--radius);
+  margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:var(--mario-cream-2);
+  border-bottom:var(--border-thin);
+}
+.card-title{
+  font-size:13px;font-weight:900;letter-spacing:0.06em;
+  text-transform:uppercase;display:flex;align-items:center;gap:8px;color:var(--mario-brown);
+}
+.card-title .dot{width:12px;height:12px;background:var(--mario-red);border-radius:3px;border:2px solid var(--mario-brown);}
+.card-title.green .dot{background:var(--mario-green);}
+.card-title.yellow .dot{background:var(--mario-yellow);}
+.card-title.blue .dot{background:var(--mario-blue);}
+.card-body{padding:16px 18px;}
+
+/* ============================================================
+   任务项
+   ============================================================ */
+.task-list{display:flex;flex-direction:column;gap:10px;}
+.task{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  background:var(--mario-cream-2);
+  border:var(--border-thin);border-radius:var(--radius-sm);
+  cursor:pointer;
+  transition:all .12s;
+  position:relative;
+}
+.task:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-1);}
+.task:active{transform:translate(0,0);box-shadow:none;}
+.task.done{background:var(--mario-yellow);border-color:var(--mario-brown);}
+.task.done .task-text{text-decoration:line-through;}
+.task-emoji{
+  width:44px;height:44px;
+  background:var(--mario-cream);
+  border:var(--border-thin);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.task.done .task-emoji{background:#fff;}
+.task-body{flex:1;min-width:0;}
+.task-type{
+  font-size:9px;font-weight:900;letter-spacing:0.15em;
+  color:var(--text-3);text-transform:uppercase;margin-bottom:2px;
+}
+.task.done .task-type{color:rgba(58,46,31,0.6);}
+.task-text{font-size:13px;font-weight:800;line-height:1.3;word-break:break-word;}
+.task-val{
+  font-size:15px;font-weight:900;
+  padding:7px 12px;
+  background:var(--mario-cream);
+  border:var(--border-thin);border-radius:999px;
+  font-variant-numeric:tabular-nums;flex-shrink:0;
+}
+.task-val.pos{color:var(--mario-green);}
+.task-val.neg{color:var(--mario-red);}
+.task.done .task-val{background:#fff;color:var(--mario-brown);}
+
+.task-group-label{
+  font-size:10px;font-weight:900;letter-spacing:0.2em;
+  color:var(--mario-brown);text-transform:uppercase;
+  padding:14px 0 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.task-group-label::before{content:'';display:block;width:18px;height:6px;background:var(--mario-red);border-radius:3px;}
+
+/* ============================================================
+   奖励商店
+   ============================================================ */
+.reward-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.reward{
+  background:var(--mario-cream-2);
+  border:var(--border-thin);border-radius:var(--radius-sm);
+  padding:14px 12px;
+  cursor:pointer;position:relative;
+  transition:all .12s;
+  display:flex;flex-direction:column;min-height:140px;
+}
+.reward:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-1);}
+.reward:active{transform:translate(0,0);box-shadow:none;}
+.reward.disabled{opacity:0.45;cursor:not-allowed;filter:grayscale(0.6);}
+.reward.disabled:hover{transform:none;box-shadow:none;}
+.reward-emoji{font-size:34px;margin-bottom:6px;line-height:1;}
+.reward-name{font-size:12px;font-weight:900;margin-bottom:6px;line-height:1.2;flex:1;}
+.reward-cost{
+  display:flex;align-items:baseline;gap:4px;
+  font-weight:900;font-size:18px;
+  color:var(--mario-red);
+  font-variant-numeric:tabular-nums;
+}
+.reward-cost .c{font-size:11px;color:var(--text-3);font-weight:900;}
+.reward-tag{
+  position:absolute;top:8px;right:8px;
+  font-size:9px;font-weight:900;letter-spacing:0.1em;
+  padding:3px 7px;background:var(--mario-red);color:#fff;
+  border:2px solid var(--mario-brown);border-radius:6px;
+  text-transform:uppercase;
+}
+.reward-cat{margin-bottom:16px;}
+.reward-cat-label{
+  font-size:10px;font-weight:900;letter-spacing:0.2em;
+  color:var(--mario-brown);text-transform:uppercase;
+  padding:14px 0 8px;display:flex;align-items:center;gap:8px;
+}
+.reward-cat-label::before{content:'';display:block;width:18px;height:6px;background:var(--mario-yellow);border-radius:3px;}
+
+/* ============================================================
+   兑换记录
+   ============================================================ */
+.record{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;
+  background:var(--mario-cream-2);
+  border:var(--border-thin);border-radius:var(--radius-sm);
+  margin-bottom:8px;
+}
+.record-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--mario-brown);flex-shrink:0;}
+.record-dot.in{background:var(--mario-green);}
+.record-dot.out{background:var(--mario-red);}
+.record-body{flex:1;min-width:0;}
+.record-title{font-size:13px;font-weight:900;margin-bottom:2px;}
+.record-meta{font-size:10px;color:var(--text-3);font-weight:800;letter-spacing:0.05em;}
+.record-val{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;}
+.record-val.in{color:var(--mario-green);}
+.record-val.out{color:var(--mario-red);}
+.empty{text-align:center;padding:40px 20px;color:var(--text-3);font-size:13px;font-weight:800;}
+
+/* ============================================================
+   爸妈控制台
+   ============================================================ */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.admin-tile{
+  background:var(--mario-cream-2);
+  border:var(--border-thin);border-radius:var(--radius-sm);
+  padding:16px;position:relative;
+}
+.admin-tile .label{font-size:10px;font-weight:900;letter-spacing:0.15em;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;}
+.admin-tile .val{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--mario-brown);}
+.admin-tile .val.green{color:var(--mario-green);}
+.admin-tile .val.red{color:var(--mario-red);}
+.admin-tile .val.yellow{color:#c79a00;}
+
+.admin-actions{display:flex;flex-direction:column;gap:10px;}
+.btn{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:var(--mario-cream-2);
+  border:var(--border-thin);border-radius:var(--radius-sm);
+  font-size:12px;font-weight:900;letter-spacing:0.06em;
+  text-transform:uppercase;cursor:pointer;color:var(--mario-brown);
+  transition:all .12s;
+}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-1);}
+.btn:active{transform:translate(0,0);box-shadow:none;}
+.btn.primary{background:var(--mario-red);color:#fff;border-color:var(--mario-brown);}
+.btn.danger{background:var(--mario-red);color:#fff;border-color:var(--mario-brown);}
+.btn.warn{background:var(--mario-yellow);color:var(--mario-brown);border-color:var(--mario-brown);}
+.btn .arrow{font-size:16px;}
+
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:var(--border-thin);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:12px;font-weight:900;letter-spacing:0.04em;color:var(--mario-brown);}
+.setting-desc{font-size:10px;color:var(--text-3);font-weight:800;margin-top:2px;letter-spacing:0.04em;}
+.setting-input{
+  background:var(--mario-cream);border:var(--border-thin);border-radius:8px;
+  color:var(--text);padding:9px 10px;
+  font-size:15px;font-weight:900;width:84px;text-align:right;
+  font-family:inherit;font-variant-numeric:tabular-nums;
+}
+.setting-input:focus{outline:none;background:#fff;}
+.toggle{
+  width:52px;height:28px;
+  background:var(--mario-cream-3);
+  border:var(--border-thin);border-radius:999px;
+  position:relative;cursor:pointer;transition:background .15s;
+}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:20px;height:20px;background:var(--text-3);border-radius:50%;
+  border:2px solid var(--mario-brown);transition:all .15s;
+}
+.toggle.on{background:var(--mario-green);}
+.toggle.on::after{left:26px;background:#fff;}
+
+/* ============================================================
+   模态框
+   ============================================================ */
+.modal-mask{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(43,33,24,0.55);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-mask.show{display:flex;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{
+  width:100%;max-width:480px;
+  background:var(--mario-cream);
+  border-top:var(--border);
+  box-shadow:0 -8px 0 var(--mario-brown);
+  border-radius:24px 24px 0 0;
+  padding:24px 20px;position:relative;
+  animation:slideUp .3s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:48px;height:6px;background:var(--mario-cream-3);border-radius:3px;margin:0 auto 16px;}
+.modal-title{font-size:19px;font-weight:900;letter-spacing:0.03em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px;color:var(--mario-brown);}
+.modal-sub{font-size:12px;color:var(--text-2);font-weight:800;margin-bottom:20px;line-height:1.6;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions .btn{flex:1;justify-content:center;border-radius:var(--radius-sm);}
+.confirm-emoji{
+  font-size:60px;text-align:center;margin:8px 0 16px;
+  animation:pop .4s cubic-bezier(.2,1.5,.4,1);
+}
+@keyframes pop{0%{transform:scale(0) rotate(-180deg);}100%{transform:scale(1) rotate(0);}}
+
+/* ============================================================
+   粒子动效（金币/星星/蘑菇）
+   ============================================================ */
+.particle-layer{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden;}
+.particle{
+  position:absolute;width:14px;height:14px;
+  font-size:18px;line-height:1;
+  animation:particleUp 1.3s ease-out forwards;
+}
+@keyframes particleUp{
+  0%{transform:translate(0,0) rotate(0deg) scale(0.4);opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) rotate(540deg) scale(1.2);opacity:0;}
+}
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast-layer{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{
+  background:var(--mario-cream);color:var(--mario-brown);
+  border:var(--border-thin);border-radius:999px;
+  padding:11px 20px;font-size:12px;font-weight:900;letter-spacing:0.04em;
+  box-shadow:var(--shadow-1);
+  animation:toastIn .3s ease,toastOut .3s ease 1.7s forwards;
+}
+.toast.error{background:var(--mario-red);color:#fff;}
+.toast.success{background:var(--mario-green);color:#fff;}
+@keyframes toastIn{from{transform:translateY(-20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes toastOut{to{transform:translateY(-20px);opacity:0;}}
+
+/* ============================================================
+   底部状态栏
+   ============================================================ */
+.bottombar{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  background:var(--mario-brown);
+  border-top:4px solid #1f1810;
+  padding:11px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:10px;font-weight:900;letter-spacing:0.1em;
+  color:var(--mario-cream);text-transform:uppercase;
+}
+.bottombar .left{display:flex;align-items:center;gap:8px;}
+.bottombar .right{display:flex;align-items:center;gap:8px;}
+.bottombar .live{display:inline-block;width:8px;height:8px;background:var(--mario-green);border-radius:50%;animation:liveBlink 1.4s ease-in-out infinite;}
+@keyframes liveBlink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (min-width:640px){
+  .content{max-width:680px;margin:0 auto;}
+  .balance-wrap,.topbar,.tabs,.bottombar{max-width:720px;margin-left:auto;margin-right:auto;}
+  .topbar{border-left:var(--border);border-right:var(--border);}
+  .tabs{border-left:var(--border);border-right:var(--border);}
+  .bottombar{border-left:var(--border);border-right:var(--border);}
+  .reward-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
+}
+@media (max-width:380px){
+  .balance-num .num{font-size:58px;}
+  .reward-grid{grid-template-columns:repeat(2,1fr);}
+}
+
+</style>
+</head>
+
+
+<div id="app">
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><span>🍄</span></div>
+      <div class="brand-text">MAX<em>'S</em> CREDITS</div>
+    </div>
+    <div class="view-toggle" id="viewToggle">
+      <button class="view-btn active" data-view="max">MAX</button>
+      <button class="view-btn" data-view="parent">爸妈</button>
+    </div>
+    <div class="topbar-right">
+      <span class="tag tag-red">v1.2</span>
+    </div>
+  </header>
+
+  <!-- 余额卡片 -->
+  <section class="balance-wrap">
+    <div class="balance">
+      <div class="balance-grid">
+        <div>
+          <div class="balance-label">当前余额 / Balance</div>
+          <div class="balance-num">
+            <span class="num" id="balNum">0</span>
+            <span class="unit">C</span>
+          </div>
+        </div>
+        <div class="balance-stats">
+          <div class="stat-pill in">
+            <span class="dot"></span>
+            <span id="monthIn">+0</span> 本月入
+          </div>
+          <div class="stat-pill out">
+            <span class="dot"></span>
+            <span id="monthOut">-0</span> 本月出
+          </div>
+          <div class="stat-pill warn">
+            <span class="dot"></span>
+            <span id="expireSoon">0</span> 将过期
+          </div>
+        </div>
+      </div>
+      <div class="expire-bar">
+        <div class="expire-bar-label">
+          <span>月底 10% 过期倒计时</span>
+          <span id="expireDays">30 天</span>
+        </div>
+        <div class="expire-bar-track">
+          <div class="expire-bar-fill" id="expireFill" style="width:100%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab 导航 -->
+  <nav class="tabs" id="tabs">
+    <div class="tab active" data-tab="home">
+      <span class="icon">🏠</span>首页
+    </div>
+    <div class="tab" data-tab="tasks">
+      <span class="icon">📋</span>任务
+    </div>
+    <div class="tab" data-tab="shop">
+      <span class="icon">🏪</span>商店
+    </div>
+    <div class="tab" data-tab="records">
+      <span class="icon">📊</span>记录
+    </div>
+  </nav>
+
+  <!-- 内容区 -->
+  <main class="content">
+    <!-- 首页 -->
+    <div class="view active" data-view="home">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title yellow"><span class="dot"></span>今日推荐</div>
+        </div>
+        <div class="card-body">
+          <div id="todayHint" style="font-size:13px;font-weight:700;line-height:1.6;">
+            <!-- 动态注入 -->
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="dot"></span>快捷任务</div>
+        </div>
+        <div class="card-body">
+          <div class="task-list" id="quickTasks"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title green"><span class="dot"></span>最近兑换</div>
+        </div>
+        <div class="card-body" id="recentRedeem"></div>
+      </div>
+    </div>
+
+    <!-- 任务墙 -->
+    <div class="view" data-view="tasks">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="dot"></span>任务墙</div>
+          <div class="tag tag-yellow" id="taskCount">0 项</div>
+        </div>
+        <div class="card-body" id="allTasks"></div>
+      </div>
+    </div>
+
+    <!-- 商店 -->
+    <div class="view" data-view="shop">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title yellow"><span class="dot"></span>奖励商店</div>
+          <div class="tag tag-yellow" id="shopCount">0 件</div>
+        </div>
+        <div class="card-body" id="shopBody"></div>
+      </div>
+    </div>
+
+    <!-- 兑换记录 -->
+    <div class="view" data-view="records">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title blue"><span class="dot"></span>全部记录</div>
+        </div>
+        <div class="card-body" id="allRecords"></div>
+      </div>
+    </div>
+
+    <!-- 爸妈控制台 -->
+    <div class="view" data-view="admin">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="dot"></span>运营总览</div>
+        </div>
+        <div class="card-body">
+          <div class="admin-grid">
+            <div class="admin-tile">
+              <div class="label">当前余额</div>
+              <div class="val" id="adBal">0</div>
+            </div>
+            <div class="admin-tile">
+              <div class="label">本月入账</div>
+              <div class="val green" id="adIn">+0</div>
+            </div>
+            <div class="admin-tile">
+              <div class="label">本月出账</div>
+              <div class="val red" id="adOut">-0</div>
+            </div>
+            <div class="admin-tile">
+              <div class="label">月底将扣</div>
+              <div class="val yellow" id="adExpire">-0</div>
+            </div>
+            <div class="admin-tile">
+              <div class="label">累计获得</div>
+              <div class="val" id="adTotalIn">0</div>
+            </div>
+            <div class="admin-tile">
+              <div class="label">累计消费</div>
+              <div class="val" id="adTotalOut">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title green"><span class="dot"></span>系统设置</div>
+        </div>
+        <div class="card-body">
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">月度过期比例</div>
+              <div class="setting-desc">每月最后一日扣除</div>
+            </div>
+            <input type="number" class="setting-input" id="cfgExpire" value="10" min="0" max="50">
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">起步余额</div>
+              <div class="setting-desc">重置时的初始 C</div>
+            </div>
+            <input type="number" class="setting-input" id="cfgInit" value="0" min="0">
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">启用过期机制</div>
+              <div class="setting-desc">关闭后积分永久有效</div>
+            </div>
+            <div class="toggle on" id="cfgExpireOn"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="dot"></span>快捷操作</div>
+        </div>
+        <div class="card-body">
+          <div class="admin-actions">
+            <button class="btn warn" id="btnAddBonus">
+              <span>🎁 发放奖励积分</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="btn" id="btnExport">
+              <span>📤 导出数据 (JSON)</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="btn" id="btnImport">
+              <span>📥 导入数据</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="btn danger" id="btnReset">
+              <span>⚠️ 重置全部数据</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 底栏 -->
+  <footer class="bottombar">
+    <div class="left">
+      <span class="live"></span>
+      <span>LOCAL SYNC</span>
+    </div>
+    <div class="right">
+      <span>v1.2 · 2026-07-16</span>
+    </div>
+  </footer>
+</div>
+
+<!-- 粒子层 -->
+<div class="particle-layer" id="particleLayer"></div>
+
+<!-- Toast 层 -->
+<div class="toast-layer" id="toastLayer"></div>
+
+<!-- 模态框 -->
+<div class="modal-mask" id="modal">
+  <div class="modal" id="modalBox">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".json" style="display:none;">
+
+<script>
+/* ============================================================
+   MAX's CREDITS  ·  v1.2  ·  数据 + 逻辑
+   ============================================================ */
+
+// ----- 任务定义（按类型分组） -----
+const TASKS = [
+  // 日常习惯
+  {id:'t_dawn', emoji:'⏰', type:'晨起作息', text:'每天8点半前主动起床', val:1, group:'daily'},
+  {id:'t_home', emoji:'🏠', type:'家庭参与', text:'摆碗筷/洗碗/丢垃圾/倒米等家务', val:1, group:'daily', note:'单日一项即可，不累积'},
+  {id:'t_brush', emoji:'🪥', type:'个人卫生', text:'早上未刷牙（默认已养成，违规扣分）', val:-1, group:'daily', note:'连续不刷第二天-2'},
+  {id:'t_screen', emoji:'📱', type:'电子产品', text:'学习日电视/游戏超时', val:-10, group:'daily', note:'提醒后再超时+免除一周'},
+
+  // 学习
+  {id:'t_eng_p', emoji:'📚', type:'英语', text:'背句子/抄句子/做练习', val:2, group:'study', note:'表现优秀+1~3'},
+  {id:'t_read', emoji:'📖', type:'阅读', text:'每天阅读累计>30分钟', val:2, group:'study', note:'家里的书'},
+  {id:'t_check', emoji:'✅', type:'作业', text:'作业自查+家长查，确保全对', val:5, group:'study', note:'一科，可累积'},
+  {id:'t_eng_col', emoji:'📋', type:'英语常规', text:'单张常规表每一列连续都正确', val:5, group:'study', note:'限1~4列'},
+  {id:'t_eng_week', emoji:'🗓️', type:'英语周全对', text:'单周每一竖列一周全对', val:5, group:'study', note:'周末结算'},
+  {id:'t_careless', emoji:'❌', type:'粗心', text:'粗心大意导致2次以上错误', val:-2, group:'study', note:'单科/单日/可累积'},
+
+  // 体能
+  {id:'t_fit_full', emoji:'💪', type:'体能全套', text:'每天完成完整一套体能训练', val:10, group:'fit', note:'俯卧撑/仰卧起坐等，可分次'},
+  {id:'t_fit_one', emoji:'🏋️', type:'体能单项', text:'每天完成单项体能训练', val:1, group:'fit', note:'在家·标准动作'},
+
+  // 成就
+  {id:'t_honor', emoji:'🏅', type:'个人荣誉', text:'学校奖励个人优秀荣誉/先进称号', val:20, group:'achv', note:'班级/年级/校级+10~30'},
+  {id:'t_progress', emoji:'📈', type:'进步成就', text:'阶段性显著进步（作业/单科上升10+/专业）', val:10, group:'achv', note:'家长评估或老师表扬'},
+  {id:'t_delta_up', emoji:'📊', type:'环比上升', text:'大/小考比上次提高≥2分', val:3, group:'achv', note:'单科分数变动'},
+  {id:'t_delta_dn', emoji:'📉', type:'环比下降', text:'大/小考比上次下降≥5分', val:-3, group:'achv', note:'单科分数变动'},
+  {id:'t_test_s', emoji:'🎯', type:'小考挑战', text:'单元/常规小考≥90分', val:20, group:'achv', note:'100分=100C·95~97=+50'},
+  {id:'t_test_b', emoji:'🏆', type:'大考挑战', text:'期中/期末大考≥90分', val:50, group:'achv', note:'100分=200C'},
+  {id:'t_compete', emoji:'🥇', type:'比赛获奖', text:'正式比赛/竞赛/考级取得名次', val:50, group:'achv', note:'最高翻4倍'},
+  {id:'t_white', emoji:'🌟', type:'白名单赛', text:'教育部白名单竞赛取得名次', val:200, group:'achv', note:'最高翻5倍'},
+
+  // 课堂
+  {id:'t_class_ap', emoji:'📝', type:'课堂A+', text:'听写/练习老师评 A+', val:5, group:'class', note:'一科一项，取最高'},
+  {id:'t_class_app', emoji:'📝', type:'课堂A++', text:'听写/练习老师评 A++', val:10, group:'class', note:'与A+不叠加'},
+  {id:'t_class_c', emoji:'📝', type:'课堂C', text:'课堂测验得C', val:-1, group:'class'},
+  {id:'t_class_d', emoji:'📝', type:'课堂D', text:'课堂测验得D', val:-2, group:'class'},
+  {id:'t_class_e', emoji:'📝', type:'课堂E', text:'课堂测验得E', val:-10, group:'class'},
+
+  // 行为
+  {id:'t_excuse', emoji:'⚠️', type:'找借口', text:'找借口逃避任务', val:-2, group:'behav'},
+  {id:'t_temper', emoji:'😤', type:'发脾气', text:'辱骂/发脾气', val:-5, group:'behav', note:'冷静后可申请复议'},
+  {id:'t_cheat', emoji:'🚫', type:'作弊撒谎', text:'作弊或撒谎', val:0, group:'behav', note:'当次积分×3扣除'},
+];
+
+// ----- 奖励定义（按梯度） -----
+const REWARDS = [
+  // 日常
+  {id:'r_cash', emoji:'💵', name:'现金 1元', cost:1, cat:'daily', tag:'现金'},
+  {id:'r_fruit', emoji:'🍎', name:'水果时间', cost:3, cat:'daily', tag:'NEW'},
+  {id:'r_ep', emoji:'📺', name:'1集动画', cost:3, cat:'daily', tag:'NEW'},
+  {id:'r_piggy', emoji:'💰', name:'5元小金库', cost:5, cat:'daily', tag:'NEW'},
+  {id:'r_drink', emoji:'🥤', name:'甜饮料', cost:8, cat:'daily'},
+  {id:'r_ice', emoji:'🍦', name:'冰淇淋/雪糕', cost:10, cat:'daily'},
+
+  // 周级
+  {id:'r_dessert', emoji:'🍰', name:'甜点一份', cost:15, cat:'week'},
+  {id:'r_out', emoji:'🌳', name:'一次小出游', cost:15, cat:'week', tag:'NEW'},
+  {id:'r_snack', emoji:'🍫', name:'零食两份', cost:20, cat:'week'},
+  {id:'r_stationery', emoji:'✏️', name:'文具（单件）', cost:20, cat:'week'},
+  {id:'r_friend', emoji:'👫', name:'朋友聚会/过夜', cost:25, cat:'week', tag:'NEW'},
+  {id:'r_screen30', emoji:'📱', name:'额外30min游戏/电视', cost:30, cat:'week', note:'一周限一次'},
+  {id:'r_pizza', emoji:'🍕', name:'披萨/汉堡', cost:50, cat:'week', note:'一周限一次'},
+  {id:'r_book_s', emoji:'📖', name:'小书（¥50内）', cost:40, cat:'week', tag:'NEW'},
+
+  // 月级
+  {id:'r_sport', emoji:'🏀', name:'小型运动器材', cost:50, cat:'month'},
+  {id:'r_sci', emoji:'🔬', name:'科学实验套装', cost:80, cat:'month'},
+  {id:'r_book', emoji:'📚', name:'书籍（>¥200）', cost:100, cat:'month'},
+  {id:'r_toy', emoji:'🧸', name:'益智/科技玩具', cost:120, cat:'month'},
+
+  // 季级+
+  {id:'r_cs', emoji:'🔫', name:'真人CS一次', cost:200, cat:'big'},
+  {id:'r_badm', emoji:'🏸', name:'进阶款羽毛球拍', cost:300, cat:'big'},
+  {id:'r_special', emoji:'✨', name:'特别礼物', cost:1000, cat:'big', note:'需家长同意'},
+];
+
+// ----- 默认快捷任务（首页显示） -----
+const QUICK_IDS = ['t_dawn','t_home','t_eng_p','t_read','t_fit_full'];
+
+// ============================================================
+// 状态
+// ============================================================
+const STORAGE_KEY = 'max_credits_v12';
+
+const defaultState = () => ({
+  balance: 0,
+  records: [],          // {time, type:'in'|'out', val, name, taskId?}
+  doneToday: {},        // {taskId: dateStr}
+  monthIn: 0,           // 本月入（不计入余额变化）
+  monthOut: 0,
+  totalIn: 0,
+  totalOut: 0,
+  cfg: { expireRate: 10, initBal: 0, expireOn: true },
+  view: 'max',
+  tab: 'home',
+  lastResetMonth: null, // 防止重复扣
+});
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const obj = JSON.parse(raw);
+    return Object.assign(defaultState(), obj);
+  }catch(e){ return defaultState(); }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ============================================================
+// 时间工具
+// ============================================================
+const now = ()=> new Date();
+const dayStr = (d=now())=> `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const monthStr = (d=now())=> `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+const daysLeftInMonth = ()=>{
+  const d = now();
+  return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate() - d.getDate();
+};
+const daysInMonth = ()=> new Date(now().getFullYear(), now().getMonth()+1, 0).getDate();
+
+// 月度过期检查（启动时跑一次）
+function checkMonthlyExpire(){
+  if(!state.cfg.expireOn) return;
+  const m = monthStr();
+  if(state.lastResetMonth === m) return;
+  // 第一次进入新月：执行上月清零
+  if(state.balance > 0){
+    const expire = Math.floor(state.balance * state.cfg.expireRate / 100);
+    if(expire > 0){
+      state.records.unshift({
+        time: Date.now(),
+        type:'out',
+        val:expire,
+        name:`⏰ 月度过期 -${state.cfg.expireRate}%`,
+      });
+      state.balance -= expire;
+      state.monthOut += expire;
+      state.totalOut += expire;
+      toast(`月底已清零 ${expire}C (-${state.cfg.expireRate}%)`, 'error');
+    }
+  }
+  state.monthIn = 0;
+  state.monthOut = 0;
+  state.lastResetMonth = m;
+  saveState();
+}
+
+// ============================================================
+// 余额操作
+// ============================================================
+function addRecord(type, val, name, taskId){
+  state.balance += val;
+  state.records.unshift({time: Date.now(), type, val, name, taskId});
+  if(type==='in'){
+    state.monthIn += val;
+    state.totalIn += val;
+  } else {
+    state.monthOut += Math.abs(val);
+    state.totalOut += Math.abs(val);
+  }
+  saveState();
+}
+
+function completeTask(task){
+  if(task.id === 't_cheat'){
+    // 作弊×3扣除
+    showModal({
+      emoji:'🤨',
+      title:'作弊/撒谎处理',
+      sub:'将按当次任务积分 × 3 扣除。请输入要处理的当次积分：',
+      input:{label:'当次积分', value:5, min:1, max:100},
+      actions:[
+        {label:'取消', cls:''},
+        {label:'确认扣除', cls:'danger', onClick:(v)=>{
+          const v3 = (parseInt(v)||0) * 3;
+          addRecord('out', -v3, `🚫 作弊撒谎 -${v3}`, task.id);
+          burst();
+          render();
+          toast(`已扣除 ${v3}C`, 'error');
+          closeModal();
+        }},
+      ]
+    });
+    return;
+  }
+  const sign = task.val >= 0 ? '+' : '';
+  const type = task.val >= 0 ? 'in' : 'out';
+  addRecord(type, task.val, `${task.emoji} ${task.text} ${sign}${task.val}`, task.id);
+  state.doneToday[task.id] = dayStr();
+  burst();
+  render();
+  toast(`${sign}${task.val} C  ·  ${task.text}`, task.val>0?'success':'error');
+}
+
+function redeemReward(r){
+  if(state.balance < r.cost){
+    toast(`余额不足！还差 ${r.cost - state.balance}C`, 'error');
+    shake(document.getElementById('balNum'));
+    return;
+  }
+  showModal({
+    emoji:r.emoji,
+    title:`兑换 ${r.name}?`,
+    sub:`需要 <b style="color:var(--primary)">${r.cost} C</b>，当前余额 <b>${state.balance} C</b>。${r.note?'<br><br>'+r.note:''}`,
+    actions:[
+      {label:'再想想', cls:''},
+      {label:`确认兑换 -${r.cost}C`, cls:'primary', onClick:()=>{
+        addRecord('out', -r.cost, `${r.emoji} 兑换 ${r.name} -${r.cost}`, r.id);
+        giftPop(r.emoji);
+        render();
+        toast(`🎉 成功兑换 ${r.name}!`, 'success');
+        closeModal();
+      }},
+    ]
+  });
+}
+
+// ============================================================
+// 渲染
+// ============================================================
+function $(id){return document.getElementById(id);}
+
+function render(){
+  // 余额数字滚动
+  const numEl = $('balNum');
+  const newVal = state.balance;
+  if(parseInt(numEl.textContent) !== newVal){
+    numEl.classList.add('flip');
+    setTimeout(()=>numEl.classList.remove('flip'), 500);
+  }
+  numEl.textContent = newVal;
+
+  $('monthIn').textContent = '+' + state.monthIn;
+  $('monthOut').textContent = '-' + state.monthOut;
+
+  // 过期倒计时
+  const dl = daysLeftInMonth();
+  const di = daysInMonth();
+  $('expireDays').textContent = dl + ' 天';
+  $('expireFill').style.width = ((di - dl) / di * 100) + '%';
+  const willExpire = state.cfg.expireOn ? Math.floor(state.balance * state.cfg.expireRate / 100) : 0;
+  $('expireSoon').textContent = willExpire;
+
+  // 任务/奖励数量
+  $('taskCount').textContent = TASKS.length + ' 项';
+  $('shopCount').textContent = REWARDS.length + ' 件';
+
+  // 今日推荐
+  renderTodayHint();
+
+  // 快捷任务
+  renderQuickTasks();
+
+  // 最近兑换
+  renderRecent();
+
+  // 任务墙
+  renderAllTasks();
+
+  // 商店
+  renderShop();
+
+  // 记录
+  renderRecords();
+
+  // 爸妈控制台
+  if(state.view === 'parent'){
+    $('adBal').textContent = state.balance;
+    $('adIn').textContent = '+' + state.monthIn;
+    $('adOut').textContent = '-' + state.monthOut;
+    $('adExpire').textContent = '-' + willExpire;
+    $('adTotalIn').textContent = state.totalIn;
+    $('adTotalOut').textContent = state.totalOut;
+  }
+}
+
+function renderTodayHint(){
+  const dl = daysLeftInMonth();
+  const willExpire = state.cfg.expireOn ? Math.floor(state.balance * state.cfg.expireRate / 100) : 0;
+  const h = [];
+  if(state.balance === 0){
+    h.push('👋 欢迎使用 MAX\'s CREDITS！从「任务」开始赚你的第一笔 Credits 吧。');
+  } else {
+    h.push(`💰 当前 <b style="color:var(--primary)">${state.balance} C</b>，月底将自动扣除 <b style="color:var(--danger)">${willExpire} C</b>。`);
+  }
+  if(dl <= 5 && willExpire > 0){
+    h.push(`<br>⚠️ <b style="color:var(--danger)">还有 ${dl} 天</b>就到月底了，未花掉的 Credits 会被回收哦！`);
+  } else if(state.balance > 100 && willExpire >= 10){
+    h.push(`<br>🎯 余额充足，去「商店」挑个心仪的奖励吧！`);
+  }
+  $('todayHint').innerHTML = h.join('');
+}
+
+function renderQuickTasks(){
+  const list = QUICK_IDS.map(id => TASKS.find(t=>t.id===id)).filter(Boolean);
+  $('quickTasks').innerHTML = list.map(taskItemHTML).join('');
+}
+
+function taskItemHTML(t){
+  const done = state.doneToday[t.id] === dayStr();
+  const valSign = t.val >= 0 ? '+' : '';
+  const valCls = t.val >= 0 ? 'pos' : 'neg';
+  return `
+    <div class="task ${done?'done':''}" data-task="${t.id}">
+      <div class="task-emoji">${t.emoji}</div>
+      <div class="task-body">
+        <div class="task-type">${t.type}</div>
+        <div class="task-text">${t.text}${t.note?'<br><span style="font-size:10px;color:var(--text-3);font-weight:700">· '+t.note+'</span>':''}</div>
+      </div>
+      <div class="task-val ${valCls}">${valSign}${t.val}</div>
+    </div>
+  `;
+}
+
+function renderAllTasks(){
+  const groups = {
+    daily: {label:'🌅 日常习惯', color:'var(--primary)'},
+    study: {label:'📚 学习习惯', color:'var(--info)'},
+    fit:   {label:'💪 体能训练', color:'var(--accent-2)'},
+    achv:  {label:'🏆 成就系统', color:'var(--accent)'},
+    class: {label:'📝 课堂表现', color:'var(--purple)'},
+    behav: {label:'⚠️ 行为规范', color:'var(--danger)'},
+  };
+  let html = '';
+  for(const k in groups){
+    const items = TASKS.filter(t=>t.group===k);
+    if(!items.length) continue;
+    html += `<div class="task-group-label">${groups[k].label} · ${items.length}</div>`;
+    html += `<div class="task-list">${items.map(taskItemHTML).join('')}</div>`;
+  }
+  $('allTasks').innerHTML = html;
+}
+
+function renderShop(){
+  const cats = {
+    daily: {label:'💸 日常级 (1~10C)', color:'var(--primary)'},
+    week:  {label:'🗓️ 周级 (15~50C)', color:'var(--accent)'},
+    month: {label:'📅 月级 (50~120C)', color:'var(--info)'},
+    big:   {label:'🌟 梦想级 (200+C)', color:'var(--purple)'},
+  };
+  let html = '';
+  for(const k in cats){
+    const items = REWARDS.filter(r=>r.cat===k);
+    if(!items.length) continue;
+    html += `<div class="reward-cat">`;
+    html += `<div class="reward-cat-label">${cats[k].label} · ${items.length}</div>`;
+    html += `<div class="reward-grid">`;
+    for(const r of items){
+      const noMoney = state.balance < r.cost;
+      html += `
+        <div class="reward ${noMoney?'disabled':''}" data-reward="${r.id}">
+          ${r.tag?`<div class="reward-tag">${r.tag}</div>`:''}
+          <div class="reward-emoji">${r.emoji}</div>
+          <div class="reward-name">${r.name}</div>
+          <div class="reward-cost">${r.cost}<span class="c">C</span></div>
+        </div>
+      `;
+    }
+    html += `</div></div>`;
+  }
+  $('shopBody').innerHTML = html;
+}
+
+function renderRecent(){
+  const recent = state.records.filter(r=>r.type==='out' && (r.name.includes('兑换') || r.name.includes('过期'))).slice(0,3);
+  if(!recent.length){
+    $('recentRedeem').innerHTML = '<div class="empty">还没有兑换记录，去商店看看吧 →</div>';
+    return;
+  }
+  $('recentRedeem').innerHTML = recent.map(recordHTML).join('');
+}
+
+function renderRecords(){
+  if(!state.records.length){
+    $('allRecords').innerHTML = '<div class="empty">还没有任何记录</div>';
+    return;
+  }
+  $('allRecords').innerHTML = state.records.slice(0, 50).map(recordHTML).join('');
+}
+
+function recordHTML(r){
+  const t = new Date(r.time);
+  const ts = `${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+  const sign = r.val >= 0 ? '+' : '';
+  return `
+    <div class="record">
+      <div class="record-dot ${r.type}"></div>
+      <div class="record-body">
+        <div class="record-title">${r.name}</div>
+        <div class="record-meta">${ts}</div>
+      </div>
+      <div class="record-val ${r.type}">${sign}${r.val}</div>
+    </div>
+  `;
+}
+
+// ============================================================
+// 交互：Tab / 视角切换
+// ============================================================
+document.querySelectorAll('#tabs .tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    const t = tab.dataset.tab;
+    if(state.view === 'parent' && t !== 'home'){
+      // 爸妈视角直接展示 admin
+    }
+    document.querySelectorAll('#tabs .tab').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active');
+    showView(t === 'home' ? 'home' : t);
+  });
+});
+
+document.querySelectorAll('#viewToggle .view-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const v = btn.dataset.view;
+    state.view = v;
+    document.querySelectorAll('#viewToggle .view-btn').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    if(v === 'parent'){
+      showView('admin');
+    } else {
+      const activeTab = document.querySelector('#tabs .tab.active');
+      showView(activeTab ? activeTab.dataset.tab : 'home');
+    }
+    saveState();
+    render();
+  });
+});
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>{
+    if(v.dataset.view === name) v.classList.add('active');
+    else v.classList.remove('active');
+  });
+  // 任务/商店/记录需要时显示
+}
+
+// 初始化视角
+document.querySelectorAll('#viewToggle .view-btn').forEach(b=>{
+  b.classList.toggle('active', b.dataset.view === state.view);
+});
+if(state.view === 'parent') showView('admin');
+
+// ============================================================
+// 交互：任务点击 / 奖励点击
+// ============================================================
+document.addEventListener('click', (e)=>{
+  const taskEl = e.target.closest('.task');
+  if(taskEl){
+    const t = TASKS.find(x=>x.id===taskEl.dataset.task);
+    if(t && !taskEl.classList.contains('done')) completeTask(t);
+    return;
+  }
+  const rewardEl = e.target.closest('.reward');
+  if(rewardEl){
+    if(rewardEl.classList.contains('disabled')) return;
+    const r = REWARDS.find(x=>x.id===rewardEl.dataset.reward);
+    if(r) redeemReward(r);
+  }
+});
+
+// ============================================================
+// 模态框
+// ============================================================
+let modalCallback = null;
+
+function showModal({emoji, title, sub, actions, input}){
+  let html = '';
+  if(emoji) html += `<div class="confirm-emoji">${emoji}</div>`;
+  html += `<div class="modal-title">${title}</div>`;
+  if(sub) html += `<div class="modal-sub">${sub}</div>`;
+  if(input){
+    html += `<div style="margin-top:8px"><input type="number" class="setting-input" id="modalInput" value="${input.value||0}" min="${input.min||0}" max="${input.max||9999}" style="width:100%;font-size:18px;padding:12px"></div>`;
+  }
+  if(actions && actions.length){
+    html += `<div class="modal-actions">`;
+    for(const a of actions){
+      html += `<button class="btn ${a.cls||''}" data-act="${actions.indexOf(a)}">${a.label}</button>`;
+    }
+    html += `</div>`;
+  }
+  $('modalContent').innerHTML = html;
+  $('modal').classList.add('show');
+  // 绑定 action
+  if(actions){
+    document.querySelectorAll('.modal-actions .btn').forEach(btn=>{
+      const a = actions[parseInt(btn.dataset.act)];
+      btn.addEventListener('click', ()=>{
+        const v = input ? document.getElementById('modalInput').value : null;
+        if(a.onClick) a.onClick(v);
+      });
+    });
+  }
+}
+function closeModal(){ $('modal').classList.remove('show'); }
+$('modal').addEventListener('click', (e)=>{
+  if(e.target.id === 'modal') closeModal();
+});
+
+// ============================================================
+// 动效
+// ============================================================
+function burst(){
+  const layer = $('particleLayer');
+  const colors = ['#FF4D2E','#FFD60A','#06D6A0','#3A86FF','#9D4EDD','#FF006E'];
+  const num = 12;
+  const cx = window.innerWidth / 2;
+  const cy = 200;
+  for(let i=0;i<num;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / num) * Math.PI * 2;
+    const dist = 80 + Math.random() * 80;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+    p.style.cssText = `
+      left:${cx}px;top:${cy}px;
+      background:${colors[i%colors.length]};
+      --dx:${dx}px;--dy:${dy}px;
+      width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(), 1200);
+  }
+}
+
+function giftPop(emoji){
+  const layer = $('particleLayer');
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  for(let i=0;i<8;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emoji;
+    p.style.fontSize = '24px';
+    p.style.background = 'transparent';
+    const angle = (i / 8) * Math.PI * 2;
+    const dist = 100 + Math.random() * 60;
+    p.style.cssText += `
+      left:${cx}px;top:${cy}px;
+      --dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist - 40}px;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(), 1500);
+  }
+}
+
+function shake(el){
+  el.style.transition = 'transform .1s';
+  el.style.transform = 'translateX(-6px)';
+  setTimeout(()=>{el.style.transform='translateX(6px)'},100);
+  setTimeout(()=>{el.style.transform='translateX(-4px)'},200);
+  setTimeout(()=>{el.style.transform='translateX(0)'},300);
+}
+
+// ============================================================
+// Toast
+// ============================================================
+function toast(msg, type=''){
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  $('toastLayer').appendChild(t);
+  setTimeout(()=>t.remove(), 2200);
+}
+
+// ============================================================
+// 爸妈控制台：操作
+// ============================================================
+$('cfgExpire').addEventListener('change', e=>{
+  state.cfg.expireRate = Math.max(0, Math.min(50, parseInt(e.target.value)||0));
+  saveState(); render();
+  toast(`过期比例已设为 ${state.cfg.expireRate}%`);
+});
+$('cfgInit').addEventListener('change', e=>{
+  state.cfg.initBal = Math.max(0, parseInt(e.target.value)||0);
+  saveState();
+});
+$('cfgExpireOn').addEventListener('click', e=>{
+  state.cfg.expireOn = !state.cfg.expireOn;
+  e.currentTarget.classList.toggle('on', state.cfg.expireOn);
+  saveState(); render();
+  toast(state.cfg.expireOn ? '过期机制已开启' : '过期机制已关闭');
+});
+
+$('btnAddBonus').addEventListener('click', ()=>{
+  showModal({
+    emoji:'🎁',
+    title:'发放奖励积分',
+    sub:'直接给 Max 发放一笔 Bonus C，不绑定任务。',
+    input:{label:'积分', value:10, min:1, max:9999},
+    actions:[
+      {label:'取消', cls:''},
+      {label:'发放', cls:'primary', onClick:(v)=>{
+        const n = parseInt(v)||0;
+        if(n<=0) return;
+        addRecord('in', n, `🎁 爸妈奖励 +${n}`);
+        burst();
+        render();
+        toast(`已发放 ${n} C`, 'success');
+        closeModal();
+      }},
+    ]
+  });
+});
+
+$('btnExport').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `max-credits-${dayStr()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('已导出数据', 'success');
+});
+
+$('btnImport').addEventListener('click', ()=> $('fileInput').click());
+$('fileInput').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      const obj = JSON.parse(ev.target.result);
+      state = Object.assign(defaultState(), obj);
+      saveState(); render();
+      toast('已导入数据', 'success');
+    }catch(err){ toast('导入失败：JSON 格式错误', 'error'); }
+  };
+  r.readAsText(f);
+});
+
+$('btnReset').addEventListener('click', ()=>{
+  showModal({
+    emoji:'⚠️',
+    title:'重置全部数据？',
+    sub:'将清空余额、记录、设置，且不可恢复。',
+    actions:[
+      {label:'取消', cls:''},
+      {label:'确认重置', cls:'danger', onClick:()=>{
+        state = defaultState();
+        saveState(); render();
+        toast('已重置', 'error');
+        closeModal();
+      }},
+    ]
+  });
+});
+
+// ============================================================
+// 启动
+// ============================================================
+checkMonthlyExpire();
+render();
+
+// 调试：暴露到 window（支持字符串ID快捷调用）
+window.MAX = {
+  state, TASKS, REWARDS,
+  doTask(id){ const t = TASKS.find(x=>x.id===id); if(t) completeTask(t); else console.warn('task not found:',id); },
+  doReward(id){ const r = REWARDS.find(x=>x.id===id); if(r) redeemReward(r); else console.warn('reward not found:',id); },
+  reset(){ state = defaultState(); saveState(); render(); },
+};
+
+console.log('%c MAX\'s CREDITS v1.2 ', 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px;');
+console.log('数据存储键：', STORAGE_KEY);
+console.log('可用方法：window.MAX.doTask("t_dawn") / window.MAX.doReward("r_cash") / window.MAX.reset()');
+</script>
+
+<script>
+
+/* ============================================================
+   MAX's CREDITS  ·  v1.2  ·  数据 + 逻辑
+   ============================================================ */
+
+// ----- 任务定义（按类型分组） -----
+const TASKS = [
+  // 日常习惯
+  {id:'t_dawn', emoji:'⏰', type:'晨起作息', text:'每天8点半前主动起床', val:1, group:'daily'},
+  {id:'t_home', emoji:'🏠', type:'家庭参与', text:'摆碗筷/洗碗/丢垃圾/倒米等家务', val:1, group:'daily', note:'单日一项即可，不累积'},
+  {id:'t_brush', emoji:'🪥', type:'个人卫生', text:'早上未刷牙（默认已养成，违规扣分）', val:-1, group:'daily', note:'连续不刷第二天-2'},
+  {id:'t_screen', emoji:'📱', type:'电子产品', text:'学习日电视/游戏超时', val:-10, group:'daily', note:'提醒后再超时+免除一周'},
+
+  // 学习
+  {id:'t_eng_p', emoji:'📚', type:'英语', text:'背句子/抄句子/做练习', val:2, group:'study', note:'表现优秀+1~3'},
+  {id:'t_read', emoji:'📖', type:'阅读', text:'每天阅读累计>30分钟', val:2, group:'study', note:'家里的书'},
+  {id:'t_check', emoji:'✅', type:'作业', text:'作业自查+家长查，确保全对', val:5, group:'study', note:'一科，可累积'},
+  {id:'t_eng_col', emoji:'📋', type:'英语常规', text:'单张常规表每一列连续都正确', val:5, group:'study', note:'限1~4列'},
+  {id:'t_eng_week', emoji:'🗓️', type:'英语周全对', text:'单周每一竖列一周全对', val:5, group:'study', note:'周末结算'},
+  {id:'t_careless', emoji:'❌', type:'粗心', text:'粗心大意导致2次以上错误', val:-2, group:'study', note:'单科/单日/可累积'},
+
+  // 体能
+  {id:'t_fit_full', emoji:'💪', type:'体能全套', text:'每天完成完整一套体能训练', val:10, group:'fit', note:'俯卧撑/仰卧起坐等，可分次'},
+  {id:'t_fit_one', emoji:'🏋️', type:'体能单项', text:'每天完成单项体能训练', val:1, group:'fit', note:'在家·标准动作'},
+
+  // 成就
+  {id:'t_honor', emoji:'🏅', type:'个人荣誉', text:'学校奖励个人优秀荣誉/先进称号', val:20, group:'achv', note:'班级/年级/校级+10~30'},
+  {id:'t_progress', emoji:'📈', type:'进步成就', text:'阶段性显著进步（作业/单科上升10+/专业）', val:10, group:'achv', note:'家长评估或老师表扬'},
+  {id:'t_delta_up', emoji:'📊', type:'环比上升', text:'大/小考比上次提高≥2分', val:3, group:'achv', note:'单科分数变动'},
+  {id:'t_delta_dn', emoji:'📉', type:'环比下降', text:'大/小考比上次下降≥5分', val:-3, group:'achv', note:'单科分数变动'},
+  {id:'t_test_s', emoji:'🎯', type:'小考挑战', text:'单元/常规小考≥90分', val:20, group:'achv', note:'100分=100C·95~97=+50'},
+  {id:'t_test_b', emoji:'🏆', type:'大考挑战', text:'期中/期末大考≥90分', val:50, group:'achv', note:'100分=200C'},
+  {id:'t_compete', emoji:'🥇', type:'比赛获奖', text:'正式比赛/竞赛/考级取得名次', val:50, group:'achv', note:'最高翻4倍'},
+  {id:'t_white', emoji:'🌟', type:'白名单赛', text:'教育部白名单竞赛取得名次', val:200, group:'achv', note:'最高翻5倍'},
+
+  // 课堂
+  {id:'t_class_ap', emoji:'📝', type:'课堂A+', text:'听写/练习老师评 A+', val:5, group:'class', note:'一科一项，取最高'},
+  {id:'t_class_app', emoji:'📝', type:'课堂A++', text:'听写/练习老师评 A++', val:10, group:'class', note:'与A+不叠加'},
+  {id:'t_class_c', emoji:'📝', type:'课堂C', text:'课堂测验得C', val:-1, group:'class'},
+  {id:'t_class_d', emoji:'📝', type:'课堂D', text:'课堂测验得D', val:-2, group:'class'},
+  {id:'t_class_e', emoji:'📝', type:'课堂E', text:'课堂测验得E', val:-10, group:'class'},
+
+  // 行为
+  {id:'t_excuse', emoji:'⚠️', type:'找借口', text:'找借口逃避任务', val:-2, group:'behav'},
+  {id:'t_temper', emoji:'😤', type:'发脾气', text:'辱骂/发脾气', val:-5, group:'behav', note:'冷静后可申请复议'},
+  {id:'t_cheat', emoji:'🚫', type:'作弊撒谎', text:'作弊或撒谎', val:0, group:'behav', note:'当次积分×3扣除'},
+];
+
+// ----- 奖励定义（按梯度） -----
+const REWARDS = [
+  // 日常
+  {id:'r_cash', emoji:'💵', name:'现金 1元', cost:1, cat:'daily', tag:'现金'},
+  {id:'r_fruit', emoji:'🍎', name:'水果时间', cost:3, cat:'daily', tag:'NEW'},
+  {id:'r_ep', emoji:'📺', name:'1集动画', cost:3, cat:'daily', tag:'NEW'},
+  {id:'r_piggy', emoji:'💰', name:'5元小金库', cost:5, cat:'daily', tag:'NEW'},
+  {id:'r_drink', emoji:'🥤', name:'甜饮料', cost:8, cat:'daily'},
+  {id:'r_ice', emoji:'🍦', name:'冰淇淋/雪糕', cost:10, cat:'daily'},
+
+  // 周级
+  {id:'r_dessert', emoji:'🍰', name:'甜点一份', cost:15, cat:'week'},
+  {id:'r_out', emoji:'🌳', name:'一次小出游', cost:15, cat:'week', tag:'NEW'},
+  {id:'r_snack', emoji:'🍫', name:'零食两份', cost:20, cat:'week'},
+  {id:'r_stationery', emoji:'✏️', name:'文具（单件）', cost:20, cat:'week'},
+  {id:'r_friend', emoji:'👫', name:'朋友聚会/过夜', cost:25, cat:'week', tag:'NEW'},
+  {id:'r_screen30', emoji:'📱', name:'额外30min游戏/电视', cost:30, cat:'week', note:'一周限一次'},
+  {id:'r_pizza', emoji:'🍕', name:'披萨/汉堡', cost:50, cat:'week', note:'一周限一次'},
+  {id:'r_book_s', emoji:'📖', name:'小书（¥50内）', cost:40, cat:'week', tag:'NEW'},
+
+  // 月级
+  {id:'r_sport', emoji:'🏀', name:'小型运动器材', cost:50, cat:'month'},
+  {id:'r_sci', emoji:'🔬', name:'科学实验套装', cost:80, cat:'month'},
+  {id:'r_book', emoji:'📚', name:'书籍（>¥200）', cost:100, cat:'month'},
+  {id:'r_toy', emoji:'🧸', name:'益智/科技玩具', cost:120, cat:'month'},
+
+  // 季级+
+  {id:'r_cs', emoji:'🔫', name:'真人CS一次', cost:200, cat:'big'},
+  {id:'r_badm', emoji:'🏸', name:'进阶款羽毛球拍', cost:300, cat:'big'},
+  {id:'r_special', emoji:'✨', name:'特别礼物', cost:1000, cat:'big', note:'需家长同意'},
+];
+
+// ----- 默认快捷任务（首页显示） -----
+const QUICK_IDS = ['t_dawn','t_home','t_eng_p','t_read','t_fit_full'];
+
+// ============================================================
+// 状态
+// ============================================================
+const STORAGE_KEY = 'max_credits_v12';
+
+const defaultState = () => ({
+  balance: 0,
+  records: [],          // {time, type:'in'|'out', val, name, taskId?}
+  doneToday: {},        // {taskId: dateStr}
+  monthIn: 0,           // 本月入（不计入余额变化）
+  monthOut: 0,
+  totalIn: 0,
+  totalOut: 0,
+  cfg: { expireRate: 10, initBal: 0, expireOn: true },
+  view: 'max',
+  tab: 'home',
+  lastResetMonth: null, // 防止重复扣
+});
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const obj = JSON.parse(raw);
+    return Object.assign(defaultState(), obj);
+  }catch(e){ return defaultState(); }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ============================================================
+// 时间工具
+// ============================================================
+const now = ()=> new Date();
+const dayStr = (d=now())=> `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const monthStr = (d=now())=> `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+const daysLeftInMonth = ()=>{
+  const d = now();
+  return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate() - d.getDate();
+};
+const daysInMonth = ()=> new Date(now().getFullYear(), now().getMonth()+1, 0).getDate();
+
+// 月度过期检查（启动时跑一次）
+function checkMonthlyExpire(){
+  if(!state.cfg.expireOn) return;
+  const m = monthStr();
+  if(state.lastResetMonth === m) return;
+  // 第一次进入新月：执行上月清零
+  if(state.balance > 0){
+    const expire = Math.floor(state.balance * state.cfg.expireRate / 100);
+    if(expire > 0){
+      state.records.unshift({
+        time: Date.now(),
+        type:'out',
+        val:expire,
+        name:`⏰ 月度过期 -${state.cfg.expireRate}%`,
+      });
+      state.balance -= expire;
+      state.monthOut += expire;
+      state.totalOut += expire;
+      toast(`月底已清零 ${expire}C (-${state.cfg.expireRate}%)`, 'error');
+    }
+  }
+  state.monthIn = 0;
+  state.monthOut = 0;
+  state.lastResetMonth = m;
+  saveState();
+}
+
+// ============================================================
+// 余额操作
+// ============================================================
+function addRecord(type, val, name, taskId){
+  state.balance += val;
+  state.records.unshift({time: Date.now(), type, val, name, taskId});
+  if(type==='in'){
+    state.monthIn += val;
+    state.totalIn += val;
+  } else {
+    state.monthOut += Math.abs(val);
+    state.totalOut += Math.abs(val);
+  }
+  saveState();
+}
+
+function completeTask(task){
+  if(task.id === 't_cheat'){
+    // 作弊×3扣除
+    showModal({
+      emoji:'🤨',
+      title:'作弊/撒谎处理',
+      sub:'将按当次任务积分 × 3 扣除。请输入要处理的当次积分：',
+      input:{label:'当次积分', value:5, min:1, max:100},
+      actions:[
+        {label:'取消', cls:''},
+        {label:'确认扣除', cls:'danger', onClick:(v)=>{
+          const v3 = (parseInt(v)||0) * 3;
+          addRecord('out', -v3, `🚫 作弊撒谎 -${v3}`, task.id);
+          burst();
+          render();
+          toast(`已扣除 ${v3}C`, 'error');
+          closeModal();
+        }},
+      ]
+    });
+    return;
+  }
+  const sign = task.val >= 0 ? '+' : '';
+  const type = task.val >= 0 ? 'in' : 'out';
+  addRecord(type, task.val, `${task.emoji} ${task.text} ${sign}${task.val}`, task.id);
+  state.doneToday[task.id] = dayStr();
+  burst();
+  render();
+  toast(`${sign}${task.val} C  ·  ${task.text}`, task.val>0?'success':'error');
+}
+
+function redeemReward(r){
+  if(state.balance < r.cost){
+    toast(`余额不足！还差 ${r.cost - state.balance}C`, 'error');
+    shake(document.getElementById('balNum'));
+    return;
+  }
+  showModal({
+    emoji:r.emoji,
+    title:`兑换 ${r.name}?`,
+    sub:`需要 <b style="color:var(--primary)">${r.cost} C</b>，当前余额 <b>${state.balance} C</b>。${r.note?'<br><br>'+r.note:''}`,
+    actions:[
+      {label:'再想想', cls:''},
+      {label:`确认兑换 -${r.cost}C`, cls:'primary', onClick:()=>{
+        addRecord('out', -r.cost, `${r.emoji} 兑换 ${r.name} -${r.cost}`, r.id);
+        giftPop(r.emoji);
+        render();
+        toast(`🎉 成功兑换 ${r.name}!`, 'success');
+        closeModal();
+      }},
+    ]
+  });
+}
+
+// ============================================================
+// 渲染
+// ============================================================
+function $(id){return document.getElementById(id);}
+
+function render(){
+  // 余额数字滚动
+  const numEl = $('balNum');
+  const newVal = state.balance;
+  if(parseInt(numEl.textContent) !== newVal){
+    numEl.classList.add('flip');
+    setTimeout(()=>numEl.classList.remove('flip'), 500);
+  }
+  numEl.textContent = newVal;
+
+  $('monthIn').textContent = '+' + state.monthIn;
+  $('monthOut').textContent = '-' + state.monthOut;
+
+  // 过期倒计时
+  const dl = daysLeftInMonth();
+  const di = daysInMonth();
+  $('expireDays').textContent = dl + ' 天';
+  $('expireFill').style.width = ((di - dl) / di * 100) + '%';
+  const willExpire = state.cfg.expireOn ? Math.floor(state.balance * state.cfg.expireRate / 100) : 0;
+  $('expireSoon').textContent = willExpire;
+
+  // 任务/奖励数量
+  $('taskCount').textContent = TASKS.length + ' 项';
+  $('shopCount').textContent = REWARDS.length + ' 件';
+
+  // 今日推荐
+  renderTodayHint();
+
+  // 快捷任务
+  renderQuickTasks();
+
+  // 最近兑换
+  renderRecent();
+
+  // 任务墙
+  renderAllTasks();
+
+  // 商店
+  renderShop();
+
+  // 记录
+  renderRecords();
+
+  // 爸妈控制台
+  if(state.view === 'parent'){
+    $('adBal').textContent = state.balance;
+    $('adIn').textContent = '+' + state.monthIn;
+    $('adOut').textContent = '-' + state.monthOut;
+    $('adExpire').textContent = '-' + willExpire;
+    $('adTotalIn').textContent = state.totalIn;
+    $('adTotalOut').textContent = state.totalOut;
+  }
+}
+
+function renderTodayHint(){
+  const dl = daysLeftInMonth();
+  const willExpire = state.cfg.expireOn ? Math.floor(state.balance * state.cfg.expireRate / 100) : 0;
+  const h = [];
+  if(state.balance === 0){
+    h.push('👋 欢迎使用 MAX\'s CREDITS！从「任务」开始赚你的第一笔 Credits 吧。');
+  } else {
+    h.push(`💰 当前 <b style="color:var(--primary)">${state.balance} C</b>，月底将自动扣除 <b style="color:var(--danger)">${willExpire} C</b>。`);
+  }
+  if(dl <= 5 && willExpire > 0){
+    h.push(`<br>⚠️ <b style="color:var(--danger)">还有 ${dl} 天</b>就到月底了，未花掉的 Credits 会被回收哦！`);
+  } else if(state.balance > 100 && willExpire >= 10){
+    h.push(`<br>🎯 余额充足，去「商店」挑个心仪的奖励吧！`);
+  }
+  $('todayHint').innerHTML = h.join('');
+}
+
+function renderQuickTasks(){
+  const list = QUICK_IDS.map(id => TASKS.find(t=>t.id===id)).filter(Boolean);
+  $('quickTasks').innerHTML = list.map(taskItemHTML).join('');
+}
+
+function taskItemHTML(t){
+  const done = state.doneToday[t.id] === dayStr();
+  const valSign = t.val >= 0 ? '+' : '';
+  const valCls = t.val >= 0 ? 'pos' : 'neg';
+  return `
+    <div class="task ${done?'done':''}" data-task="${t.id}">
+      <div class="task-emoji">${t.emoji}</div>
+      <div class="task-body">
+        <div class="task-type">${t.type}</div>
+        <div class="task-text">${t.text}${t.note?'<br><span style="font-size:10px;color:var(--text-3);font-weight:700">· '+t.note+'</span>':''}</div>
+      </div>
+      <div class="task-val ${valCls}">${valSign}${t.val}</div>
+    </div>
+  `;
+}
+
+function renderAllTasks(){
+  const groups = {
+    daily: {label:'🌅 日常习惯', color:'var(--primary)'},
+    study: {label:'📚 学习习惯', color:'var(--info)'},
+    fit:   {label:'💪 体能训练', color:'var(--accent-2)'},
+    achv:  {label:'🏆 成就系统', color:'var(--accent)'},
+    class: {label:'📝 课堂表现', color:'var(--purple)'},
+    behav: {label:'⚠️ 行为规范', color:'var(--danger)'},
+  };
+  let html = '';
+  for(const k in groups){
+    const items = TASKS.filter(t=>t.group===k);
+    if(!items.length) continue;
+    html += `<div class="task-group-label">${groups[k].label} · ${items.length}</div>`;
+    html += `<div class="task-list">${items.map(taskItemHTML).join('')}</div>`;
+  }
+  $('allTasks').innerHTML = html;
+}
+
+function renderShop(){
+  const cats = {
+    daily: {label:'💸 日常级 (1~10C)', color:'var(--primary)'},
+    week:  {label:'🗓️ 周级 (15~50C)', color:'var(--accent)'},
+    month: {label:'📅 月级 (50~120C)', color:'var(--info)'},
+    big:   {label:'🌟 梦想级 (200+C)', color:'var(--purple)'},
+  };
+  let html = '';
+  for(const k in cats){
+    const items = REWARDS.filter(r=>r.cat===k);
+    if(!items.length) continue;
+    html += `<div class="reward-cat">`;
+    html += `<div class="reward-cat-label">${cats[k].label} · ${items.length}</div>`;
+    html += `<div class="reward-grid">`;
+    for(const r of items){
+      const noMoney = state.balance < r.cost;
+      html += `
+        <div class="reward ${noMoney?'disabled':''}" data-reward="${r.id}">
+          ${r.tag?`<div class="reward-tag">${r.tag}</div>`:''}
+          <div class="reward-emoji">${r.emoji}</div>
+          <div class="reward-name">${r.name}</div>
+          <div class="reward-cost">${r.cost}<span class="c">C</span></div>
+        </div>
+      `;
+    }
+    html += `</div></div>`;
+  }
+  $('shopBody').innerHTML = html;
+}
+
+function renderRecent(){
+  const recent = state.records.filter(r=>r.type==='out' && (r.name.includes('兑换') || r.name.includes('过期'))).slice(0,3);
+  if(!recent.length){
+    $('recentRedeem').innerHTML = '<div class="empty">还没有兑换记录，去商店看看吧 →</div>';
+    return;
+  }
+  $('recentRedeem').innerHTML = recent.map(recordHTML).join('');
+}
+
+function renderRecords(){
+  if(!state.records.length){
+    $('allRecords').innerHTML = '<div class="empty">还没有任何记录</div>';
+    return;
+  }
+  $('allRecords').innerHTML = state.records.slice(0, 50).map(recordHTML).join('');
+}
+
+function recordHTML(r){
+  const t = new Date(r.time);
+  const ts = `${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+  const sign = r.val >= 0 ? '+' : '';
+  return `
+    <div class="record">
+      <div class="record-dot ${r.type}"></div>
+      <div class="record-body">
+        <div class="record-title">${r.name}</div>
+        <div class="record-meta">${ts}</div>
+      </div>
+      <div class="record-val ${r.type}">${sign}${r.val}</div>
+    </div>
+  `;
+}
+
+// ============================================================
+// 交互：Tab / 视角切换
+// ============================================================
+document.querySelectorAll('#tabs .tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    const t = tab.dataset.tab;
+    if(state.view === 'parent' && t !== 'home'){
+      // 爸妈视角直接展示 admin
+    }
+    document.querySelectorAll('#tabs .tab').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active');
+    showView(t === 'home' ? 'home' : t);
+  });
+});
+
+document.querySelectorAll('#viewToggle .view-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const v = btn.dataset.view;
+    state.view = v;
+    document.querySelectorAll('#viewToggle .view-btn').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    if(v === 'parent'){
+      showView('admin');
+    } else {
+      const activeTab = document.querySelector('#tabs .tab.active');
+      showView(activeTab ? activeTab.dataset.tab : 'home');
+    }
+    saveState();
+    render();
+  });
+});
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>{
+    if(v.dataset.view === name) v.classList.add('active');
+    else v.classList.remove('active');
+  });
+  // 任务/商店/记录需要时显示
+}
+
+// 初始化视角
+document.querySelectorAll('#viewToggle .view-btn').forEach(b=>{
+  b.classList.toggle('active', b.dataset.view === state.view);
+});
+if(state.view === 'parent') showView('admin');
+
+// ============================================================
+// 交互：任务点击 / 奖励点击
+// ============================================================
+document.addEventListener('click', (e)=>{
+  const taskEl = e.target.closest('.task');
+  if(taskEl){
+    const t = TASKS.find(x=>x.id===taskEl.dataset.task);
+    if(t && !taskEl.classList.contains('done')) completeTask(t);
+    return;
+  }
+  const rewardEl = e.target.closest('.reward');
+  if(rewardEl){
+    if(rewardEl.classList.contains('disabled')) return;
+    const r = REWARDS.find(x=>x.id===rewardEl.dataset.reward);
+    if(r) redeemReward(r);
+  }
+});
+
+// ============================================================
+// 模态框
+// ============================================================
+let modalCallback = null;
+
+function showModal({emoji, title, sub, actions, input}){
+  let html = '';
+  if(emoji) html += `<div class="confirm-emoji">${emoji}</div>`;
+  html += `<div class="modal-title">${title}</div>`;
+  if(sub) html += `<div class="modal-sub">${sub}</div>`;
+  if(input){
+    html += `<div style="margin-top:8px"><input type="number" class="setting-input" id="modalInput" value="${input.value||0}" min="${input.min||0}" max="${input.max||9999}" style="width:100%;font-size:18px;padding:12px"></div>`;
+  }
+  if(actions && actions.length){
+    html += `<div class="modal-actions">`;
+    for(const a of actions){
+      html += `<button class="btn ${a.cls||''}" data-act="${actions.indexOf(a)}">${a.label}</button>`;
+    }
+    html += `</div>`;
+  }
+  $('modalContent').innerHTML = html;
+  $('modal').classList.add('show');
+  // 绑定 action
+  if(actions){
+    document.querySelectorAll('.modal-actions .btn').forEach(btn=>{
+      const a = actions[parseInt(btn.dataset.act)];
+      btn.addEventListener('click', ()=>{
+        const v = input ? document.getElementById('modalInput').value : null;
+        if(a.onClick) a.onClick(v);
+      });
+    });
+  }
+}
+function closeModal(){ $('modal').classList.remove('show'); }
+$('modal').addEventListener('click', (e)=>{
+  if(e.target.id === 'modal') closeModal();
+});
+
+// ============================================================
+// 动效
+// ============================================================
+function burst(){
+  const layer = $('particleLayer');
+  const colors = ['#FF4D2E','#FFD60A','#06D6A0','#3A86FF','#9D4EDD','#FF006E'];
+  const num = 12;
+  const cx = window.innerWidth / 2;
+  const cy = 200;
+  for(let i=0;i<num;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const angle = (i / num) * Math.PI * 2;
+    const dist = 80 + Math.random() * 80;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+    p.style.cssText = `
+      left:${cx}px;top:${cy}px;
+      background:${colors[i%colors.length]};
+      --dx:${dx}px;--dy:${dy}px;
+      width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(), 1200);
+  }
+}
+
+function giftPop(emoji){
+  const layer = $('particleLayer');
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  for(let i=0;i<8;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emoji;
+    p.style.fontSize = '24px';
+    p.style.background = 'transparent';
+    const angle = (i / 8) * Math.PI * 2;
+    const dist = 100 + Math.random() * 60;
+    p.style.cssText += `
+      left:${cx}px;top:${cy}px;
+      --dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist - 40}px;
+    `;
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(), 1500);
+  }
+}
+
+function shake(el){
+  el.style.transition = 'transform .1s';
+  el.style.transform = 'translateX(-6px)';
+  setTimeout(()=>{el.style.transform='translateX(6px)'},100);
+  setTimeout(()=>{el.style.transform='translateX(-4px)'},200);
+  setTimeout(()=>{el.style.transform='translateX(0)'},300);
+}
+
+// ============================================================
+// Toast
+// ============================================================
+function toast(msg, type=''){
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  $('toastLayer').appendChild(t);
+  setTimeout(()=>t.remove(), 2200);
+}
+
+// ============================================================
+// 爸妈控制台：操作
+// ============================================================
+$('cfgExpire').addEventListener('change', e=>{
+  state.cfg.expireRate = Math.max(0, Math.min(50, parseInt(e.target.value)||0));
+  saveState(); render();
+  toast(`过期比例已设为 ${state.cfg.expireRate}%`);
+});
+$('cfgInit').addEventListener('change', e=>{
+  state.cfg.initBal = Math.max(0, parseInt(e.target.value)||0);
+  saveState();
+});
+$('cfgExpireOn').addEventListener('click', e=>{
+  state.cfg.expireOn = !state.cfg.expireOn;
+  e.currentTarget.classList.toggle('on', state.cfg.expireOn);
+  saveState(); render();
+  toast(state.cfg.expireOn ? '过期机制已开启' : '过期机制已关闭');
+});
+
+$('btnAddBonus').addEventListener('click', ()=>{
+  showModal({
+    emoji:'🎁',
+    title:'发放奖励积分',
+    sub:'直接给 Max 发放一笔 Bonus C，不绑定任务。',
+    input:{label:'积分', value:10, min:1, max:9999},
+    actions:[
+      {label:'取消', cls:''},
+      {label:'发放', cls:'primary', onClick:(v)=>{
+        const n = parseInt(v)||0;
+        if(n<=0) return;
+        addRecord('in', n, `🎁 爸妈奖励 +${n}`);
+        burst();
+        render();
+        toast(`已发放 ${n} C`, 'success');
+        closeModal();
+      }},
+    ]
+  });
+});
+
+$('btnExport').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `max-credits-${dayStr()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('已导出数据', 'success');
+});
+
+$('btnImport').addEventListener('click', ()=> $('fileInput').click());
+$('fileInput').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    try{
+      const obj = JSON.parse(ev.target.result);
+      state = Object.assign(defaultState(), obj);
+      saveState(); render();
+      toast('已导入数据', 'success');
+    }catch(err){ toast('导入失败：JSON 格式错误', 'error'); }
+  };
+  r.readAsText(f);
+});
+
+$('btnReset').addEventListener('click', ()=>{
+  showModal({
+    emoji:'⚠️',
+    title:'重置全部数据？',
+    sub:'将清空余额、记录、设置，且不可恢复。',
+    actions:[
+      {label:'取消', cls:''},
+      {label:'确认重置', cls:'danger', onClick:()=>{
+        state = defaultState();
+        saveState(); render();
+        toast('已重置', 'error');
+        closeModal();
+      }},
+    ]
+  });
+});
+
+// ============================================================
+// 启动
+// ============================================================
+checkMonthlyExpire();
+render();
+
+// 调试：暴露到 window（支持字符串ID快捷调用）
+window.MAX = {
+  state, TASKS, REWARDS,
+  doTask(id){ const t = TASKS.find(x=>x.id===id); if(t) completeTask(t); else console.warn('task not found:',id); },
+  doReward(id){ const r = REWARDS.find(x=>x.id===id); if(r) redeemReward(r); else console.warn('reward not found:',id); },
+  reset(){ state = defaultState(); saveState(); render(); },
+};
+
+console.log('%c MAX\'s CREDITS v1.2 ', 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px;');
+console.log('数据存储键：', STORAGE_KEY);
+console.log('可用方法：window.MAX.doTask("t_dawn") / window.MAX.doReward("r_cash") / window.MAX.reset()');
+
+</script>
+</body>
+</html>

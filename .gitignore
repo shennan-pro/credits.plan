@@ -1,0 +1,5 @@
+# 临时/诊断产物
+_chrome_profile*/
+_diag*/
+*.tmp
+.DS_Store
