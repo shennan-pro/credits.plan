@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>MAX's CREDITS  ·  v1.5.0</title>
+<title>Max's Credits Plan · v1.6.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -897,15 +897,15 @@ body{overflow-x:clip;}
   <header class="topbar" data-page-node-id="6AOhuoGgJBHXjVFjdj6i1t">
     <div class="brand" data-page-node-id="Y1oBeseHljDj9EXdTLhScu">
       <div class="brand-mark" data-page-node-id="Kfme7Mk4nqzS0BLeazFkQB"><span data-page-node-id="echXr9ctXKJkUFcZxrYf7v">⚡</span></div>
-      <div class="brand-text" data-page-node-id="LRzYBMA5Nl7vxDdWEzDl6C">MAX<em data-page-node-id="9qvS0jNGB1hYojZiYhWNMp">'S</em> CREDITS</div>
+      <div class="brand-text" id="brandText" data-page-node-id="LRzYBMA5Nl7vxDdWEzDl6C">MAX<em data-page-node-id="9qvS0jNGB1hYojZiYhWNMp">'S</em> CREDITS PLAN</div>
     </div>
-    <div class="mini-balance" id="miniBal"><span class="coin">M</span><b id="miniBalNum">0</b></div>
+    <div class="mini-balance" id="miniBal"><span class="coin" id="miniCoin">M</span><b id="miniBalNum">0</b></div>
     <div class="view-toggle" id="viewToggle">
       <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
       <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
     </div>
     <div class="topbar-right" data-page-node-id="IlKWeaNHCUqCxOdjQxos4H">
-      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.5.0</span>
+      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.6.0</span>
     </div>
   </header>
 
@@ -917,7 +917,7 @@ body{overflow-x:clip;}
           <div class="balance-label" data-page-node-id="T68OOeSFjEUanf9TKoex8G">当前余额 / Balance</div>
           <div class="balance-num" data-page-node-id="b5Ft0W1I74036WVB4EQEMf">
             <span class="num" id="balNum">0</span>
-            <span class="unit"><span class="coin coin-lg">M</span></span>
+            <span class="unit"><span class="coin coin-lg" id="unitCoin">M</span></span>
           </div>
         </div>
         <div class="balance-stats" data-page-node-id="YFXtK2sDXFQkVjFLx2zBXE">
@@ -1152,7 +1152,7 @@ body{overflow-x:clip;}
           <div class="setting-row" data-page-node-id="kl7aQwEHOcTnmnxveuEWI5">
             <div data-page-node-id="T964JC46rkc0vbMgEVPDkr">
               <div class="setting-label" data-page-node-id="kPJMdvwVrlj4NNEMotWm65">起步余额</div>
-              <div class="setting-desc" data-page-node-id="VCc82KxbmSVDxO49XHXSVt">重置时的初始 C</div>
+              <div class="setting-desc" data-page-node-id="VCc82KxbmSVDxO49XHXSVt">重置时的初始 Credits</div>
             </div>
             <input type="number" class="setting-input" id="cfgInit" value="0" min="0" data-page-node-id="IDHEbxbIZP0tG79HR6ZBTv">
           </div>
@@ -1170,12 +1170,33 @@ body{overflow-x:clip;}
             </div>
             <div class="toggle on" id="cfgSound"></div>
           </div>
-          <div class="setting-row" data-page-node-id="IK87fAOFfnsOLp1L1Bt52C">
-            <div data-page-node-id="CXpdkKdXkEFbzJby5Hx1LV">
-              <div class="setting-label" data-page-node-id="sfRRfz4a1rhAyTsiVazSi2">管理员 PIN</div>
-              <div class="setting-desc" data-page-node-id="OwKWlx15dYevCHvONjlyNw">留空 = 无需验证；设 4 位数字后进后台要验证</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">孩子英文名</div>
+              <div class="setting-desc">必填。品牌名「XX's Credits Plan」与货币首字母随之更新</div>
             </div>
-            <input type="text" inputmode="numeric" class="setting-input" id="cfgPin" placeholder="空" maxlength="4" data-page-node-id="DfSxiFGVgIUwjBwLp8TKxR">
+            <input type="text" class="setting-input" id="cfgChildName" placeholder="Max" maxlength="12">
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">管理员邮箱</div>
+              <div class="setting-desc">登录后台 + 找回密码的凭证</div>
+            </div>
+            <input type="email" class="setting-input" id="cfgAdminEmail" placeholder="parent@mail.com">
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">管理员密码</div>
+              <div class="setting-desc">至少 4 位，只存哈希不存明文</div>
+            </div>
+            <input type="password" class="setting-input" id="cfgAdminPass" placeholder="未设置">
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">保存管理员账号</div>
+              <div class="setting-desc">保存后进后台需邮箱 + 密码登录；忘记密码可用邮箱找回</div>
+            </div>
+            <button class="btn" id="btnAdminSave" style="padding:10px 18px;background:var(--mc-red);color:#fff"><span>💾 保存</span></button>
           </div>
         </div>
       </div>
@@ -1219,7 +1240,7 @@ body{overflow-x:clip;}
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.5.0 · 2026-09-05</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.6.0 · 2026-09-06</span>
     </div>
   </footer>
 </div>
@@ -1364,8 +1385,10 @@ const defaultState = () => ({
   totalOut: 0,
   cfg: {
     expireRate: 10, initBal: 0, expireOn: true,
-    pin: '',          // 管理员 PIN（空 = 免验证）
+    pin: '',          // 管理员 PIN（旧版兼容；设置账号后清空）
     sound: true,      // 得分音效开关
+    childName: '',    // 孩子英文名（必填，空则回落 CHILD_NAME）
+    admin: {email: '', passHash: ''},   // 管理员账号：邮箱 + 密码哈希（找回凭证）
     taskOv: {},       // 任务覆盖：{taskId: {val?, off?}}
     rewardOv: {},     // 奖励覆盖：{rewardId: {cost?, off?}}
   },
@@ -1431,9 +1454,49 @@ const rewardOff  = r => !!state.cfg.rewardOv[r.id]?.off;
 const activeTasks   = () => TASKS.filter(t => !taskOff(t));
 const activeRewards = () => REWARDS.filter(r => !rewardOff(r));
 
-// Credits 货币符号 = 孩子名字首字母 + 金色硬币（换孩子改这里即可）
-const CHILD_INITIAL = 'M';
+// Credits 货币符号 = 孩子名字首字母 + 金色硬币
+// 孩子英文名：默认 Max，后台「系统设置 → 孩子英文名」可改（必填，留空回落默认）
+const CHILD_NAME = 'Max';
+const childName = () => (String(state.cfg.childName || '').trim() || CHILD_NAME);
+const childInitial = () => childName()[0].toUpperCase();
 const COIN = '🪙';
+
+// 品牌名渲染：{NAME}'S CREDITS PLAN（页眉 / 标签页标题）
+function renderBrand(){
+  const n = childName();
+  const el = $('brandText');
+  if(el) el.innerHTML = `${esc(n.toUpperCase())}<em>'S</em> CREDITS PLAN`;
+  const uc = $('unitCoin');
+  if(uc) uc.textContent = childInitial();
+  const mc = $('miniCoin');
+  if(mc) mc.textContent = childInitial();
+  document.title = `${n}'s Credits Plan · v1.6.0`;
+}
+
+// SHA-256：优先 Web Crypto；无 secure context 时降级为弱哈希（家庭场景够用，注释标明）
+async function sha256(text){
+  try{
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text)));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }catch(e){
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    const t = String(text);
+    for(let i = 0; i < t.length; i++){
+      const ch = t.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 'w' + (h2 >>> 0).toString(16) + (h1 >>> 0).toString(16);   // 弱哈希兜底，非加密级
+  }
+}
+
+function maskEmail(e){
+  e = String(e);
+  const i = e.indexOf('@');
+  return i <= 1 ? e : e[0] + '***' + e.slice(i);
+}
 
 // ---------- 得分音效：Web Audio 现场合成，零素材零版权 ----------
 let _audio = null;
@@ -1706,7 +1769,7 @@ function renderShop(){
           ${r.tag ? `<div class="reward-tag">${r.tag}</div>` : ''}
           <div class="reward-emoji">${r.emoji}</div>
           <div class="reward-name">${esc(r.name)}</div>
-          <div class="reward-cost">${cost}<span class="coin coin-sm">${CHILD_INITIAL}</span></div>
+          <div class="reward-cost">${cost}<span class="coin coin-sm">${childInitial()}</span></div>
         </div>`;
     }
     html += '</div></div>';
@@ -1741,7 +1804,11 @@ function renderAdmin(){
 
   $('cfgExpire').value = state.cfg.expireRate;
   $('cfgInit').value   = state.cfg.initBal;
-  $('cfgPin').value    = state.cfg.pin || '';
+  $('cfgChildName').value = childName();
+  $('cfgAdminEmail').value = state.cfg.admin?.email || '';
+  const passEl = $('cfgAdminPass');
+  passEl.value = '';
+  passEl.placeholder = state.cfg.admin?.passHash ? '已设置（输入新密码可覆盖）' : '未设置';
   $('cfgExpireOn').classList.toggle('on', state.cfg.expireOn);
   $('cfgSound').classList.toggle('on', state.cfg.sound !== false);
 }
@@ -1925,26 +1992,99 @@ function exportCSV(){
   toast(`已导出 ${state.records.length} 条记录`, 'success');
 }
 
-// 管理员 PIN：设了就必须验证，防止孩子自己改数据
-function requestAdminAccess(){
-  if(!state.cfg.pin){
-    setViewMode('parent');
+// 管理员认证：邮箱+密码账号优先，旧版 PIN 兼容；都未设置则直接进入
+async function requestAdminAccess(){
+  const admin = state.cfg.admin;
+  if(admin && admin.email && admin.passHash){
+    showModal({
+      emoji:'🔐',
+      title:'管理员登录',
+      sub:`请输入管理员邮箱和密码（注册邮箱 ${maskEmail(admin.email)} 可用于找回密码）`,
+      fields:[
+        {id:'loginEmail', type:'email', placeholder:'邮箱'},
+        {id:'loginPass', type:'password', placeholder:'密码'},
+      ],
+      actions:[
+        {label:'取消'},
+        {label:'忘记密码?', onClick:() => {closeModal(); forgotPassword();}},
+        {label:'登录', cls:'primary', onClick:async v => {
+          const hash = await sha256(String(v.loginPass || ''));
+          if(String(v.loginEmail || '').trim().toLowerCase() !== admin.email || hash !== admin.passHash){
+            toast('邮箱或密码不正确', 'error');
+            return;
+          }
+          closeModal();
+          setViewMode('parent');
+          toast('👋 欢迎回来，管理员');
+        }},
+      ],
+    });
+    return;
+  }
+  if(state.cfg.pin){
+    showModal({
+      emoji:'🔐',
+      title:'管理员验证',
+      sub:'请输入 4 位管理员 PIN（建议在系统设置里升级为邮箱 + 密码账号）',
+      input:{value:'', min:0, max:9999},
+      actions:[
+        {label:'取消'},
+        {label:'进入后台', cls:'primary', onClick:v => {
+          if(String(v).trim() !== String(state.cfg.pin)){
+            toast('PIN 不正确', 'error');
+            return;
+          }
+          closeModal();
+          setViewMode('parent');
+        }},
+      ],
+    });
+    return;
+  }
+  setViewMode('parent');
+}
+
+// 忘记密码：本地校验注册邮箱后直接重置。云同步版本将升级为邮件验证码。
+function forgotPassword(){
+  const admin = state.cfg.admin;
+  if(!admin || !admin.email){
+    toast('未设置管理员邮箱，无法找回', 'error');
     return;
   }
   showModal({
-    emoji:'🔐',
-    title:'管理员验证',
-    sub:'请输入 4 位管理员 PIN（在系统设置里可修改）',
-    input:{value:'', min:0, max:9999},
+    emoji:'📮',
+    title:'找回密码',
+    sub:`请输入注册邮箱（${maskEmail(admin.email)}）完成校验`,
+    fields:[{id:'fpEmail', type:'email', placeholder:'注册邮箱'}],
     actions:[
       {label:'取消'},
-      {label:'进入后台', cls:'primary', onClick:v => {
-        if(String(v).trim() !== String(state.cfg.pin)){
-          toast('PIN 不正确', 'error');
+      {label:'下一步', cls:'primary', onClick:v => {
+        if(String(v.fpEmail || '').trim().toLowerCase() !== admin.email){
+          toast('邮箱不匹配', 'error');
           return;
         }
         closeModal();
-        setViewMode('parent');
+        showModal({
+          emoji:'🔑',
+          title:'设置新密码',
+          sub:'密码至少 4 位，保存后请牢记新密码',
+          fields:[
+            {id:'np1', type:'password', placeholder:'新密码'},
+            {id:'np2', type:'password', placeholder:'再输一遍'},
+          ],
+          actions:[
+            {label:'取消'},
+            {label:'保存新密码', cls:'primary', onClick:async v => {
+              const p1 = String(v.np1 || ''), p2 = String(v.np2 || '');
+              if(p1.length < 4){toast('密码至少 4 位', 'error'); return;}
+              if(p1 !== p2){toast('两次输入不一致', 'error'); return;}
+              state.cfg.admin.passHash = await sha256(p1);
+              saveState(); render();
+              toast('✅ 密码已重置，请用新密码登录', 'success');
+              closeModal();
+            }},
+          ],
+        });
       }},
     ],
   });
@@ -2018,13 +2158,23 @@ document.addEventListener('click', e => {
   }
 });
 
-// 轻量确认框：actions 每项 {label, cls, onClick(value)}
-function showModal({emoji, title, sub, actions = [], input}){
+// 轻量确认框：actions 每项 {label, cls, onClick}
+// 单输入：input:{value,min,max} → onClick(value)
+// 多输入：fields:[{id,type,value,placeholder}] → onClick(values 对象)
+function showModal({emoji, title, sub, actions = [], input, fields}){
+  const flds = fields || (input ? [{id:'modalInput', type:'number', value:input.value, min:input.min, max:input.max}] : null);
+  const legacy = !fields && !!input;
   const parts = [];
   if(emoji) parts.push(`<div class="confirm-emoji">${emoji}</div>`);
   parts.push(`<div class="modal-title">${title}</div>`);
   if(sub)   parts.push(`<div class="modal-sub">${sub}</div>`);
-  if(input) parts.push(`<div style="margin-top:8px"><input type="number" class="setting-input" id="modalInput" value="${input.value ?? 0}" min="${input.min ?? 0}" max="${input.max ?? 9999}" style="width:100%;font-size:18px;padding:12px"></div>`);
+  if(flds){
+    parts.push('<div style="margin-top:8px">' + flds.map(f =>
+      `<div style="margin-bottom:8px"><input type="${f.type || 'text'}" class="setting-input" id="${f.id}" value="${f.value ?? ''}" placeholder="${f.placeholder || ''}"` +
+      (f.type === 'number' ? ` min="${f.min ?? 0}" max="${f.max ?? 9999}"` : '') +
+      ' style="width:100%;font-size:16px;padding:12px;text-align:left"></div>'
+    ).join('') + '</div>');
+  }
   if(actions.length){
     parts.push('<div class="modal-actions">' +
       actions.map((a, i) => `<button class="btn ${a.cls || ''}" data-act="${i}">${a.label}</button>`).join('') +
@@ -2037,7 +2187,13 @@ function showModal({emoji, title, sub, actions = [], input}){
   $('modalContent').querySelectorAll('.modal-actions .btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = actions[parseInt(btn.dataset.act, 10)];
-      action.onClick?.(input ? $('modalInput').value : null);
+      if(!flds){
+        action.onClick?.(null);
+        return;
+      }
+      const values = {};
+      flds.forEach(f => {const el2 = $(f.id); values[f.id] = el2 ? el2.value : null;});
+      action.onClick?.(legacy ? values.modalInput : values);
     });
   });
 }
@@ -2177,11 +2333,38 @@ $('cfgSound').addEventListener('click', () => {
   toast(state.cfg.sound ? '🔊 得分音效已开启' : '🔇 得分音效已关闭');
 });
 
-$('cfgPin').addEventListener('change', e => {
-  const v = String(e.target.value || '').replace(/\D/g, '').slice(0, 4);
-  state.cfg.pin = v;
+// 孩子英文名：必填，留空回落默认
+$('cfgChildName').addEventListener('change', e => {
+  const v = String(e.target.value || '').trim();
+  if(!v){
+    state.cfg.childName = CHILD_NAME;
+    e.target.value = CHILD_NAME;
+    saveState(); renderBrand(); render();
+    toast(`孩子英文名必填，已回落为 ${CHILD_NAME}`, 'error');
+    return;
+  }
+  state.cfg.childName = v;
+  saveState(); renderBrand(); render();
+  toast(`品牌名已更新：${v}'s Credits Plan`, 'success');
+});
+
+// 保存管理员账号（邮箱 + 密码哈希），替代旧版 PIN
+$('btnAdminSave').addEventListener('click', async () => {
+  const email = String($('cfgAdminEmail').value || '').trim().toLowerCase();
+  const pass = String($('cfgAdminPass').value || '');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    toast('请输入有效的邮箱地址', 'error');
+    return;
+  }
+  if(pass.length < 4){
+    toast('密码至少 4 位', 'error');
+    return;
+  }
+  state.cfg.admin = {email, passHash: await sha256(pass)};
+  state.cfg.pin = '';
   saveState(); render();
-  toast(v ? `管理员 PIN 已设为 ${v}` : '已取消管理员 PIN');
+  $('cfgAdminPass').value = '';
+  toast('✅ 管理员账号已保存，进后台需登录', 'success');
 });
 
 $('btnReset').addEventListener('click', () => {
@@ -2262,7 +2445,7 @@ function coinPop(fromEl){
   const r = fromEl.getBoundingClientRect();
   const el = document.createElement('div');
   el.className = 'coin coin-pop';
-  el.textContent = CHILD_INITIAL;
+  el.textContent = childInitial();
   el.style.left = (r.left + r.width / 2) + 'px';
   el.style.top  = (r.top + r.height / 2) + 'px';
   $('particleLayer').appendChild(el);
@@ -2290,6 +2473,8 @@ function toast(msg, type = ''){
 // 规则调参 / 数据管理 在宽屏下通栏显示
 $('adminRulesCard').classList.add('wide');
 
+renderBrand();   // 品牌：{NAME}'S CREDITS PLAN + 货币首字母
+
 // 吸顶迷你余额：余额卡滚出视口后常驻顶栏
 const _balSection = document.querySelector('.balance-wrap');
 window.addEventListener('scroll', () => {
@@ -2312,8 +2497,8 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c MAX\'s CREDITS v1.5.0 ', 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
-console.log('存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.6.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
 function runSelfTest(){

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="ahviqye8Fgu78kwrtSkpNw">
+<head data-page-node-id="C7t0GvnUTYIAb940Fz7Jft">
+<meta charset="UTF-8" data-page-node-id="KTf04YltpIHR8W2GzkeBwb">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="7RL65rwXxgBjbsLSJoG6Gv">
+<title>演示 · 管理员登录与找回流程 · Max's Credits Plan</title>
+<style>
+  :root{
+    --red:#E52521; --blue:#049CD8; --yellow:#FBD000; --green:#43B047;
+    --ink:#3A2E1F; --cream:#FFFDF5; --cream2:#FFF4DD; --line:3px solid var(--ink);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+    background:linear-gradient(180deg,#7EC8F2 0%,#BFE9FB 60%,#E8F7C9 100%);
+    min-height:100vh;padding:24px 16px 60px;color:#2B2118;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+  header{background:linear-gradient(180deg,#F5493F,#E52521 55%,#C41E1A);border:var(--line);
+    border-radius:14px;padding:16px 20px;margin-bottom:18px;box-shadow:5px 5px 0 var(--ink)}
+  header h1{color:#fff;font-size:19px;text-shadow:0 2px 0 var(--ink)}
+  header p{color:#FFE9B8;font-size:12px;font-weight:700;margin-top:6px;line-height:1.6}
+  .step{background:var(--cream);border:var(--line);border-radius:14px;margin-bottom:16px;
+    box-shadow:5px 5px 0 var(--ink);overflow:hidden}
+  .step-head{background:var(--cream2);border-bottom:var(--line);padding:12px 16px;
+    display:flex;align-items:center;gap:10px}
+  .step-num{width:28px;height:28px;background:var(--yellow);border:var(--line);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+  .step-head b{font-size:14px}
+  .step-body{padding:16px}
+  .hint{font-size:12px;color:#6B5B47;font-weight:700;line-height:1.7;margin-bottom:12px}
+  .row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+  input{flex:1;min-width:160px;padding:11px 12px;font-size:14px;font-weight:700;
+    border:var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus{outline:none;background:var(--yellow)}
+  button{padding:11px 18px;font-size:13px;font-weight:900;cursor:pointer;
+    border:var(--line);border-radius:10px;background:#fff;box-shadow:3px 3px 0 var(--ink);
+    transition:all .12s}
+  button:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+  button:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+  button.primary{background:var(--blue);color:#fff}
+  button.warn{background:var(--yellow);color:var(--ink)}
+  .msg{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:800;
+    margin-top:10px;display:none;line-height:1.6}
+  .msg.ok{display:block;background:#E4F7DC;border:2px solid var(--green);color:#1E6B2A}
+  .msg.err{display:block;background:#FDE4E2;border:2px solid var(--red);color:#8E1712}
+  pre{background:var(--ink);color:#BFE9FB;border-radius:10px;padding:14px;font-size:11px;
+    line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-all}
+  .coin{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+    border-radius:50%;background:radial-gradient(circle at 32% 28%,#FFF3A8 0 26%,#FFD34D 26% 62%,#E8A614 62% 100%);
+    border:2px solid #A87708;color:#7A5608;font-weight:900;font-size:12px;vertical-align:-5px}
+  footer{text-align:center;font-size:11px;color:#6B5B47;font-weight:700;margin-top:20px}
+</style>
+</head>
+<body data-page-node-id="R4IWtwCfjTAA37V0xWmTt2">
+<div class="wrap" data-page-node-id="oFDQOLsbhbpX53KfaJzT4O">
+  <header data-page-node-id="U7LjkNS63YpKrMQFWpr3Hm">
+    <h1 data-page-node-id="oylOIAoPoijWJrDnSky1pU">🔐 演示 · 管理员登录与找回流程</h1>
+    <p data-page-node-id="VApWfMQWs29rzDWaBgqut0">本页面复刻主程序 <b data-page-node-id="Ng7ljM0JCjawhnIorW153m">index.html</b> 的管理员账号逻辑（独立存储键 <b data-page-node-id="Re5bl3nrQnjszMmPoX7X6B">max_demo_admin</b>，不影响正式数据）。<br data-page-node-id="CMJb1Jbik6s1kHyDGdktmd">
+    按步骤 1→5 依次操作即可完整走通：设置账号 → 登录 → 忘记密码 → 邮箱校验 → 重置密码。</p>
+  </header>
+
+  <!-- 步骤 1 -->
+  <div class="step" data-page-node-id="38w0Q3z7AwweVP0Za9YPdT">
+    <div class="step-head" data-page-node-id="C0IjxeJ3dcat9RXBOuUuSy"><span class="step-num" data-page-node-id="gntuxIIfED7shSd9iVKs9B">1</span><b data-page-node-id="BiwQ38rySQjuRzQILkdbEK">设置管理员账号（邮箱 + 密码）</b></div>
+    <div class="step-body" data-page-node-id="qICTcmDWIAaDeP4l5nhQ87">
+      <div class="hint" data-page-node-id="5TGyaWN7diPZkoDSQS2ciY">相当于在主程序「爸妈后台 → 系统设置」里保存账号。密码只存 SHA-256 哈希，不存明文。</div>
+      <div class="row" data-page-node-id="AOhuGu3QyWxVhFSIKa335n">
+        <input type="email" id="s1Email" placeholder="邮箱，如 parent@mail.com" data-page-node-id="SM4Gs5BrubJss1nKnqPH4U">
+        <input type="password" id="s1Pass" placeholder="密码，至少 4 位" data-page-node-id="QpiaqBP2PKVlPzQJNOGgHZ">
+        <button class="primary" onclick="doSetup()" data-page-node-id="B5fWGdABrejxPd3g9tkMRd">💾 保存账号</button>
+      </div>
+      <div class="msg" id="s1Msg" data-page-node-id="utaAa1qoji03SHnW83AjPb"></div>
+    </div>
+  </div>
+
+  <!-- 步骤 2 -->
+  <div class="step" data-page-node-id="eSkDbApAW3bLGc4UJGKn5l">
+    <div class="step-head" data-page-node-id="xMMChLRQHCevkFJux3fJt1"><span class="step-num" data-page-node-id="NkmhSJVOoF7FwgsmJ8Ct4q">2</span><b data-page-node-id="xKym4V9Oj4VxHyUPXyR9N3">登录验证（先试错误密码，再试正确密码）</b></div>
+    <div class="step-body" data-page-node-id="F2HiFJJZm0qun1gOev6I34">
+      <div class="hint" data-page-node-id="rHwobB1umGSNPlGgTk2PqX">对应主程序：点击顶栏「爸妈」按钮时弹出的登录框。邮箱或密码错误会被拦下。</div>
+      <div class="row" data-page-node-id="O0WMiIoAMxTvl2xkmBr3ei">
+        <input type="email" id="s2Email" placeholder="邮箱" data-page-node-id="lgKN0PGRBHwWIrIdedIMD4">
+        <input type="password" id="s2Pass" placeholder="密码" data-page-node-id="DZNVayQ8PWpAwsP3B1Cq1g">
+        <button class="primary" onclick="doLogin()" data-page-node-id="8z73pJm8CKvzcdiAbiajbx">🔐 登录</button>
+      </div>
+      <div class="msg" id="s2Msg" data-page-node-id="AJSQ0e5BErtv9foho3FyPv"></div>
+    </div>
+  </div>
+
+  <!-- 步骤 3 -->
+  <div class="step" data-page-node-id="S7VzNMZ3MomTMUSEDj4CJa">
+    <div class="step-head" data-page-node-id="mJLGELPaiDl88jr21RM5j7"><span class="step-num" data-page-node-id="SMMmiKssDBRQko1WEXEBF7">3</span><b data-page-node-id="RbZl9quLZuMgc0c0s70C7T">忘记密码 → 邮箱校验</b></div>
+    <div class="step-body" data-page-node-id="IvdDLggeUB1Y86nmyvK1QQ">
+      <div class="hint" data-page-node-id="kQ25Wdq04L3uGyNimOqDxE">登录框里点「忘记密码?」后要求输入注册邮箱。只有与注册邮箱完全一致才能进入重置。<br data-page-node-id="VVoFvBihhxdl1I98jmbWcu">
+      <b data-page-node-id="SB6VMShsbUyaDeBdCzxmeP">本地版说明：</b>现在是本地比对；云同步版本会升级为「邮箱验证码」，防他人在本机乱重置。</div>
+      <div class="row" data-page-node-id="eX0gVsB1Q3gFisNuZzyGQW">
+        <input type="email" id="s3Email" placeholder="注册邮箱" data-page-node-id="PrIggLuYRMATGzTGcTN3UO">
+        <button class="warn" onclick="doVerifyEmail()" data-page-node-id="ANdcDBNNx43KH7WaWZAbox">📮 校验邮箱</button>
+      </div>
+      <div class="msg" id="s3Msg" data-page-node-id="8rw0tUHIoM7bccRpf6OGyY"></div>
+    </div>
+  </div>
+
+  <!-- 步骤 4 -->
+  <div class="step" data-page-node-id="LjqD1sClUHvVur8dBWCOhj">
+    <div class="step-head" data-page-node-id="5Bum3Sr6cy7fuQ5PUdwoam"><span class="step-num" data-page-node-id="aIXHcFjya6TkKHjmNGg7GR">4</span><b data-page-node-id="0oyx3jqhYQp1CjMoIB7EIm">设置新密码</b></div>
+    <div class="step-body" data-page-node-id="I6qwh9cJKbHF5aMEdHXGGm">
+      <div class="hint" data-page-node-id="f7FfcOygHZHYPL3WlU6AvW">邮箱校验通过后（本演示在步骤 3 通过后自动解锁此步），两次输入新密码完成重置。</div>
+      <div class="row" data-page-node-id="73GTzxusEQpLpOCcDviLUe">
+        <input type="password" id="s4New1" placeholder="新密码" data-page-node-id="EieIxUkkKmMFYX75ou8GyJ">
+        <input type="password" id="s4New2" placeholder="再输一遍" data-page-node-id="AUKhg5MeazRLy8AQDX8BYO">
+        <button class="primary" onclick="doReset()" data-page-node-id="hq3VBjhaZ6VsH0LX4WjIRR">🔑 保存新密码</button>
+      </div>
+      <div class="msg" id="s4Msg" data-page-node-id="ewd7CCOJv90YZO9P2XaN4N"></div>
+    </div>
+  </div>
+
+  <!-- 步骤 5 -->
+  <div class="step" data-page-node-id="YTQX0CkuwzSDv9IFi77qRF">
+    <div class="step-head" data-page-node-id="g23zmX7FXWldoC9oVWdt0W"><span class="step-num" data-page-node-id="kfTFjVpdPTqGC0QOstc9zJ">5</span><b data-page-node-id="ZAz6PgwHiWjM4bsjJLFXKa">查看本地存储（可随时打开核对）</b></div>
+    <div class="step-body" data-page-node-id="K3TdyvUlkExrCpfVAHeDGk">
+      <div class="hint" data-page-node-id="jFhIQoFLYyy1C7VCpeCFAp">密码永远只以哈希形式存在。passHash 前 12 位相同 = 同一个密码。</div>
+      <button onclick="refreshStore()" data-page-node-id="A31MqyHjj3w2rUw9Fl6jfR">🔄 刷新存储状态</button>
+      <pre id="storeView" data-page-node-id="TR5WSfyTxq78Z9l8BHy44o">点击上方按钮查看 localStorage</pre>
+    </div>
+  </div>
+
+  <footer data-page-node-id="ldM5xUWbXrKMmc9YkQRi05">Max's Credits Plan · 管理员登录演示 · v1.6.0 · <span class="coin" data-page-node-id="GJDKEn1a2ax3TMC3fafxZE">M</span></footer>
+</div>
+
+<script>
+'use strict';
+var KEY = 'max_demo_admin';
+var verifiedEmail = false;   // 步骤 3 通过的标记
+
+function $(id){ return document.getElementById(id); }
+function show(id, ok, text){
+  var el = $(id);
+  el.className = 'msg ' + (ok ? 'ok' : 'err');
+  el.textContent = (ok ? '✅ ' : '❌ ') + text;
+}
+function loadAcct(){
+  try{ return JSON.parse(localStorage.getItem(KEY)) || {email:'', passHash:''}; }
+  catch(e){ return {email:'', passHash:''}; }
+}
+function saveAcct(a){ localStorage.setItem(KEY, JSON.stringify(a)); refreshStore(); }
+
+// 与主程序一致的 SHA-256（弱哈希兜底）
+async function sha256(text){
+  try{
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text)));
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }catch(e){
+    var h1=0xdeadbeef,h2=0x41c6ce57,t=String(text);
+    for(var i=0;i<t.length;i++){var ch=t.charCodeAt(i);
+      h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+    h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+    h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+    return 'w'+(h2>>>0).toString(16)+(h1>>>0).toString(16);
+  }
+}
+
+// 步骤 1：设置账号
+async function doSetup(){
+  var email = $('s1Email').value.trim().toLowerCase();
+  var pass = $('s1Pass').value;
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show('s1Msg', false, '请输入有效邮箱');
+  if(pass.length < 4) return show('s1Msg', false, '密码至少 4 位');
+  var hash = await sha256(pass);
+  saveAcct({email: email, passHash: hash});
+  show('s1Msg', true, '账号已保存：' + email + '（passHash=' + hash.slice(0,12) + '…）');
+}
+
+// 步骤 2：登录
+async function doLogin(){
+  var a = loadAcct();
+  if(!a.email) return show('s2Msg', false, '请先完成步骤 1 设置账号');
+  var hash = await sha256($('s2Pass').value);
+  if($('s2Email').value.trim().toLowerCase() === a.email && hash === a.passHash){
+    show('s2Msg', true, '登录成功！主程序里会在这里放行进入「爸妈后台」');
+  }else{
+    show('s2Msg', false, '邮箱或密码不正确（主程序会 toast 提示并留在当前页）');
+  }
+}
+
+// 步骤 3：邮箱校验
+function doVerifyEmail(){
+  var a = loadAcct();
+  if(!a.email) return show('s3Msg', false, '请先完成步骤 1 设置账号');
+  if($('s3Email').value.trim().toLowerCase() === a.email){
+    verifiedEmail = true;
+    show('s3Msg', true, '邮箱匹配！步骤 4 已解锁，请设置新密码');
+  }else{
+    verifiedEmail = false;
+    show('s3Msg', false, '邮箱不匹配，无法重置');
+  }
+}
+
+// 步骤 4：重置密码
+async function doReset(){
+  if(!verifiedEmail) return show('s4Msg', false, '请先在步骤 3 通过邮箱校验');
+  var p1 = $('s4New1').value, p2 = $('s4New2').value;
+  if(p1.length < 4) return show('s4Msg', false, '密码至少 4 位');
+  if(p1 !== p2) return show('s4Msg', false, '两次输入不一致');
+  var a = loadAcct();
+  a.passHash = await sha256(p1);
+  saveAcct(a);
+  verifiedEmail = false;
+  show('s4Msg', true, '密码已重置！可回到步骤 2 用新密码登录验证');
+}
+
+// 步骤 5：查看存储
+function refreshStore(){
+  var a = loadAcct();
+  var view = a.email ? JSON.stringify({
+    email: a.email,
+    passHash: a.passHash.slice(0, 12) + '…（共 ' + a.passHash.length + ' 位，不存明文）'
+  }, null, 2) : '（尚未设置账号）';
+  $('storeView').textContent = 'localStorage["' + KEY + '"] =\n' + view;
+}
+refreshStore();
+</script>
+</body>
+</html>
