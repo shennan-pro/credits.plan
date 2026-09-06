@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v1.6.0</title>
+<title>Max's Credits Plan · v1.7.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -772,7 +772,90 @@ body{overflow-x:clip;}
   .topbar,.balance-wrap,.tabs,.content,.bottombar{max-width:1380px;}
 }
 
-/* ---- 尊重系统「减少动态效果」设置 */
+/* ============================================================
+   v1.7.0 追加 · 初始向导 / 后台分组 / 工坊编辑 / 三套主题
+   ============================================================ */
+
+/* ---- 初始向导 ---- */
+.wiz-mask{
+  display:none;position:fixed;inset:0;z-index:400;
+  background:rgba(42,33,24,.55);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.wiz-mask.show{display:flex;}
+.wiz-box{
+  width:100%;max-width:520px;background:var(--mc-cream);
+  border:var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow-3);padding:26px 24px;
+  animation:pop .35s cubic-bezier(.2,.8,.3,1.2);
+}
+.wiz-brand{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-round);font-size:20px;font-weight:900;
+  color:var(--mc-ink);letter-spacing:.04em;margin-bottom:6px;
+}
+.wiz-sub{font-size:12px;font-weight:800;color:var(--text-3);margin-bottom:18px}
+.wiz-title{font-size:16px;font-weight:900;color:var(--mc-ink);margin-bottom:8px;
+  font-family:var(--font-round)}
+.wiz-hint{font-size:12px;font-weight:700;color:var(--text-2);line-height:1.7;margin-bottom:14px}
+.wiz-row{display:flex;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.wiz-row input{flex:1;min-width:150px;padding:13px 14px;font-size:15px;font-weight:800;
+  border:var(--border-thin);border-radius:10px;background:#fff;color:var(--text)}
+.wiz-row input:focus{outline:none;background:var(--mc-yellow)}
+.wiz-err{font-size:12px;font-weight:800;color:var(--mc-red);min-height:18px;margin-top:4px}
+
+/* ---- 后台运营 / 定制分组 ---- */
+.ag-tabs{display:flex;gap:8px;margin-bottom:16px}
+.ag-pill{
+  flex:1;padding:12px;font-size:14px;font-weight:900;cursor:pointer;
+  border:var(--border-thin);border-radius:999px;background:var(--mc-cream);
+  color:var(--text-2);box-shadow:var(--shadow-1);transition:all .15s;
+  font-family:var(--font-round);
+}
+.ag-pill.active{
+  background:var(--mc-yellow);color:var(--mc-ink);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 3px 0 var(--mc-ink);
+  transform:translateY(-1px);
+}
+.view.active[data-view="admin"] .card.ag-custom{display:none;}
+body[data-amode="custom"] .view.active[data-view="admin"] .card.ag-ops{display:none;}
+body[data-amode="custom"] .view.active[data-view="admin"] .card.ag-custom{display:block;}
+
+/* ---- 工坊编辑行 ---- */
+.ri-edit{
+  width:30px;height:30px;flex:0 0 30px;border:2px solid var(--mc-ink);border-radius:8px;
+  background:var(--mc-cream);cursor:pointer;font-size:13px;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:transform .12s;
+}
+.ri-edit:hover{transform:scale(1.12);background:var(--mc-yellow);}
+.ri-del{background:#FDE4E2;}
+
+/* ---- 外观选择按钮组 ---- */
+.opt-group{display:flex;gap:8px;flex-wrap:wrap}
+.opt{
+  flex:1;min-width:100px;padding:10px 8px;font-size:12px;font-weight:800;
+  border:var(--border-thin);border-radius:10px;background:var(--mc-cream);
+  color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .12s;
+}
+.opt:hover{transform:translateY(-2px);box-shadow:var(--shadow-1);}
+.opt.on{background:var(--mc-yellow);color:var(--mc-ink);border-color:var(--mc-ink);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 2px 0 var(--mc-ink);}
+.opt-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--mc-ink);flex-shrink:0;}
+
+/* ---- 三套配色主题（变量级覆盖，默认 arcade 不动） ---- */
+html[data-theme="sweet"]{
+  --mc-red:#FF6FA5; --mc-blue:#C9A0F0; --mc-yellow:#FFD9EC; --mc-green:#7ED9A8;
+  --mc-ink:#5C3A4A; --mc-sky:#FFD9EC; --mc-sky-2:#FFEDF6;
+  --primary:#FF6FA5; --accent:#FFD9EC; --accent-2:#7ED9A8; --info:#C9A0F0;
+}
+html[data-theme="funny"]{
+  --mc-red:#FF7A00; --mc-blue:#8C52FF; --mc-yellow:#B6F34A; --mc-green:#00C2A8;
+  --mc-ink:#2A2A3A; --mc-sky:#C8F0FF; --mc-sky-2:#E4FBEA;
+  --primary:#FF7A00; --accent:#B6F34A; --accent-2:#00C2A8; --info:#8C52FF;
+}
+
+/* 尊重系统「减少动态效果」设置 */
 @media (prefers-reduced-motion:reduce){
   .fly-score, .is-shaking, .particle{animation-duration:.01ms !important;}
 }
@@ -905,7 +988,7 @@ body{overflow-x:clip;}
       <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
     </div>
     <div class="topbar-right" data-page-node-id="IlKWeaNHCUqCxOdjQxos4H">
-      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.6.0</span>
+      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.7.0</span>
     </div>
   </header>
 
@@ -1029,7 +1112,11 @@ body{overflow-x:clip;}
 
     <!-- 爸妈控制台 -->
     <div class="view" data-view="admin" data-page-node-id="RCQimeRZqJLigtaOgAy805">
-      <div class="card" data-page-node-id="7g0xeScTFSWA79RR5CwkKk">
+      <div class="ag-tabs wide">
+        <button class="ag-pill active" data-ag="ops">📊 运营</button>
+        <button class="ag-pill" data-ag="custom">🎨 定制工坊</button>
+      </div>
+      <div class="card ag-ops" data-page-node-id="7g0xeScTFSWA79RR5CwkKk">
         <div class="card-head" data-page-node-id="5DZspki2Cu1vmeyzBtOjU1">
           <div class="card-title" data-page-node-id="HZxBXb96JFZtDu3FXjzfOP"><span class="dot" data-page-node-id="fK7wL21oWOXZDazLhYWoxg"></span>运营总览</div>
         </div>
@@ -1112,20 +1199,22 @@ body{overflow-x:clip;}
         </div>
       </div>
 
-      <div class="card" id="adminRulesCard" data-page-node-id="cBlQrQzWxACItG3Yvz9utL">
+      <div class="card ag-custom" id="adminRulesCard" data-page-node-id="cBlQrQzWxACItG3Yvz9utL">
         <div class="card-head" data-page-node-id="nYvxA6OS6KOZmgBVZDDRTG">
-          <div class="card-title yellow" data-page-node-id="X2Et8hy8uvmdm7Pq88uXNC"><span class="dot" data-page-node-id="TUL1osjLQKHpFXEdkBXzOi"></span>规则调参</div>
+          <div class="card-title yellow" data-page-node-id="X2Et8hy8uvmdm7Pq88uXNC"><span class="dot" data-page-node-id="TUL1osjLQKHpFXEdkBXzOi"></span>任务 & 奖励工坊</div>
           <div class="tag tag-yellow" data-page-node-id="CDLej3ZZB0vLrUNX9Vz1Iz">改完即生效</div>
         </div>
         <div class="card-body" data-page-node-id="IklJPrH4QnaDGEADcfB7hl">
           <div class="rule-panel" data-page-node-id="S0Pcb5jJJduq4nwlqHLRf6">
             <div data-page-node-id="VE1L1eP3ENrnoX952Jv7qj">
-              <div class="rule-col-head" data-page-node-id="ETcw9EZzGBDmTfCofTzihZ">任务分值 / 启停</div>
+              <div class="rule-col-head" data-page-node-id="ETcw9EZzGBDmTfCofTzihZ">✏️ 任务 · 灵魂区（内容 / 分值 / 启停）</div>
               <div class="rule-list" id="ruleTasks" data-page-node-id="yQwFcyXsVH0BWWEAApZ0le"></div>
+              <button class="btn" id="btnAddTask" style="margin-top:10px;width:100%;background:var(--mc-blue);color:#fff"><span>➕ 新增任务</span></button>
             </div>
             <div data-page-node-id="GOtkmiXOOFJKl39NF2aUPf">
-              <div class="rule-col-head" data-page-node-id="GV9UG01ZPddRug6NZGqJBS">奖励价格 / 上下架</div>
+              <div class="rule-col-head" data-page-node-id="GV9UG01ZPddRug6NZGqJBS">✏️ 奖励 · 大块区（内容 / 价格 / 上下架）</div>
               <div class="rule-list" id="ruleRewards" data-page-node-id="WMUglWO0eIV27fDQX4dsZj"></div>
+              <button class="btn" id="btnAddReward" style="margin-top:10px;width:100%;background:var(--mc-green);color:#fff"><span>➕ 新增奖励</span></button>
             </div>
           </div>
           <div class="admin-actions row" style="margin-top:14px" data-page-node-id="TRyslLDu9BWnnCCbgrs0VR">
@@ -1198,10 +1287,66 @@ body{overflow-x:clip;}
             </div>
             <button class="btn" id="btnAdminSave" style="padding:10px 18px;background:var(--mc-red);color:#fff"><span>💾 保存</span></button>
           </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">重新运行初始向导</div>
+              <div class="setting-desc">改孩子名 / 补设家长账号，可随时重走一遍</div>
+            </div>
+            <button class="btn" id="btnWizard" style="padding:10px 18px"><span>🧭 打开向导</span></button>
+          </div>
         </div>
       </div>
 
-      <div class="card" data-page-node-id="KjXl4RrzSNTqFF0Sd0QS25">
+      <div class="card ag-custom">
+        <div class="card-head">
+          <div class="card-title blue"><span class="dot"></span>外观与体验</div>
+          <div class="tag tag-yellow">点谁谁生效</div>
+        </div>
+        <div class="card-body">
+          <div class="rule-col-head">🎨 配色主题</div>
+          <div class="opt-group" id="optTheme">
+            <button class="opt" data-theme-v="arcade"><span class="opt-dot" style="background:linear-gradient(135deg,#E52521,#049CD8,#FBD000)"></span>街机冒险</button>
+            <button class="opt" data-theme-v="sweet"><span class="opt-dot" style="background:linear-gradient(135deg,#FF6FA5,#C9A0F0,#FFE08A)"></span>甜美少女</button>
+            <button class="opt" data-theme-v="funny"><span class="opt-dot" style="background:linear-gradient(135deg,#FF7A00,#8C52FF,#B6F34A)"></span>搞怪撞色</button>
+          </div>
+          <div class="rule-col-head" style="margin-top:16px">🔊 音效风格</div>
+          <div class="opt-group" id="optSfx">
+            <button class="opt" data-sfx-v="retro">🎮 复古方波</button>
+            <button class="opt" data-sfx-v="soft">🌙 柔和三角</button>
+            <button class="opt" data-sfx-v="silly">🤪 滑稽锯齿</button>
+          </div>
+          <div class="rule-col-head" style="margin-top:16px">✨ 特效档位</div>
+          <div class="opt-group" id="optFx">
+            <button class="opt" data-fx-v="full">🎆 全开</button>
+            <button class="opt" data-fx-v="mini">🌙 轻量</button>
+            <button class="opt" data-fx-v="off">🔇 关闭</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card ag-custom">
+        <div class="card-head">
+          <div class="card-title"><span class="dot"></span>账号与安全</div>
+        </div>
+        <div class="card-body">
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">修改管理员密码</div>
+              <div class="setting-desc">需验证旧密码；未设账号请先在「系统设置」保存</div>
+            </div>
+            <button class="btn" id="btnChangePass" style="padding:10px 18px"><span>🔑 修改密码</span></button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">孩子档案</div>
+              <div class="setting-desc" id="secChildInfo"></div>
+            </div>
+            <button class="btn" id="btnSecWizard" style="padding:10px 18px"><span>🧭 修改档案</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card ag-ops" data-page-node-id="KjXl4RrzSNTqFF0Sd0QS25">
         <div class="card-head" data-page-node-id="lMiJDcs0sEAp0ONYLoBAkD">
           <div class="card-title" data-page-node-id="WmdI40KrKARpngEO9wVoeb"><span class="dot" data-page-node-id="nCntnzFL6JbEPrdWqGpkXm"></span>数据管理</div>
         </div>
@@ -1240,7 +1385,7 @@ body{overflow-x:clip;}
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.6.0 · 2026-09-06</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.7.0 · 2026-09-06</span>
     </div>
   </footer>
 </div>
@@ -1256,6 +1401,45 @@ body{overflow-x:clip;}
   <div class="modal" id="modalBox" data-page-node-id="gXcCnFMavQHmULHtICIfMu">
     <div class="modal-handle" data-page-node-id="IhkFUzTYeNVXdqgU8DSHlG"></div>
     <div id="modalContent" data-page-node-id="Op4qrZ7o3L1DVeNCp1LxX6"></div>
+  </div>
+</div>
+
+<!-- 初始向导：孩子档案 + 家长账号 -->
+<div class="wiz-mask" id="wiz">
+  <div class="wiz-box">
+    <div class="wiz-brand"><span class="coin coin-lg" id="wizCoin">M</span><b id="wizBrand">CREDITS PLAN</b></div>
+    <div class="wiz-sub">三步建好你家专属的积分宇宙 ✨</div>
+
+    <div class="wiz-step" id="wizStep1">
+      <div class="wiz-title">① 孩子档案</div>
+      <div class="wiz-hint">孩子是积分的主人：完成任务、兑换奖励。先给孩子起个英文名（必填）。</div>
+      <div class="wiz-row">
+        <input type="text" id="wizChild" placeholder="孩子英文名，如 Max / Tom / Lily" maxlength="12">
+        <button class="btn" style="background:var(--mc-blue);color:#fff" onclick="wizNext1()">下一步 →</button>
+      </div>
+      <div class="wiz-err" id="wizErr1"></div>
+    </div>
+
+    <div class="wiz-step" id="wizStep2" style="display:none">
+      <div class="wiz-title">② 家长账号（管理员）</div>
+      <div class="wiz-hint">家长默认管理员：能看全部数据、调规则、改密码。孩子无法进入后台。<br>邮箱用于找回密码。也可以先跳过，之后在「系统设置」里补。</div>
+      <div class="wiz-row" style="flex-direction:column;align-items:stretch">
+        <input type="email" id="wizEmail" placeholder="家长邮箱，如 parent@mail.com">
+        <input type="password" id="wizPass" placeholder="密码（至少 4 位）">
+      </div>
+      <div class="wiz-row">
+        <button class="btn" onclick="wizBack1()">← 上一步</button>
+        <button class="btn" onclick="wizSkip()">稍后再设</button>
+        <button class="btn" style="background:var(--mc-red);color:#fff" onclick="wizFinish()">🎉 创建完成</button>
+      </div>
+      <div class="wiz-err" id="wizErr2"></div>
+    </div>
+
+    <div class="wiz-step" id="wizStep3" style="display:none">
+      <div class="wiz-title">③ 搞定！</div>
+      <div class="wiz-hint" id="wizDoneText"></div>
+      <button class="btn" style="background:var(--mc-green);color:#fff;padding:14px 26px" onclick="wizClose()">开始赚 Credits 🚀</button>
+    </div>
   </div>
 </div>
 
@@ -1389,6 +1573,12 @@ const defaultState = () => ({
     sound: true,      // 得分音效开关
     childName: '',    // 孩子英文名（必填，空则回落 CHILD_NAME）
     admin: {email: '', passHash: ''},   // 管理员账号：邮箱 + 密码哈希（找回凭证）
+    setupDone: false, // 初始向导是否已完成
+    theme: 'arcade',  // 外观主题：arcade 街机 | sweet 甜美 | funny 搞怪
+    sfxStyle: 'retro',// 音效风格：retro 复古 | soft 柔和 | silly 滑稽
+    fx: 'full',       // 特效档位：full 全开 | mini 轻量 | off 关闭
+    customTasks: [],  // 自定义任务（工坊新增）
+    customRewards: [],// 自定义奖励（工坊新增）
     taskOv: {},       // 任务覆盖：{taskId: {val?, off?}}
     rewardOv: {},     // 奖励覆盖：{rewardId: {cost?, off?}}
   },
@@ -1451,8 +1641,33 @@ const taskVal    = t => state.cfg.taskOv[t.id]?.val ?? t.val;
 const taskOff    = t => !!state.cfg.taskOv[t.id]?.off;
 const rewardCost = r => state.cfg.rewardOv[r.id]?.cost ?? r.cost;
 const rewardOff  = r => !!state.cfg.rewardOv[r.id]?.off;
-const activeTasks   = () => TASKS.filter(t => !taskOff(t));
-const activeRewards = () => REWARDS.filter(r => !rewardOff(r));
+// 工坊合并视图：内置常量 + 覆盖 + 自定义，UI 渲染统一走这里
+function mergedTasks(){
+  const ov = state.cfg.taskOv || {};
+  const base = TASKS.map(t => ({
+    ...t,
+    emoji: ov[t.id]?.emoji ?? t.emoji,
+    type:  ov[t.id]?.type  ?? t.type,
+    text:  ov[t.id]?.text  ?? t.text,
+    val:   ov[t.id]?.val   ?? t.val,
+    off:   !!ov[t.id]?.off,
+  }));
+  return base.concat((state.cfg.customTasks || []).map(t => ({...t, off: !!t.off})));
+}
+function mergedRewards(){
+  const ov = state.cfg.rewardOv || {};
+  const base = REWARDS.map(r => ({
+    ...r,
+    emoji: ov[r.id]?.emoji ?? r.emoji,
+    name:  ov[r.id]?.name  ?? r.name,
+    note:  ov[r.id]?.note  ?? r.note,
+    cost:  ov[r.id]?.cost  ?? r.cost,
+    off:   !!ov[r.id]?.off,
+  }));
+  return base.concat((state.cfg.customRewards || []).map(r => ({...r, off: !!r.off})));
+}
+const activeTasks   = () => mergedTasks().filter(t => !t.off);
+const activeRewards = () => mergedRewards().filter(r => !r.off);
 
 // Credits 货币符号 = 孩子名字首字母 + 金色硬币
 // 孩子英文名：默认 Max，后台「系统设置 → 孩子英文名」可改（必填，留空回落默认）
@@ -1471,6 +1686,75 @@ function renderBrand(){
   const mc = $('miniCoin');
   if(mc) mc.textContent = childInitial();
   document.title = `${n}'s Credits Plan · v1.6.0`;
+}
+
+// ---------- 初始向导：孩子档案 + 家长账号 ----------
+function wizShow(){
+  $('wiz').classList.add('show');
+  $('wizStep1').style.display = '';
+  $('wizStep2').style.display = 'none';
+  $('wizStep3').style.display = 'none';
+  $('wizChild').value = childName();
+  const n = childName();
+  $('wizBrand').textContent = n.toUpperCase() + "'S CREDITS PLAN";
+  $('wizCoin').textContent = childInitial();
+}
+function wizNext1(){
+  const v = String($('wizChild').value || '').trim();
+  if(!v){
+    $('wizErr1').textContent = '孩子英文名必填哦';
+    return;
+  }
+  $('wizErr1').textContent = '';
+  state.cfg.childName = v;
+  saveState(); renderBrand();
+  $('wizBrand').textContent = v.toUpperCase() + "'S CREDITS PLAN";
+  $('wizCoin').textContent = childInitial();
+  $('wizStep1').style.display = 'none';
+  $('wizStep2').style.display = '';
+}
+function wizBack1(){
+  $('wizStep2').style.display = 'none';
+  $('wizStep1').style.display = '';
+}
+async function wizFinish(){
+  const email = String($('wizEmail').value || '').trim().toLowerCase();
+  const pass = String($('wizPass').value || '');
+  if(email || pass){
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      $('wizErr2').textContent = '邮箱格式不对（或点「稍后再设」跳过）';
+      return;
+    }
+    if(pass.length < 4){
+      $('wizErr2').textContent = '密码至少 4 位（或点「稍后再设」跳过）';
+      return;
+    }
+    state.cfg.admin = {email, passHash: await sha256(pass)};
+    state.cfg.pin = '';
+  }
+  $('wizErr2').textContent = '';
+  state.cfg.setupDone = true;
+  saveState();
+  $('wizStep2').style.display = 'none';
+  $('wizStep3').style.display = '';
+  $('wizDoneText').innerHTML =
+    `孩子档案：<b>${esc(childName())}</b>（货币首字母 <span class="coin">${childInitial()}</span>）<br>` +
+    (state.cfg.admin.email ? `管理员：${esc(maskEmail(state.cfg.admin.email))}（进后台需登录）` : '管理员账号：稍后在「系统设置」里补');
+  render();
+}
+function wizSkip(){
+  $('wizErr2').textContent = '';
+  $('wizStep2').style.display = 'none';
+  $('wizStep3').style.display = '';
+  state.cfg.setupDone = true;
+  saveState();
+  $('wizDoneText').innerHTML = `孩子档案：<b>${esc(childName())}</b> 已建好。家长账号可稍后在「系统设置」里补设。`;
+  render();
+}
+function wizClose(){
+  $('wiz').classList.remove('show');
+  render();
+  toast(`🎉 欢迎来到 ${childName()}'s Credits Plan！`, 'success');
 }
 
 // SHA-256：优先 Web Crypto；无 secure context 时降级为弱哈希（家庭场景够用，注释标明）
@@ -1519,11 +1803,19 @@ function tone(freq, dur, type, vol, delay){
     o.start(t0); o.stop(t0 + dur + 0.02);
   }catch(e){ /* 音频不可用时静默 */ }
 }
+function sfxWave(){
+  return {retro:'square', soft:'triangle', silly:'sawtooth'}[state.cfg.sfxStyle] || 'square';
+}
 const sfx = {
-  coin(){ tone(1046, .1, 'square', .09); tone(1568, .38, 'square', .09, .1); },
-  reward(){ [523, 659, 784, 1046].forEach((f, i) => tone(f, .2, 'triangle', .11, i * .09)); },
-  undo(){ tone(660, .1, 'square', .08); tone(440, .22, 'square', .08, .1); },
-  milestone(){ [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, .24, 'triangle', .12, i * .1)); },
+  coin(){ const w = sfxWave(); tone(1046, .1, w, .09); tone(1568, .38, w, .09, .1); },
+  reward(){ const w = sfxWave(); [523, 659, 784, 1046].forEach((f, i) => tone(f, .2, w, .1, i * .09)); },
+  undo(){ const w = sfxWave(); tone(660, .1, w, .08); tone(440, .22, w, .08, .1); },
+  milestone(){ const w = sfxWave(); [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, .24, w, .11, i * .1)); },
+};
+// 锯齿音偏刺耳，音量打折
+const _origTone = tone;
+tone = function(freq, dur, type, vol, delay){
+  return _origTone(freq, dur, type, type === 'sawtooth' ? (vol || 0.1) * 0.6 : vol, delay);
 };
 
 // ---------- ④ 核心业务 ----------
@@ -1702,6 +1994,8 @@ function renderBalance(){
 
   $('taskCount').textContent = activeTasks().length + ' 项';
   $('shopCount').textContent = activeRewards().length + ' 件';
+  const sec = $('secChildInfo');
+  if(sec) sec.textContent = `${childName()}（货币首字母 ${childInitial()}）｜管理员 ${state.cfg.admin?.email ? maskEmail(state.cfg.admin.email) : '未设置'}`;
 }
 
 function renderHomeCards(){
@@ -1722,8 +2016,8 @@ function renderHomeCards(){
   $('todayHint').innerHTML = hints.join('');
 
   $('quickTasks').innerHTML = QUICK_IDS
-    .map(id => TASKS.find(t => t.id === id))
-    .filter(t => t && !taskOff(t))
+    .map(id => mergedTasks().find(t => t.id === id))
+    .filter(t => t && !t.off)
     .map(taskItemHTML).join('');
 
   const recent = state.records
@@ -1747,7 +2041,7 @@ const taskItemHTML = t => `
 function renderTaskWall(){
   let html = '';
   for(const key in TASK_GROUPS){
-    const items = TASKS.filter(t => t.group === key && !taskOff(t));
+    const items = mergedTasks().filter(t => t.group === key && !t.off);
     if(!items.length) continue;
     html += `<div class="task-group-label" style="background:${TASK_GROUPS[key].color}">${TASK_GROUPS[key].label} · ${items.length}</div>`;
     html += `<div class="task-list">${items.map(taskItemHTML).join('')}</div>`;
@@ -1758,7 +2052,7 @@ function renderTaskWall(){
 function renderShop(){
   let html = '';
   for(const key in REWARD_CATS){
-    const items = REWARDS.filter(r => r.cat === key && !rewardOff(r));
+    const items = mergedRewards().filter(r => r.cat === key && !r.off);
     if(!items.length) continue;
     html += `<div class="reward-cat"><div class="reward-cat-label" style="background:${REWARD_CATS[key].color}">${REWARD_CATS[key].label} · ${items.length}</div><div class="reward-grid">`;
     for(const r of items){
@@ -1811,29 +2105,224 @@ function renderAdmin(){
   passEl.placeholder = state.cfg.admin?.passHash ? '已设置（输入新密码可覆盖）' : '未设置';
   $('cfgExpireOn').classList.toggle('on', state.cfg.expireOn);
   $('cfgSound').classList.toggle('on', state.cfg.sound !== false);
+  syncOptGroups();
 }
 
 // 规则调参面板：分值 / 价格可改，右侧开关控制启停
 function renderAdminRules(){
-  $('ruleTasks').innerHTML = TASKS.map(t => {
-    const off = taskOff(t);
+  $('ruleTasks').innerHTML = mergedTasks().map(t => {
+    const isCustom = String(t.id).startsWith('c_');
     return `<div class="rule-item">
-      <span class="ri-name ${off ? 'off' : ''}" title="${esc(t.text)}">${t.emoji} ${esc(t.type)}</span>
-      <input type="number" class="ri-val" data-task-val="${t.id}" value="${taskVal(t)}" ${off ? 'disabled' : ''}>
+      <button class="ri-edit" data-edit-task="${t.id}" title="编辑内容">✏️</button>
+      ${isCustom ? `<button class="ri-edit ri-del" data-del-task="${t.id}" title="删除此自定义任务">🗑</button>` : ''}
+      <span class="ri-name ${t.off ? 'off' : ''}" title="${esc(t.text)}">${t.emoji} ${esc(t.type)}</span>
+      <input type="number" class="ri-val" data-task-val="${t.id}" value="${t.val}" ${t.off ? 'disabled' : ''}>
       <span class="ri-unit">${COIN}</span>
-      <div class="toggle sm ${off ? '' : 'on'}" data-task-off="${t.id}"></div>
+      <div class="toggle sm ${t.off ? '' : 'on'}" data-task-off="${t.id}"></div>
     </div>`;
   }).join('');
 
-  $('ruleRewards').innerHTML = REWARDS.map(r => {
-    const off = rewardOff(r);
+  $('ruleRewards').innerHTML = mergedRewards().map(r => {
+    const isCustom = String(r.id).startsWith('c_');
     return `<div class="rule-item">
-      <span class="ri-name ${off ? 'off' : ''}" title="${esc(r.name)}">${r.emoji} ${esc(r.name)}</span>
-      <input type="number" class="ri-val" data-reward-cost="${r.id}" value="${rewardCost(r)}" min="1" ${off ? 'disabled' : ''}>
+      <button class="ri-edit" data-edit-reward="${r.id}" title="编辑内容">✏️</button>
+      ${isCustom ? `<button class="ri-edit ri-del" data-del-reward="${r.id}" title="删除此自定义奖励">🗑</button>` : ''}
+      <span class="ri-name ${r.off ? 'off' : ''}" title="${esc(r.name)}">${r.emoji} ${esc(r.name)}</span>
+      <input type="number" class="ri-val" data-reward-cost="${r.id}" value="${r.cost}" min="1" ${r.off ? 'disabled' : ''}>
       <span class="ri-unit">${COIN}</span>
-      <div class="toggle sm ${off ? '' : 'on'}" data-reward-off="${r.id}"></div>
+      <div class="toggle sm ${r.off ? '' : 'on'}" data-reward-off="${r.id}"></div>
     </div>`;
   }).join('');
+}
+
+// ---------- 工坊：编辑 / 新增 / 删除 ----------
+const groupOptions = () => Object.keys(TASK_GROUPS).map(k => ({v: k, l: TASK_GROUPS[k].label}));
+
+function editTaskModal(id){
+  const isCustom = String(id).startsWith('c_');
+  const t = mergedTasks().find(x => x.id === id);
+  if(!t) return;
+  showModal({
+    emoji:'✏️',
+    title: isCustom ? '编辑自定义任务' : '编辑任务内容',
+    sub:'保存后立即同步到任务墙与首页快捷区',
+    fields:[
+      {id:'etEmoji', value:t.emoji, placeholder:'emoji，如 📚'},
+      {id:'etType', value:t.type, placeholder:'分类名，如 阅读'},
+      {id:'etText', value:t.text, placeholder:'任务描述（孩子看到的）'},
+      {id:'etVal', type:'number', value:t.val, min:-50, max:200},
+      {id:'etGroup', type:'select', value:t.group, options:groupOptions()},
+    ],
+    actions:[
+      {label:'取消'},
+      {label:'保存', cls:'primary', onClick:v => {
+        const patch = {
+          emoji: String(v.etEmoji || '').trim() || t.emoji,
+          type:  String(v.etType || '').trim() || t.type,
+          text:  String(v.etText || '').trim() || t.text,
+          val:   parseInt(v.etVal, 10) || 0,
+          group: v.etGroup || t.group,
+        };
+        if(isCustom){
+          const c = state.cfg.customTasks.find(x => x.id === id);
+          if(c) Object.assign(c, patch);
+        }else{
+          state.cfg.taskOv[id] = Object.assign({}, state.cfg.taskOv[id], patch);
+        }
+        saveState(); render();
+        toast('✅ 任务已更新', 'success');
+        closeModal();
+      }},
+    ],
+  });
+}
+
+function addTaskModal(){
+  showModal({
+    emoji:'➕',
+    title:'新增任务',
+    sub:'保存后出现在任务墙对应分组（自定义任务可删除）',
+    fields:[
+      {id:'etEmoji', value:'⭐', placeholder:'emoji'},
+      {id:'etType', value:'', placeholder:'分类名，如 阅读'},
+      {id:'etText', value:'', placeholder:'任务描述（孩子看到的）'},
+      {id:'etVal', type:'number', value:1, min:-50, max:200},
+      {id:'etGroup', type:'select', value:'daily', options:groupOptions()},
+    ],
+    actions:[
+      {label:'取消'},
+      {label:'创建', cls:'primary', onClick:v => {
+        const type = String(v.etType || '').trim();
+        const text = String(v.etText || '').trim();
+        if(!type || !text){
+          toast('分类名和任务描述都要填哦', 'error');
+          return;
+        }
+        state.cfg.customTasks.push({
+          id: 'c_' + Date.now().toString(36),
+          emoji: String(v.etEmoji || '⭐').trim() || '⭐',
+          type, text,
+          val: parseInt(v.etVal, 10) || 1,
+          group: v.etGroup || 'daily',
+        });
+        saveState(); render();
+        sfx.coin();
+        toast('🎉 新任务已上架任务墙', 'success');
+        closeModal();
+      }},
+    ],
+  });
+}
+
+function confirmDelTask(id){
+  const c = (state.cfg.customTasks || []).find(x => x.id === id);
+  if(!c) return;
+  showModal({
+    emoji:'🗑',
+    title:'删除自定义任务？',
+    sub:`${c.emoji} ${c.type}：${c.text}`,
+    actions:[
+      {label:'取消'},
+      {label:'确认删除', cls:'danger', onClick:() => {
+        state.cfg.customTasks = state.cfg.customTasks.filter(x => x.id !== id);
+        saveState(); render();
+        toast('已删除', 'error');
+        closeModal();
+      }},
+    ],
+  });
+}
+
+function editRewardModal(id){
+  const isCustom = String(id).startsWith('c_');
+  const r = mergedRewards().find(x => x.id === id);
+  if(!r) return;
+  showModal({
+    emoji:'✏️',
+    title: isCustom ? '编辑自定义奖励' : '编辑奖励内容',
+    sub:'保存后立即同步到商店',
+    fields:[
+      {id:'erEmoji', value:r.emoji, placeholder:'emoji'},
+      {id:'erName', value:r.name, placeholder:'奖励名称'},
+      {id:'erCost', type:'number', value:r.cost, min:1, max:9999},
+      {id:'erNote', value:r.note || '', placeholder:'说明（可选，如 一周限一次）'},
+    ],
+    actions:[
+      {label:'取消'},
+      {label:'保存', cls:'primary', onClick:v => {
+        const patch = {
+          emoji: String(v.erEmoji || '').trim() || r.emoji,
+          name:  String(v.erName || '').trim() || r.name,
+          cost:  Math.max(1, parseInt(v.erCost, 10) || r.cost),
+          note:  String(v.erNote || '').trim(),
+        };
+        if(isCustom){
+          const c = state.cfg.customRewards.find(x => x.id === id);
+          if(c) Object.assign(c, patch);
+        }else{
+          state.cfg.rewardOv[id] = Object.assign({}, state.cfg.rewardOv[id], patch);
+        }
+        saveState(); render();
+        toast('✅ 奖励已更新', 'success');
+        closeModal();
+      }},
+    ],
+  });
+}
+
+function addRewardModal(){
+  showModal({
+    emoji:'➕',
+    title:'新增奖励',
+    sub:'保存后出现在商店「日常级」，可再编辑归类价格',
+    fields:[
+      {id:'erEmoji', value:'🎁', placeholder:'emoji'},
+      {id:'erName', value:'', placeholder:'奖励名称'},
+      {id:'erCost', type:'number', value:5, min:1, max:9999},
+      {id:'erNote', value:'', placeholder:'说明（可选）'},
+    ],
+    actions:[
+      {label:'取消'},
+      {label:'创建', cls:'primary', onClick:v => {
+        const name = String(v.erName || '').trim();
+        if(!name){
+          toast('奖励名称要填哦', 'error');
+          return;
+        }
+        state.cfg.customRewards.push({
+          id: 'c_' + Date.now().toString(36),
+          emoji: String(v.erEmoji || '🎁').trim() || '🎁',
+          name,
+          cost: Math.max(1, parseInt(v.erCost, 10) || 5),
+          note: String(v.erNote || '').trim(),
+          cat: 'daily',
+        });
+        saveState(); render();
+        sfx.reward();
+        toast('🎉 新奖励已上架商店', 'success');
+        closeModal();
+      }},
+    ],
+  });
+}
+
+function confirmDelReward(id){
+  const c = (state.cfg.customRewards || []).find(x => x.id === id);
+  if(!c) return;
+  showModal({
+    emoji:'🗑',
+    title:'删除自定义奖励？',
+    sub:`${c.emoji} ${c.name}（${c.cost}${COIN}）`,
+    actions:[
+      {label:'取消'},
+      {label:'确认删除', cls:'danger', onClick:() => {
+        state.cfg.customRewards = state.cfg.customRewards.filter(x => x.id !== id);
+        saveState(); render();
+        toast('已删除', 'error');
+        closeModal();
+      }},
+    ],
+  });
 }
 
 // 数据统计：近 7 天入账柱状图 + 任务 TOP5 + 三个概览数
@@ -1869,7 +2358,7 @@ function renderAdminStats(){
   const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 5);
   $('topTasks').innerHTML = top.length
     ? '<div class="rank-list">' + top.map(([id, n], i) => {
-        const t = TASKS.find(x => x.id === id);
+        const t = mergedTasks().find(x => x.id === id);
         return `<div class="rank-item"><span class="rk">${i + 1}</span>` +
                `<span class="rn">${t ? t.emoji + ' ' + esc(t.type) : esc(id)}</span>` +
                `<span class="rc">×${n}</span></div>`;
@@ -1961,18 +2450,28 @@ function clearTodayDone(){
 }
 
 function toggleTaskOff(id){
+  if(String(id).startsWith('c_')){
+    const c = state.cfg.customTasks.find(x => x.id === id);
+    if(c){ c.off = !c.off; saveState(); render(); toast(`${c.emoji} ${c.type} 已${c.off ? '停用' : '启用'}`); }
+    return;
+  }
   const ov = state.cfg.taskOv[id] || {};
   state.cfg.taskOv[id] = Object.assign({}, ov, {off: !ov.off});
   saveState(); render();
-  const t = TASKS.find(x => x.id === id);
+  const t = mergedTasks().find(x => x.id === id);
   toast(`${t.emoji} ${t.type} 已${state.cfg.taskOv[id].off ? '停用' : '启用'}`);
 }
 
 function toggleRewardOff(id){
+  if(String(id).startsWith('c_')){
+    const c = state.cfg.customRewards.find(x => x.id === id);
+    if(c){ c.off = !c.off; saveState(); render(); toast(`${c.emoji} ${c.name} 已${c.off ? '下架' : '上架'}`); }
+    return;
+  }
   const ov = state.cfg.rewardOv[id] || {};
   state.cfg.rewardOv[id] = Object.assign({}, ov, {off: !ov.off});
   saveState(); render();
-  const r = REWARDS.find(x => x.id === id);
+  const r = mergedRewards().find(x => x.id === id);
   toast(`${r.emoji} ${r.name} 已${state.cfg.rewardOv[id].off ? '下架' : '上架'}`);
 }
 
@@ -2143,9 +2642,29 @@ document.addEventListener('click', e => {
     toggleRewardOff(rewardOffEl.dataset.rewardOff);
     return;
   }
+  const editTaskEl = e.target.closest('[data-edit-task]');
+  if(editTaskEl){
+    editTaskModal(editTaskEl.dataset.editTask);
+    return;
+  }
+  const delTaskEl = e.target.closest('[data-del-task]');
+  if(delTaskEl){
+    confirmDelTask(delTaskEl.dataset.delTask);
+    return;
+  }
+  const editRewardEl = e.target.closest('[data-edit-reward]');
+  if(editRewardEl){
+    editRewardModal(editRewardEl.dataset.editReward);
+    return;
+  }
+  const delRewardEl = e.target.closest('[data-del-reward]');
+  if(delRewardEl){
+    confirmDelReward(delRewardEl.dataset.delReward);
+    return;
+  }
   const taskEl = e.target.closest('.task');
   if(taskEl){
-    const t = TASKS.find(x => x.id === taskEl.dataset.task);
+    const t = mergedTasks().find(x => x.id === taskEl.dataset.task);
     if(!t) return;
     if(taskEl.classList.contains('done')) undoTask(t.id);   // 二次点击 = 撤销
     else completeTask(t, taskEl);
@@ -2153,7 +2672,7 @@ document.addEventListener('click', e => {
   }
   const rewardEl = e.target.closest('.reward');
   if(rewardEl && !rewardEl.classList.contains('disabled')){
-    const r = REWARDS.find(x => x.id === rewardEl.dataset.reward);
+    const r = mergedRewards().find(x => x.id === rewardEl.dataset.reward);
     if(r) redeemReward(r);
   }
 });
@@ -2169,11 +2688,16 @@ function showModal({emoji, title, sub, actions = [], input, fields}){
   parts.push(`<div class="modal-title">${title}</div>`);
   if(sub)   parts.push(`<div class="modal-sub">${sub}</div>`);
   if(flds){
-    parts.push('<div style="margin-top:8px">' + flds.map(f =>
-      `<div style="margin-bottom:8px"><input type="${f.type || 'text'}" class="setting-input" id="${f.id}" value="${f.value ?? ''}" placeholder="${f.placeholder || ''}"` +
-      (f.type === 'number' ? ` min="${f.min ?? 0}" max="${f.max ?? 9999}"` : '') +
-      ' style="width:100%;font-size:16px;padding:12px;text-align:left"></div>'
-    ).join('') + '</div>');
+    parts.push('<div style="margin-top:8px">' + flds.map(f => {
+      if(f.type === 'select'){
+        return `<div style="margin-bottom:8px"><select class="setting-input" id="${f.id}" style="width:100%;font-size:16px;padding:12px;text-align:left">` +
+          f.options.map(o => `<option value="${o.v}" ${o.v === f.value ? 'selected' : ''}>${o.l}</option>`).join('') +
+          '</select></div>';
+      }
+      return `<div style="margin-bottom:8px"><input type="${f.type || 'text'}" class="setting-input" id="${f.id}" value="${f.value ?? ''}" placeholder="${f.placeholder || ''}"` +
+        (f.type === 'number' ? ` min="${f.min ?? 0}" max="${f.max ?? 9999}"` : '') +
+        ' style="width:100%;font-size:16px;padding:12px;text-align:left"></div>';
+    }).join('') + '</div>');
   }
   if(actions.length){
     parts.push('<div class="modal-actions">' +
@@ -2278,9 +2802,14 @@ $('ruleTasks').addEventListener('change', e => {
   if(!id) return;
   const v = parseInt(e.target.value, 10);
   if(Number.isNaN(v)) return;
-  state.cfg.taskOv[id] = Object.assign({}, state.cfg.taskOv[id], {val: v});
+  if(String(id).startsWith('c_')){
+    const c = state.cfg.customTasks.find(x => x.id === id);
+    if(c) c.val = v;
+  }else{
+    state.cfg.taskOv[id] = Object.assign({}, state.cfg.taskOv[id], {val: v});
+  }
   saveState(); render();
-  const t = TASKS.find(x => x.id === id);
+  const t = mergedTasks().find(x => x.id === id);
   toast(`${t.emoji} ${t.type} 分值改为 ${v}${COIN}`);
 });
 
@@ -2288,11 +2817,19 @@ $('ruleRewards').addEventListener('change', e => {
   const id = e.target.dataset.rewardCost;
   if(!id) return;
   const v = Math.max(1, parseInt(e.target.value, 10) || 1);
-  state.cfg.rewardOv[id] = Object.assign({}, state.cfg.rewardOv[id], {cost: v});
+  if(String(id).startsWith('c_')){
+    const c = state.cfg.customRewards.find(x => x.id === id);
+    if(c) c.cost = v;
+  }else{
+    state.cfg.rewardOv[id] = Object.assign({}, state.cfg.rewardOv[id], {cost: v});
+  }
   saveState(); render();
-  const r = REWARDS.find(x => x.id === id);
+  const r = mergedRewards().find(x => x.id === id);
   toast(`${r.emoji} ${r.name} 价格改为 ${v}${COIN}`);
 });
+
+$('btnAddTask').addEventListener('click', addTaskModal);
+$('btnAddReward').addEventListener('click', addRewardModal);
 
 $('btnResetRules').addEventListener('click', () => {
   const n = Object.keys(state.cfg.taskOv).length + Object.keys(state.cfg.rewardOv).length;
@@ -2309,8 +2846,10 @@ $('btnResetRules').addEventListener('click', () => {
       {label:'确认恢复', cls:'danger', onClick:() => {
         state.cfg.taskOv = {};
         state.cfg.rewardOv = {};
+        state.cfg.customTasks = [];
+        state.cfg.customRewards = [];
         saveState(); render();
-        toast('已恢复默认规则');
+        toast('已恢复默认规则（含删除自定义项）');
         closeModal();
       }},
     ],
@@ -2332,6 +2871,8 @@ $('cfgSound').addEventListener('click', () => {
   if(state.cfg.sound) sfx.coin();          // 打开时给一声反馈
   toast(state.cfg.sound ? '🔊 得分音效已开启' : '🔇 得分音效已关闭');
 });
+
+$('btnWizard').addEventListener('click', () => wizShow());
 
 // 孩子英文名：必填，留空回落默认
 $('cfgChildName').addEventListener('change', e => {
@@ -2388,6 +2929,9 @@ $('btnReset').addEventListener('click', () => {
 // ---------- ⑦ 动效层 ----------
 const PARTICLE_COLORS = ['#FF4D2E', '#FFD60A', '#06D6A0', '#3A86FF', '#9D4EDD', '#FF006E'];
 
+// 特效档位系数：full=1 / mini=0.4 / off=0
+const fxK = () => state.cfg.fx === 'full' ? 1 : state.cfg.fx === 'mini' ? 0.4 : 0;
+
 function spawnParticle(layer, css, lifeMs, text){
   const p = document.createElement('div');
   p.className = 'particle';
@@ -2401,6 +2945,7 @@ function spawnParticle(layer, css, lifeMs, text){
 function burst(count = 12){
   const layer = $('particleLayer');
   const cx = window.innerWidth / 2, cy = 200;
+  count = Math.round(count * fxK());
   for(let i = 0; i < count; i++){
     const angle = (i / count) * Math.PI * 2;
     const dist = 80 + Math.random() * 80;
@@ -2415,9 +2960,11 @@ function burst(count = 12){
 
 // 兑换成功：emoji 从屏幕中心炸开
 function giftPop(emoji){
+  if(state.cfg.fx === 'off') return;
   const layer = $('particleLayer');
   const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-  for(let i = 0; i < 8; i++){
+  const n = state.cfg.fx === 'mini' ? 4 : 8;
+  for(let i = 0; i < n; i++){
     const angle = (i / 8) * Math.PI * 2;
     const dist = 100 + Math.random() * 60;
     spawnParticle(layer, `
@@ -2428,7 +2975,7 @@ function giftPop(emoji){
 
 // 得分飞行数字：从被点的任务位置飘起（2.4s 慢渐隐）
 function flyScore(fromEl, text, positive){
-  if(!fromEl) return;
+  if(!fromEl || state.cfg.fx === 'off') return;
   const r = fromEl.getBoundingClientRect();
   const el = document.createElement('div');
   el.className = 'fly-score ' + (positive ? 'in' : 'out');
@@ -2441,7 +2988,7 @@ function flyScore(fromEl, text, positive){
 
 // 金色 M-Coin 从卡片弹出，旋转上升渐隐
 function coinPop(fromEl){
-  if(!fromEl) return;
+  if(!fromEl || state.cfg.fx === 'off') return;
   const r = fromEl.getBoundingClientRect();
   const el = document.createElement('div');
   el.className = 'coin coin-pop';
@@ -2473,7 +3020,119 @@ function toast(msg, type = ''){
 // 规则调参 / 数据管理 在宽屏下通栏显示
 $('adminRulesCard').classList.add('wide');
 
+// ---------- 外观与体验 ----------
+function applyPrefs(){
+  document.documentElement.dataset.theme = state.cfg.theme || 'arcade';
+}
+function syncOptGroups(){
+  const mark = (gid, attr, val) => {
+    const g = $(gid);
+    if(g) g.querySelectorAll('.opt').forEach(b => b.classList.toggle('on', b.dataset[attr] === val));
+  };
+  mark('optTheme', 'themeV', state.cfg.theme || 'arcade');
+  mark('optSfx', 'sfxV', state.cfg.sfxStyle || 'retro');
+  mark('optFx', 'fxV', state.cfg.fx || 'full');
+}
+$('optTheme').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if(!b) return;
+  state.cfg.theme = b.dataset.themeV;
+  saveState(); applyPrefs(); syncOptGroups(); render();
+  toast('🎨 主题已切换：' + b.textContent.trim(), 'success');
+});
+$('optSfx').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if(!b) return;
+  state.cfg.sfxStyle = b.dataset.sfxV;
+  saveState(); syncOptGroups();
+  sfx.coin();   // 试听一声
+  toast('🔊 音效风格：' + b.textContent.trim(), 'success');
+});
+$('optFx').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if(!b) return;
+  state.cfg.fx = b.dataset.fxV;
+  saveState(); syncOptGroups();
+  if(state.cfg.fx !== 'off') burst(14);
+  toast('✨ 特效档位：' + b.textContent.trim(), 'success');
+});
+
+// 修改管理员密码（照 demo-admin 的校验方式：旧密码 → 新密码两遍）
+$('btnChangePass').addEventListener('click', () => {
+  const admin = state.cfg.admin;
+  if(!admin.email || !admin.passHash){
+    toast('未设置管理员账号，请先在「系统设置」保存', 'error');
+    return;
+  }
+  showModal({
+    emoji:'🔑',
+    title:'修改管理员密码',
+    sub:'需验证当前密码',
+    fields:[
+      {id:'cpOld', type:'password', placeholder:'当前密码'},
+      {id:'cpNew1', type:'password', placeholder:'新密码（至少 4 位）'},
+      {id:'cpNew2', type:'password', placeholder:'再输一遍'},
+    ],
+    actions:[
+      {label:'取消'},
+      {label:'保存新密码', cls:'primary', onClick:async v => {
+        const oldH = await sha256(String(v.cpOld || ''));
+        if(oldH !== admin.passHash){
+          toast('当前密码不正确', 'error');
+          return;
+        }
+        const p1 = String(v.cpNew1 || ''), p2 = String(v.cpNew2 || '');
+        if(p1.length < 4){toast('新密码至少 4 位', 'error'); return;}
+        if(p1 !== p2){toast('两次输入不一致', 'error'); return;}
+        state.cfg.admin.passHash = await sha256(p1);
+        saveState(); render();
+        toast('✅ 密码已更新，下次登录用新密码', 'success');
+        closeModal();
+      }},
+    ],
+  });
+});
+$('btnSecWizard').addEventListener('click', () => wizShow());
+
+// ---------- 后台分组：运营 / 定制工坊 ----------
+(function(){
+  const view = document.querySelector('.view[data-view="admin"]');
+  if(!view) return;
+  const rules = [
+    ['运营总览', 'ag-ops'], ['数据统计', 'ag-ops'], ['快捷调整', 'ag-ops'],
+    ['系统设置', 'ag-ops'], ['数据管理', 'ag-ops'],
+    ['任务 & 奖励工坊', 'ag-custom'], ['外观与体验', 'ag-custom'], ['账号与安全', 'ag-custom'],
+  ];
+  view.querySelectorAll(':scope > .card').forEach(card => {
+    const title = card.querySelector('.card-title')?.textContent?.trim() || '';
+    for(const [k, cls] of rules){
+      if(title.includes(k)){
+        card.classList.add(cls);
+        return;
+      }
+    }
+  });
+  view.querySelectorAll('.ag-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      view.querySelectorAll('.ag-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      document.body.dataset.amode = p.dataset.ag;
+      render();
+    });
+  });
+  document.body.dataset.amode = 'ops';
+})();
+
 renderBrand();   // 品牌：{NAME}'S CREDITS PLAN + 货币首字母
+
+applyPrefs();   // 恢复上次选的主题
+
+// 初始向导：全新存档（无任何记录且未完成向导）或地址栏 ?register 时进入
+(function(){
+  const fresh = !localStorage.getItem(STORAGE_KEY) && !state.cfg.setupDone;
+  const blank = state.cfg.setupDone === false && state.balance === 0 && state.records.length === 0;
+  if(fresh || blank || location.search.includes('register')) wizShow();
+})();
 
 // 吸顶迷你余额：余额卡滚出视口后常驻顶栏
 const _balSection = document.querySelector('.balance-wrap');
@@ -2492,12 +3151,12 @@ render();
 window.MAX = {
   get state(){return state;},   // 用 getter，重置后仍指向当前 state
   TASKS, REWARDS,
-  doTask(id){const t = TASKS.find(x => x.id === id); t ? completeTask(t) : console.warn('task not found:', id);},
-  doReward(id){const r = REWARDS.find(x => x.id === id); r ? redeemReward(r) : console.warn('reward not found:', id);},
+  doTask(id){const t = mergedTasks().find(x => x.id === id); t && !t.off ? completeTask(t) : console.warn('task not found:', id);},
+  doReward(id){const r = mergedRewards().find(x => x.id === id); r && !r.off ? redeemReward(r) : console.warn('reward not found:', id);},
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.6.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.7.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -2515,6 +3174,8 @@ function runSelfTest(){
     assert('规则覆盖生效', (state.cfg.taskOv = {t_dawn: {val: 99}}) && taskVal(TASKS[0]) === 99 && (delete state.cfg.taskOv.t_dawn, taskVal(TASKS[0]) === TASKS[0].val)),
     assert('停用过滤生效', (state.cfg.taskOv.t_read = {off: true}) && activeTasks().length === TASKS.length - 1 && (delete state.cfg.taskOv.t_read, true)),
     assert('奖励价格覆盖', (state.cfg.rewardOv.r_cash = {cost: 7}) && rewardCost(REWARDS[0]) === 7 && (delete state.cfg.rewardOv.r_cash, rewardCost(REWARDS[0]) === REWARDS[0].cost)),
+    assert('工坊合并列表', (state.cfg.customTasks.push({id:'c_t1', emoji:'⭐', type:'测试', text:'x', val:1, group:'daily'}), mergedTasks().some(t => t.id === 'c_t1')) && (state.cfg.customTasks.pop(), mergedTasks().every(t => t.id !== 'c_t1'))),
+    assert('主题值合法', ['arcade', 'sweet', 'funny'].includes(state.cfg.theme || 'arcade')),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原
