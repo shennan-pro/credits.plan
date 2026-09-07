@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v1.7.0</title>
+<title>Max's Credits Plan · v1.8.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -114,6 +114,25 @@ body::after{
 }
 
 #app{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;}
+/* web ≥1024：#app 改 grid，topbar/balance/bottombar 跨满，tabs + content 分列 */
+@media (min-width:1024px){
+  #app{
+    display:grid;
+    grid-template-columns:200px 1fr;
+    grid-template-areas:
+      "topbar  topbar"
+      "balance balance"
+      "tabs    content"
+      "bottombar bottombar";
+    column-gap:24px;row-gap:0;
+  }
+  .topbar{grid-area:topbar;}
+  .balance-wrap{grid-area:balance;}
+  .tabs{grid-area:tabs;align-self:start;}
+  .content{grid-area:content;}
+  .bottombar{grid-area:bottombar;}
+  body{overflow-x:clip;}   /* 兜底 */
+}
 
 /* ============================================================
    顶栏
@@ -287,6 +306,29 @@ body::after{
   overflow:hidden;
   padding:8px;
 }
+@media (min-width:1024px){
+  /* sidebar 化：左对齐、隐藏外框、激活态加左侧色条 */
+  .tabs{
+    margin:18px 0 0 20px;
+    width:calc(100% - 20px);
+    flex-direction:column;gap:6px;
+    background:transparent;border:none;border-radius:0;
+    box-shadow:none;padding:0;
+  }
+  .tab{
+    flex:none;justify-content:flex-start;
+    padding:12px 14px;border-radius:10px;
+    border:none;border-left:4px solid transparent;
+    text-align:left;
+  }
+  .tab.active{
+    background:var(--mc-cream);
+    border-color:var(--mc-blue);
+    color:var(--mc-blue);
+    box-shadow:var(--shadow-1);
+  }
+  .tab .icon{margin:0 10px 0 0;display:inline-block;vertical-align:-3px;}
+}
 .tab{
   flex:1;
   padding:14px 8px 12px;
@@ -316,7 +358,7 @@ body::after{
    ============================================================ */
 .content{padding:18px 20px 110px;flex:1;}
 .view{display:none;}
-.view.active{display:block;animation:viewIn .3s ease;}
+.view.active{display:block;animation:viewIn .3s ease forwards;}
 @keyframes viewIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
 /* ============================================================
@@ -762,15 +804,83 @@ body{overflow-x:clip;}
   .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-3);}
 }
 
-/* ---- Web 宽度再放宽一档 + 字号 ---- */
+/* ============================================================
+   v1.8.0 响应断点统一（统一各模块宽度基线）
+   - <768px    单列紧凑
+   - 768-1023  容器 720 居中
+   - 1024-1439 容器 1180，任务/商店/记录 2 列，首页 1.4/1 双栏
+   - ≥1440     容器 1380，任务墙升级 3 列，商店升级 3 列
+   ============================================================ */
 @media (min-width:1024px){
-  .topbar,.balance-wrap,.tabs,.content,.bottombar{max-width:1240px;}
-  .content{padding:26px 32px 120px;}
-  .topbar{padding:16px 26px;}
+  /* 通栏区居中；内容区交给 grid 第二列撑满（auto margin 会阻止 stretch） */
+  .topbar,.balance-wrap,.bottombar{max-width:1180px;margin-left:auto;margin-right:auto;}
+  .balance-wrap{padding-left:0;padding-right:0;}
+  .content{max-width:none;margin:0;padding:24px 24px 120px;}
+  .topbar{padding:16px 22px;}
+
+  .view.active[data-view=home]{
+    grid-template-columns:1.4fr 1fr;gap:18px;align-items:start;
+  }
+  .view.active[data-view=home] > .card:first-child{grid-column:1 / -1;}
+
+  .view.active[data-view=tasks] .card-body{columns:2;column-gap:22px;}
+  .task-group-label{break-after:avoid;}
+  .task-list{break-inside:avoid;margin-bottom:14px;}
+
+  .reward-grid{grid-template-columns:repeat(2, 1fr);gap:16px;}
+
+  #allRecords{columns:2;column-gap:22px;}
+  .record{break-inside:avoid;}
+
+  .view.active[data-view=admin]{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
+  .view.active[data-view=admin] > .card.wide{grid-column:1 / -1;}
+  .admin-grid{grid-template-columns:repeat(3,1fr);}
+
+  .card-body{padding:20px 22px;}
+  .card-head{padding:14px 22px;}
+  .balance{padding:28px;}
 }
 @media (min-width:1440px){
-  .topbar,.balance-wrap,.tabs,.content,.bottombar{max-width:1380px;}
+  .topbar,.balance-wrap,.bottombar{max-width:1380px;}
+  .view.active[data-view="tasks"] .card-body{columns:3;}
+  .reward-grid{grid-template-columns:repeat(3, 1fr);gap:18px;}
 }
+
+/* ============================================================
+   v1.8.0 追加 · 浮动按钮组（▲▼⚙）+ 响应断点统一
+   ============================================================ */
+.floats{
+  display:none;position:fixed;right:16px;bottom:24px;
+  flex-direction:column;gap:10px;z-index:90;
+}
+@media (hover:hover) and (min-width:1024px){
+  /* 仅在桌面端「有 hover 设备」显示浮按钮；移动 / 触屏不显示避免遮挡 */
+  .floats{display:flex;}
+}
+.float-btn{
+  width:48px;height:48px;
+  border:3px solid var(--mc-ink);border-radius:50%;
+  background:var(--mc-cream);color:var(--mc-ink);
+  font-family:var(--font-round);font-weight:900;font-size:18px;
+  box-shadow:var(--shadow-2),inset 0 2px 0 rgba(255,255,255,.5);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .12s, box-shadow .12s, background .12s;
+}
+.float-btn:hover{transform:translateY(-3px) scale(1.08);box-shadow:var(--shadow-3),inset 0 2px 0 rgba(255,255,255,.55);}
+.float-btn:active{transform:translate(2px,2px) scale(.94);box-shadow:1px 1px 0 var(--mc-ink);}
+.float-btn.go{background:var(--mc-yellow);}
+.float-btn.down{background:var(--mc-blue);color:#fff;}
+.float-btn.go:hover{background:var(--mc-yellow);}
+/* 登录后「爸妈」按钮高亮：金色底 + 锁 emoji 标识 */
+.view-btn[data-view="parent"].secured{
+  background:linear-gradient(180deg,#FFE97A,#E8B400);
+  border-color:var(--mc-ink);
+}
+.view-btn[data-view="parent"].secured::after{
+  content:' 🔐';font-size:10px;font-weight:900;
+}
+.float-btn.down:hover{background:var(--mc-blue);}
 
 /* ============================================================
    v1.7.0 追加 · 初始向导 / 后台分组 / 工坊编辑 / 三套主题
@@ -865,40 +975,6 @@ html[data-theme="funny"]{
 .tabs{scrollbar-width:none;-ms-overflow-style:none;}
 
 /* ============================================================
-   v1.4.0 · Web 端布局（≥1024px 真正利用宽屏，不再像放大版手机）
-   ============================================================ */
-@media (min-width:1024px){
-  .topbar,.balance-wrap,.tabs,.content,.bottombar{max-width:1180px;margin-left:auto;margin-right:auto;}
-  .topbar,.balance-wrap,.tabs,.bottombar{border-left:var(--border);border-right:var(--border);}
-  .topbar{border-top:none;}
-  .content{padding:24px 28px 120px;}
-
-  /* 首页：今日推荐通栏，快捷任务 / 最近兑换 左右分栏 */
-  .view.active[data-view="home"]{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:start;}
-  .view.active[data-view="home"] > .card:first-child{grid-column:1 / -1;}
-
-  /* 任务墙：分组双列，标题与列表不跨列断开 */
-  .view.active[data-view="tasks"] .card-body{columns:2;column-gap:22px;}
-  .task-group-label{break-after:avoid;}
-  .task-list{break-inside:avoid;margin-bottom:14px;}
-
-  /* 记录：双列 */
-  #allRecords{columns:2;column-gap:22px;}
-  .record{break-inside:avoid;}
-
-  /* 后台：并排两列 + 通栏卡片 */
-  .view.active[data-view="admin"]{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;grid-auto-flow:row dense;}
-  .view.active[data-view="admin"] > .card.wide{grid-column:1 / -1;}
-  .admin-grid{grid-template-columns:repeat(3,1fr);}
-}
-
-@media (min-width:1440px){
-  .topbar,.balance-wrap,.tabs,.content,.bottombar{max-width:1340px;}
-  .view.active[data-view="tasks"] .card-body{columns:3;}
-  .reward-grid{grid-template-columns:repeat(auto-fill,minmax(176px,1fr));}
-}
-
-/* ============================================================
    v1.4.0 · 超级管理员后台组件
    ============================================================ */
 
@@ -988,7 +1064,7 @@ html[data-theme="funny"]{
       <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
     </div>
     <div class="topbar-right" data-page-node-id="IlKWeaNHCUqCxOdjQxos4H">
-      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.7.0</span>
+      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.8.0</span>
     </div>
   </header>
 
@@ -1385,7 +1461,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.7.0 · 2026-09-06</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.8.0 · 2026-09-06</span>
     </div>
   </footer>
 </div>
@@ -1441,6 +1517,13 @@ html[data-theme="funny"]{
       <button class="btn" style="background:var(--mc-green);color:#fff;padding:14px 26px" onclick="wizClose()">开始赚 Credits 🚀</button>
     </div>
   </div>
+</div>
+
+<!-- 浮按钮组：web 端可见，移动隐藏；卡通立体圆按钮 -->
+<div class="floats" id="floats">
+  <button class="float-btn go"     onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">▲</button>
+  <button class="float-btn down"   onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="滚到底部">▼</button>
+  <button class="float-btn"        onclick="goAdmin()" title="管理员后台">⚙️</button>
 </div>
 
 <input type="file" id="fileInput" accept=".json" style="display:none;" data-page-node-id="3J4lzN1kBceMA9dH7mR68F">
@@ -1754,7 +1837,8 @@ function wizSkip(){
 function wizClose(){
   $('wiz').classList.remove('show');
   render();
-  toast(`🎉 欢迎来到 ${childName()}'s Credits Plan！`, 'success');
+  toast(`🎉 欢迎来到 ${childName()}'s Credits Plan！`);
+  setTimeout(function(){toast('⚙ 设置入口：点击顶栏「爸妈」按钮（或右下角 ⚙）', 'success');}, 1800);
 }
 
 // SHA-256：优先 Web Crypto；无 secure context 时降级为弱哈希（家庭场景够用，注释标明）
@@ -2514,7 +2598,7 @@ async function requestAdminAccess(){
           }
           closeModal();
           setViewMode('parent');
-          toast('👋 欢迎回来，管理员');
+          toast('👋 欢迎回来，管理员！设置已解锁：顶栏「爸妈」或右下角 ⚙', 'success');
         }},
       ],
     });
@@ -2544,6 +2628,16 @@ async function requestAdminAccess(){
 }
 
 // 忘记密码：本地校验注册邮箱后直接重置。云同步版本将升级为邮件验证码。
+// 浮按钮 ⚙️：有账号走登录 modal；无账号直进后台（后台里有「保存账号」入口）
+function goAdmin(){
+  const admin = state.cfg.admin;
+  if(admin && admin.email && admin.passHash){
+    requestAdminAccess();
+    return;
+  }
+  setViewMode('parent');
+}
+
 function forgotPassword(){
   const admin = state.cfg.admin;
   if(!admin || !admin.email){
@@ -3123,6 +3217,11 @@ $('btnSecWizard').addEventListener('click', () => wizShow());
   document.body.dataset.amode = 'ops';
 })();
 
+
+// 顶栏「爸妈」按钮：已设置账号时高亮+锁图标
+document.querySelectorAll('#viewToggle .view-btn[data-view="parent"]').forEach(b => {
+  b.classList.toggle('secured', !!(state.cfg.admin && state.cfg.admin.email));
+});
 renderBrand();   // 品牌：{NAME}'S CREDITS PLAN + 货币首字母
 
 applyPrefs();   // 恢复上次选的主题
@@ -3156,7 +3255,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.7.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.8.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
