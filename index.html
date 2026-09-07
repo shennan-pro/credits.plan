@@ -113,33 +113,17 @@ body::after{
   opacity:0.25;
 }
 
-#app{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;}
-/* web ≥1024：#app 改 grid，topbar/balance/bottombar 跨满，tabs + content 分列 */
-@media (min-width:1024px){
-  #app{
-    display:grid;
-    grid-template-columns:200px 1fr;
-    grid-template-areas:
-      "topbar  topbar"
-      "balance balance"
-      "tabs    content"
-      "bottombar bottombar";
-    column-gap:24px;row-gap:0;
-  }
-  .topbar{grid-area:topbar;}
-  .balance-wrap{grid-area:balance;}
-  .tabs{grid-area:tabs;align-self:start;}
-  .content{grid-area:content;}
-  .bottombar{grid-area:bottombar;}
-  body{overflow-x:clip;}   /* 兜底 */
-}
+#app{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;min-width:360px;}
+body{overflow-x:auto;}
+.hide-sm{display:none;}
+@media (min-width:768px){.hide-sm{display:inline-block;}}
 
 /* ============================================================
    顶栏
    ============================================================ */
 .topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 22px;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
   background:linear-gradient(180deg,#F5493F 0%, var(--mc-red) 55%, #C41E1A 100%);
   border-bottom:var(--border);
   position:sticky;top:0;z-index:50;
@@ -151,37 +135,64 @@ body::after{
   border-top:2px solid rgba(255,255,255,.25);
 }
 .brand{
-  display:flex;align-items:center;gap:12px;
-  font-size:21px;font-weight:900;letter-spacing:0.05em;
+  display:flex;align-items:center;gap:8px;
+  font-size:15px;font-weight:900;letter-spacing:0.04em;
   text-transform:uppercase;color:#fff;
-  font-family:var(--font-round);
+  font-family:var(--font-round);white-space:nowrap;
 }
 .brand-mark{
-  width:44px;height:44px;
+  width:34px;height:34px;
   background:radial-gradient(circle at 32% 28%, #FFE97A 0 30%, var(--mc-yellow) 30% 68%, #E8A614 68% 100%);
-  border:var(--border-thin);
+  border:3px solid var(--mc-ink);
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:24px;
-  box-shadow:var(--shadow-2), inset 0 3px 0 rgba(255,255,255,.45), inset 0 -3px 0 rgba(0,0,0,.18);
+  font-size:19px;
+  box-shadow:var(--shadow-1), inset 0 2px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.18);
   transform:rotate(-6deg);
 }
 .brand-mark span{transform:rotate(6deg);display:block;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25));}
 .brand-text{
   color:#fff;
-  text-shadow:0 3px 0 var(--mc-ink), 0 5px 0 rgba(0,0,0,.25);
+  text-shadow:0 2px 0 var(--mc-ink), 0 4px 0 rgba(0,0,0,.25);
 }
 .brand-text em{
   color:var(--mc-yellow);font-style:normal;
-  text-shadow:0 3px 0 var(--mc-ink), 0 5px 0 rgba(0,0,0,.25);
+  text-shadow:0 2px 0 var(--mc-ink), 0 4px 0 rgba(0,0,0,.25);
 }
+
+.topnav{
+  flex:1;
+  display:flex;align-items:center;justify-content:center;
+  gap:4px;
+  min-width:0;
+  overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+}
+.topnav::-webkit-scrollbar{display:none;}
+.tn-tab{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 10px;
+  border:3px solid transparent;border-radius:999px;
+  background:transparent;color:rgba(255,255,255,.82);
+  font-family:var(--font-round);font-size:12px;font-weight:900;letter-spacing:.02em;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.tn-tab .tn-icon{font-size:17px;line-height:1;filter:drop-shadow(0 1px 0 rgba(0,0,0,.25));}
+.tn-tab .tn-label{display:none;}
+@media (min-width:420px){.tn-tab{padding:8px 12px;}.tn-tab .tn-label{display:inline;}}
+@media (min-width:520px){.tn-tab{padding:9px 16px;font-size:13px;gap:7px;}}
+.tn-tab.active{
+  background:var(--mc-yellow);color:var(--mc-ink);border-color:var(--mc-ink);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 3px 0 var(--mc-ink);
+  transform:translateY(-1px);
+}
+.tn-tab:not(.active):hover{background:rgba(255,255,255,.2);color:#fff;}
 
 .view-toggle{
   display:flex;border:var(--border-thin);
-  background:var(--mc-cream);border-radius:999px;overflow:hidden;
+  background:var(--mc-cream);border-radius:999px;overflow:hidden;flex-shrink:0;
 }
 .view-btn{
-  padding:8px 16px;font-size:11px;font-weight:900;letter-spacing:0.08em;
+  padding:7px 10px;font-size:10px;font-weight:900;letter-spacing:0.06em;
   background:transparent;color:var(--text-2);
   border:none;cursor:pointer;text-transform:uppercase;
   border-right:var(--border-thin);
@@ -295,65 +306,6 @@ body::after{
 }
 
 /* ============================================================
-   Tab 导航
-   ============================================================ */
-.tabs{
-  display:flex;gap:8px;
-  margin:18px 20px 0;
-  border:var(--border);border-radius:var(--radius);
-  background:var(--mc-cream);
-  box-shadow:var(--shadow-2);
-  overflow:hidden;
-  padding:8px;
-}
-@media (min-width:1024px){
-  /* sidebar 化：左对齐、隐藏外框、激活态加左侧色条 */
-  .tabs{
-    margin:18px 0 0 20px;
-    width:calc(100% - 20px);
-    flex-direction:column;gap:6px;
-    background:transparent;border:none;border-radius:0;
-    box-shadow:none;padding:0;
-  }
-  .tab{
-    flex:none;justify-content:flex-start;
-    padding:12px 14px;border-radius:10px;
-    border:none;border-left:4px solid transparent;
-    text-align:left;
-  }
-  .tab.active{
-    background:var(--mc-cream);
-    border-color:var(--mc-blue);
-    color:var(--mc-blue);
-    box-shadow:var(--shadow-1);
-  }
-  .tab .icon{margin:0 10px 0 0;display:inline-block;vertical-align:-3px;}
-}
-.tab{
-  flex:1;
-  padding:14px 8px 12px;
-  text-align:center;
-  font-size:13px;font-weight:900;letter-spacing:0.05em;
-  text-transform:uppercase;
-  color:var(--text-2);
-  cursor:pointer;
-  border-radius:var(--radius-sm);
-  border:3px solid transparent;
-  transition:all .15s;
-  position:relative;background:transparent;
-  font-family:var(--font-round);
-}
-.tab.active{
-  background:var(--mc-blue);color:#fff;
-  border-color:var(--mc-ink);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.35), inset 0 -4px 0 rgba(0,0,0,.22), 0 3px 0 var(--mc-ink);
-  text-shadow:0 2px 0 var(--mc-ink);
-  transform:translateY(-1px);
-}
-.tab:not(.active):hover{background:var(--mc-cream-2);color:var(--text);}
-.tab .icon{display:block;font-size:26px;margin-bottom:4px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.15));}
-
-/* ============================================================
    内容区
    ============================================================ */
 .content{padding:18px 20px 110px;flex:1;}
@@ -386,7 +338,28 @@ body::after{
 .card-title.green .dot{background:var(--mc-green);}
 .card-title.yellow .dot{background:var(--mc-yellow);}
 .card-title.blue .dot{background:var(--mc-blue);}
+.card-title.red .dot{background:var(--mc-red);}
 .card-body{padding:16px 18px;}
+
+/* ============================================================
+   首页仪表盘（v1.9.0）
+   ============================================================ */
+.dash-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+.dash-tile{
+  background:var(--mc-cream-2);
+  border:var(--border-thin);border-radius:var(--radius-sm);
+  padding:16px;position:relative;
+}
+.dash-tile .label{font-size:10px;font-weight:900;letter-spacing:0.14em;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;}
+.dash-tile .val{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--mc-ink);}
+.dash-tile .val.green{color:var(--mc-green);}
+.dash-tile .val.red{color:var(--mc-red);}
+.dash-tile .val.yellow{color:#c79a00;}
+.dash-tile .val.blue{color:var(--mc-blue);}
+.dash-row-4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media (min-width:520px){.dash-row-4{grid-template-columns:repeat(4,1fr);}}
+.dash-col-2{display:grid;grid-template-columns:1fr;gap:16px;}
+@media (min-width:1024px){.dash-col-2{grid-template-columns:1.4fr 1fr;}}
 
 /* ============================================================
    任务项
@@ -645,23 +618,6 @@ body::after{
 @keyframes liveBlink{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
 /* ============================================================
-   响应式
-   ============================================================ */
-@media (min-width:640px){
-  .content{max-width:680px;margin:0 auto;}
-  .balance-wrap,.topbar,.tabs,.bottombar{max-width:720px;margin-left:auto;margin-right:auto;}
-  .topbar{border-left:var(--border);border-right:var(--border);}
-  .tabs{border-left:var(--border);border-right:var(--border);}
-  .bottombar{border-left:var(--border);border-right:var(--border);}
-  .reward-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
-}
-@media (max-width:380px){
-  .balance-num .num{font-size:58px;}
-  .reward-grid{grid-template-columns:repeat(2,1fr);}
-}
-
-
-/* ============================================================
    v1.3.0 追加 · 趣味动效 + 移动端增强
    （纯新增规则，不改动上方任何既有样式）
    ============================================================ */
@@ -708,7 +664,7 @@ body{overscroll-behavior-y:contain;}
 
 /* 触屏：主交互目标不小于 44px */
 @media (hover:none){
-  .tab, .view-btn, .btn{min-height:44px;}
+  .tn-tab, .view-btn, .btn{min-height:44px;}
 }
 
 /* ============================================================
@@ -773,16 +729,13 @@ body{overscroll-behavior-y:contain;}
 .mini-balance.show{display:flex;animation:viewIn .25s ease;}
 .mini-balance .coin{font-size:.8em;}
 
-/* 品牌名不换行；小屏收紧顶栏（徽章隐藏，版本号底栏已有） */
+/* 品牌名不换行；超小屏隐藏品牌文字，只留徽章 */
 .brand{min-width:0;}
 .brand-text{white-space:nowrap;}
-body{overflow-x:clip;}
+@media (max-width:359px){.brand-text{display:none;}}
 @media (max-width:520px){
-  .topbar{padding:12px 12px;}
-  .brand{font-size:15px;gap:7px;}
+  .topbar{padding:10px;}
   .brand-mark{width:32px;height:32px;font-size:17px;}
-  .view-btn{padding:8px 12px;}
-  .topbar-right{display:none;}
   .mini-balance{padding:5px 10px;font-size:14px;}
 }
 
@@ -805,30 +758,30 @@ body{overflow-x:clip;}
 }
 
 /* ============================================================
-   v1.8.0 响应断点统一（统一各模块宽度基线）
-   - <768px    单列紧凑
-   - 768-1023  容器 720 居中
-   - 1024-1439 容器 1180，任务/商店/记录 2 列，首页 1.4/1 双栏
-   - ≥1440     容器 1380，任务墙升级 3 列，商店升级 3 列
+   v1.9.0 响应断点（清晰四档：何时满宽 / 何时单列）
+   - <768px    移动端：单列，最小宽度 360px，防止过度挤压
+   - 768-1023  平板：容器 720 居中
+   - 1024-1439 桌面：容器 1180，任务/商店/记录 2 列，首页双栏
+   - ≥1440     宽屏：容器 1380，任务墙/商店/记录 3 列
    ============================================================ */
+@media (min-width:768px){
+  .content{max-width:720px;margin:0 auto;}
+  .balance-wrap,.topbar,.bottombar{max-width:720px;margin-left:auto;margin-right:auto;}
+  .topbar,.bottombar{border-left:var(--border);border-right:var(--border);}
+  .reward-grid{grid-template-columns:repeat(2,1fr);}
+}
 @media (min-width:1024px){
-  /* 通栏区居中；内容区交给 grid 第二列撑满（auto margin 会阻止 stretch） */
-  .topbar,.balance-wrap,.bottombar{max-width:1180px;margin-left:auto;margin-right:auto;}
+  .topbar,.balance-wrap,.bottombar{max-width:1180px;}
   .balance-wrap{padding-left:0;padding-right:0;}
-  .content{max-width:none;margin:0;padding:24px 24px 120px;}
-  .topbar{padding:16px 22px;}
-
-  .view.active[data-view=home]{
-    grid-template-columns:1.4fr 1fr;gap:18px;align-items:start;
-  }
-  .view.active[data-view=home] > .card:first-child{grid-column:1 / -1;}
+  .content{max-width:1180px;padding:24px 24px 120px;}
+  .topbar{padding:12px 22px;}
+  .brand{font-size:19px;gap:10px;}
+  .brand-mark{width:40px;height:40px;font-size:22px;}
 
   .view.active[data-view=tasks] .card-body{columns:2;column-gap:22px;}
   .task-group-label{break-after:avoid;}
   .task-list{break-inside:avoid;margin-bottom:14px;}
-
-  .reward-grid{grid-template-columns:repeat(2, 1fr);gap:16px;}
-
+  .reward-grid{grid-template-columns:repeat(2,1fr);gap:16px;}
   #allRecords{columns:2;column-gap:22px;}
   .record{break-inside:avoid;}
 
@@ -842,8 +795,14 @@ body{overflow-x:clip;}
 }
 @media (min-width:1440px){
   .topbar,.balance-wrap,.bottombar{max-width:1380px;}
-  .view.active[data-view="tasks"] .card-body{columns:3;}
-  .reward-grid{grid-template-columns:repeat(3, 1fr);gap:18px;}
+  .content{max-width:1380px;}
+  .view.active[data-view=tasks] .card-body{columns:3;}
+  .reward-grid{grid-template-columns:repeat(3,1fr);gap:18px;}
+  #allRecords{columns:3;column-gap:22px;}
+}
+@media (max-width:380px){
+  .balance-num .num{font-size:58px;}
+  .reward-grid{grid-template-columns:repeat(2,1fr);}
 }
 
 /* ============================================================
@@ -1052,19 +1011,27 @@ html[data-theme="funny"]{
 
 
 <div id="app" data-page-node-id="89JqF6YExcM9MEK1uWYyWl">
-  <!-- 顶栏 -->
+  <!-- 顶栏：品牌 + 顶部导航 + 视角切换 -->
   <header class="topbar" data-page-node-id="6AOhuoGgJBHXjVFjdj6i1t">
     <div class="brand" data-page-node-id="Y1oBeseHljDj9EXdTLhScu">
       <div class="brand-mark" data-page-node-id="Kfme7Mk4nqzS0BLeazFkQB"><span data-page-node-id="echXr9ctXKJkUFcZxrYf7v">⚡</span></div>
       <div class="brand-text" id="brandText" data-page-node-id="LRzYBMA5Nl7vxDdWEzDl6C">MAX<em data-page-node-id="9qvS0jNGB1hYojZiYhWNMp">'S</em> CREDITS PLAN</div>
     </div>
-    <div class="mini-balance" id="miniBal"><span class="coin" id="miniCoin">M</span><b id="miniBalNum">0</b></div>
-    <div class="view-toggle" id="viewToggle">
-      <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
-      <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
-    </div>
+
+    <nav class="topnav" id="topnav" data-page-node-id="topnav">
+      <button class="tn-tab active" data-tab="home" data-page-node-id="tnHome"><span class="tn-icon">🏠</span><span class="tn-label">首页</span></button>
+      <button class="tn-tab" data-tab="tasks" data-page-node-id="tnTasks"><span class="tn-icon">📋</span><span class="tn-label">任务</span></button>
+      <button class="tn-tab" data-tab="shop" data-page-node-id="tnShop"><span class="tn-icon">🏪</span><span class="tn-label">商店</span></button>
+      <button class="tn-tab" data-tab="records" data-page-node-id="tnRecords"><span class="tn-icon">📊</span><span class="tn-label">记录</span></button>
+    </nav>
+
     <div class="topbar-right" data-page-node-id="IlKWeaNHCUqCxOdjQxos4H">
-      <span class="tag tag-red" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.8.0</span>
+      <div class="mini-balance" id="miniBal"><span class="coin" id="miniCoin">M</span><b id="miniBalNum">0</b></div>
+      <div class="view-toggle" id="viewToggle">
+        <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
+        <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
+      </div>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.9.0</span>
     </div>
   </header>
 
@@ -1106,22 +1073,6 @@ html[data-theme="funny"]{
     </div>
   </section>
 
-  <!-- Tab 导航 -->
-  <nav class="tabs" id="tabs" data-page-node-id="tBNYy1ybI44g1Yp0Ud8EyV">
-    <div class="tab active" data-tab="home" data-page-node-id="IvaqVrlTgLYwK3O78LH0PW">
-      <span class="icon" data-page-node-id="zVdptHMbED0HS9b30EmHUW">🏠</span>首页
-    </div>
-    <div class="tab" data-tab="tasks" data-page-node-id="QoLbGi87SUGjkJSwA4RCk9">
-      <span class="icon" data-page-node-id="171RWCB3MtCNDA9eRZFQOq">📋</span>任务
-    </div>
-    <div class="tab" data-tab="shop" data-page-node-id="Yt81oji8O74i4BlEEF32Hf">
-      <span class="icon" data-page-node-id="NZyGzAADxytha60Z7p2BLj">🏪</span>商店
-    </div>
-    <div class="tab" data-tab="records" data-page-node-id="hfBVdbs6hCbbJioPbeNd0N">
-      <span class="icon" data-page-node-id="pjFZ4mGt8Wc0YAMvcM5dIh">📊</span>记录
-    </div>
-  </nav>
-
   <!-- 内容区 -->
   <main class="content" data-page-node-id="5JPmUgrI9AOsUPBfrx4QHC">
     <!-- 首页 -->
@@ -1137,20 +1088,44 @@ html[data-theme="funny"]{
         </div>
       </div>
 
-      <div class="card" data-page-node-id="ZBzlWkdIHMUooAQHzSfN36">
-        <div class="card-head" data-page-node-id="MJ3yayAAJnyykBh68Lax8K">
-          <div class="card-title" data-page-node-id="iyROHgZ2Db4K2cHc0ygoJk"><span class="dot" data-page-node-id="D25EuGouDYTF3VE7cZTA3T"></span>快捷任务</div>
+      <div class="dash-row-4" id="dashStats" data-page-node-id="dashStats">
+        <!-- 动态注入四宫格 -->
+      </div>
+
+      <div class="dash-col-2" data-page-node-id="dashCol1">
+        <div class="card" data-page-node-id="ZBzlWkdIHMUooAQHzSfN36">
+          <div class="card-head" data-page-node-id="MJ3yayAAJnyykBh68Lax8K">
+            <div class="card-title" data-page-node-id="iyROHgZ2Db4K2cHc0ygoJk"><span class="dot" data-page-node-id="D25EuGouDYTF3VE7cZTA3T"></span>快捷任务</div>
+          </div>
+          <div class="card-body" data-page-node-id="LKiTI1SgPzirBtniY90RBT">
+            <div class="task-list" id="quickTasks" data-page-node-id="aMyt9ltMVPXw8NTdsY4ev3"></div>
+          </div>
         </div>
-        <div class="card-body" data-page-node-id="LKiTI1SgPzirBtniY90RBT">
-          <div class="task-list" id="quickTasks" data-page-node-id="aMyt9ltMVPXw8NTdsY4ev3"></div>
+
+        <div class="card" data-page-node-id="v0FoFBmI5bD2XgAWzg10ci">
+          <div class="card-head" data-page-node-id="OG07G4Ob6wgMXKfrnpUA85">
+            <div class="card-title green" data-page-node-id="klevGELMX1P5tVABBbAvIz"><span class="dot" data-page-node-id="LMCXpUxk4tTUHFRzefP2ju"></span>最近兑换</div>
+          </div>
+          <div class="card-body" id="recentRedeem" data-page-node-id="WMZJhegKq9ikpyJNgUjZGG"></div>
         </div>
       </div>
 
-      <div class="card" data-page-node-id="v0FoFBmI5bD2XgAWzg10ci">
-        <div class="card-head" data-page-node-id="OG07G4Ob6wgMXKfrnpUA85">
-          <div class="card-title green" data-page-node-id="klevGELMX1P5tVABBbAvIz"><span class="dot" data-page-node-id="LMCXpUxk4tTUHFRzefP2ju"></span>最近兑换</div>
+      <div class="dash-col-2" data-page-node-id="dashCol2">
+        <div class="card" data-page-node-id="homeChartCard">
+          <div class="card-head" data-page-node-id="homeChartHead">
+            <div class="card-title blue" data-page-node-id="homeChartTitle"><span class="dot" data-page-node-id="homeChartDot"></span>本周积分走势</div>
+          </div>
+          <div class="card-body" data-page-node-id="homeChartBody">
+            <div class="chart" id="homeChart" data-page-node-id="homeChartEl"></div>
+          </div>
         </div>
-        <div class="card-body" id="recentRedeem" data-page-node-id="WMZJhegKq9ikpyJNgUjZGG"></div>
+
+        <div class="card" data-page-node-id="homeTopCard">
+          <div class="card-head" data-page-node-id="homeTopHead">
+            <div class="card-title red" data-page-node-id="homeTopTitle"><span class="dot" data-page-node-id="homeTopDot"></span>任务 TOP 3</div>
+          </div>
+          <div class="card-body" id="homeTopTasks" data-page-node-id="homeTopBody"><div class="empty">还没有任务记录</div></div>
+        </div>
       </div>
     </div>
 
@@ -1352,7 +1327,7 @@ html[data-theme="funny"]{
           <div class="setting-row">
             <div>
               <div class="setting-label">管理员密码</div>
-              <div class="setting-desc">至少 4 位，只存哈希不存明文</div>
+              <div class="setting-desc">留空表示不修改；支持字母/数字/符号，不强制复杂度</div>
             </div>
             <input type="password" class="setting-input" id="cfgAdminPass" placeholder="未设置">
           </div>
@@ -1461,7 +1436,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.8.0 · 2026-09-06</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.9.0 · 2026-09-07</span>
     </div>
   </footer>
 </div>
@@ -1501,7 +1476,7 @@ html[data-theme="funny"]{
       <div class="wiz-hint">家长默认管理员：能看全部数据、调规则、改密码。孩子无法进入后台。<br>邮箱用于找回密码。也可以先跳过，之后在「系统设置」里补。</div>
       <div class="wiz-row" style="flex-direction:column;align-items:stretch">
         <input type="email" id="wizEmail" placeholder="家长邮箱，如 parent@mail.com">
-        <input type="password" id="wizPass" placeholder="密码（至少 4 位）">
+        <input type="password" id="wizPass" placeholder="密码（支持字母/数字/符号，不强制复杂度）">
       </div>
       <div class="wiz-row">
         <button class="btn" onclick="wizBack1()">← 上一步</button>
@@ -1699,6 +1674,35 @@ function saveState(){
   }
 }
 
+// 记住的登录邮箱（与主数据分开，导入/重置不丢账号列表）
+const ACCOUNTS_KEY = 'max_credits_accounts';
+function loadAccounts(){
+  try{ return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]') || []; }
+  catch(e){ return []; }
+}
+function saveAccounts(list){
+  try{ localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); }
+  catch(e){ console.error('[MAX] saveAccounts 失败', e); }
+}
+function rememberAccount(email){
+  const e = String(email || '').trim().toLowerCase();
+  if(!e) return;
+  const list = loadAccounts();
+  if(!list.includes(e)){
+    list.unshift(e);
+    saveAccounts(list.slice(0, 10));
+  }
+}
+function accountOptions(currentEmail){
+  const list = loadAccounts();
+  const cur = String(currentEmail || '').trim().toLowerCase();
+  // 当前账号放在最前
+  const ordered = cur && list.includes(cur)
+    ? [cur, ...list.filter(x => x !== cur)]
+    : list;
+  return ordered.map(e => ({v:e, l:e}));
+}
+
 // ---------- ③ 工具函数 ----------
 const $ = id => document.getElementById(id);
 const pad2 = n => String(n).padStart(2, '0');
@@ -1808,12 +1812,13 @@ async function wizFinish(){
       $('wizErr2').textContent = '邮箱格式不对（或点「稍后再设」跳过）';
       return;
     }
-    if(pass.length < 4){
-      $('wizErr2').textContent = '密码至少 4 位（或点「稍后再设」跳过）';
+    if(!pass){
+      $('wizErr2').textContent = '请输入密码（或点「稍后再设」跳过）';
       return;
     }
     state.cfg.admin = {email, passHash: await sha256(pass)};
     state.cfg.pin = '';
+    rememberAccount(email);
   }
   $('wizErr2').textContent = '';
   state.cfg.setupDone = true;
@@ -2088,7 +2093,7 @@ function renderHomeCards(){
   const hints = [];
 
   if(state.balance === 0){
-    hints.push('👋 欢迎使用 MAX\'s CREDITS！从「任务」开始赚你的第一笔 Credits 吧。');
+    hints.push('👋 欢迎使用 '+childName().toUpperCase()+'\'s CREDITS！从「任务」开始赚你的第一笔 Credits 吧。');
   }else{
     hints.push(`💰 当前 <b style="color:var(--primary)">${state.balance} ${COIN}</b>，月底将自动扣除 <b style="color:var(--danger)">${willExpire} ${COIN}</b>。`);
   }
@@ -2098,6 +2103,19 @@ function renderHomeCards(){
     hints.push('<br>🎯 余额充足，去「商店」挑个心仪的奖励吧！');
   }
   $('todayHint').innerHTML = hints.join('');
+
+  // 仪表盘四宫格
+  const dashStats = [
+    {label:'当前余额', val:state.balance, cls:''},
+    {label:'本月入账', val:'+'+state.monthIn, cls:'green'},
+    {label:'本月出账', val:'-'+state.monthOut, cls:'red'},
+    {label:'将过期', val:'-'+willExpire, cls:'yellow'},
+  ];
+  $('dashStats').innerHTML = dashStats.map(s => `
+    <div class="dash-tile">
+      <div class="label">${s.label}</div>
+      <div class="val ${s.cls}">${s.val}</div>
+    </div>`).join('');
 
   $('quickTasks').innerHTML = QUICK_IDS
     .map(id => mergedTasks().find(t => t.id === id))
@@ -2110,6 +2128,46 @@ function renderHomeCards(){
   $('recentRedeem').innerHTML = recent.length
     ? recent.map(recordHTML).join('')
     : '<div class="empty">还没有兑换记录，去商店看看吧 →</div>';
+
+  // 本周走势
+  renderWeekChartInto($('homeChart'));
+
+  // 任务 TOP 3
+  const freq = {};
+  state.records.forEach(r => { if(r.taskId) freq[r.taskId] = (freq[r.taskId] || 0) + 1; });
+  const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  $('homeTopTasks').innerHTML = top.length
+    ? '<div class="rank-list">' + top.map(([id, n], i) => {
+        const t = mergedTasks().find(x => x.id === id);
+        return `<div class="rank-item"><span class="rk">${i + 1}</span>` +
+               `<span class="rn">${t ? t.emoji + ' ' + esc(t.type) : esc(id)}</span>` +
+               `<span class="rc">×${n}</span></div>`;
+      }).join('') + '</div>'
+    : '<div class="empty">还没有任务记录</div>';
+}
+
+function renderWeekChartInto(el){
+  const days = [];
+  for(let i = 6; i >= 0; i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push({key: dayStr(d), label: `${d.getMonth() + 1}/${d.getDate()}`, amount: 0});
+  }
+  const index = {};
+  days.forEach(d => {index[d.key] = 0;});
+  state.records.forEach(r => {
+    if(r.type !== 'in') return;
+    const k = dayStr(new Date(r.time));
+    if(k in index) index[k] += r.val;
+  });
+  days.forEach(d => {d.amount = index[d.key];});
+  const max = Math.max(1, ...days.map(d => d.amount));
+  el.innerHTML = days.map((d, i) => `
+    <div class="bar-col">
+      <div class="bar-v">${d.amount || ''}</div>
+      <div class="bar ${i === days.length - 1 ? 'today' : ''}" style="height:${Math.max(3, d.amount / max * 100)}%"></div>
+      <div class="bar-x">${d.label}</div>
+    </div>`).join('');
 }
 
 const taskItemHTML = t => `
@@ -2579,26 +2637,32 @@ function exportCSV(){
 async function requestAdminAccess(){
   const admin = state.cfg.admin;
   if(admin && admin.email && admin.passHash){
+    const opts = accountOptions(admin.email);
+    const emailField = opts.length > 1
+      ? {id:'loginEmail', type:'select', value:admin.email, options:opts}
+      : {id:'loginEmail', type:'email', value:admin.email, placeholder:'邮箱'};
     showModal({
       emoji:'🔐',
       title:'管理员登录',
-      sub:`请输入管理员邮箱和密码（注册邮箱 ${maskEmail(admin.email)} 可用于找回密码）`,
+      sub:`已记住 ${opts.length} 个账号，选中后输入密码即可登录`,
       fields:[
-        {id:'loginEmail', type:'email', placeholder:'邮箱'},
+        emailField,
         {id:'loginPass', type:'password', placeholder:'密码'},
       ],
       actions:[
         {label:'取消'},
         {label:'忘记密码?', onClick:() => {closeModal(); forgotPassword();}},
         {label:'登录', cls:'primary', onClick:async v => {
+          const email = String(v.loginEmail || '').trim().toLowerCase();
           const hash = await sha256(String(v.loginPass || ''));
-          if(String(v.loginEmail || '').trim().toLowerCase() !== admin.email || hash !== admin.passHash){
+          if(email !== admin.email || hash !== admin.passHash){
             toast('邮箱或密码不正确', 'error');
             return;
           }
+          rememberAccount(email);
           closeModal();
           setViewMode('parent');
-          toast('👋 欢迎回来，管理员！设置已解锁：顶栏「爸妈」或右下角 ⚙', 'success');
+          toast('👋 欢迎回来，管理员！设置已解锁：顶栏「爸妈」', 'success');
         }},
       ],
     });
@@ -2660,7 +2724,7 @@ function forgotPassword(){
         showModal({
           emoji:'🔑',
           title:'设置新密码',
-          sub:'密码至少 4 位，保存后请牢记新密码',
+          sub:'密码支持字母/数字/符号，保存后请牢记新密码',
           fields:[
             {id:'np1', type:'password', placeholder:'新密码'},
             {id:'np2', type:'password', placeholder:'再输一遍'},
@@ -2669,7 +2733,7 @@ function forgotPassword(){
             {label:'取消'},
             {label:'保存新密码', cls:'primary', onClick:async v => {
               const p1 = String(v.np1 || ''), p2 = String(v.np2 || '');
-              if(p1.length < 4){toast('密码至少 4 位', 'error'); return;}
+              if(!p1){toast('请输入新密码', 'error'); return;}
               if(p1 !== p2){toast('两次输入不一致', 'error'); return;}
               state.cfg.admin.passHash = await sha256(p1);
               saveState(); render();
@@ -2695,20 +2759,20 @@ function setViewMode(mode){
   state.view = mode;
   document.querySelectorAll('#viewToggle .view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
   if(mode === 'parent'){
-    document.querySelectorAll('#tabs .tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('#topnav .tn-tab').forEach(x => x.classList.remove('active'));
     showView('admin');
   }else{
-    const homeTab = document.querySelector('#tabs .tab[data-tab="home"]');
+    const homeTab = document.querySelector('#topnav .tn-tab[data-tab="home"]');
     if(homeTab) homeTab.classList.add('active');
-    showView(document.querySelector('#tabs .tab.active')?.dataset.tab || 'home');
+    showView(document.querySelector('#topnav .tn-tab.active')?.dataset.tab || 'home');
   }
   saveState();
   render();
 }
 
-document.querySelectorAll('#tabs .tab').forEach(tab => {
+document.querySelectorAll('#topnav .tn-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('#tabs .tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('#topnav .tn-tab').forEach(x => x.classList.remove('active'));
     tab.classList.add('active');
     // 爸妈视角下点 Tab = 退出控制台回到 MAX 视角
     // （v1.2 这里是空 if，导致「顶栏停在爸妈、页面却在首页」的状态错位）
@@ -2991,12 +3055,14 @@ $('btnAdminSave').addEventListener('click', async () => {
     toast('请输入有效的邮箱地址', 'error');
     return;
   }
-  if(pass.length < 4){
-    toast('密码至少 4 位', 'error');
+  if(!pass && !(state.cfg.admin && state.cfg.admin.passHash)){
+    toast('首次保存请设置密码', 'error');
     return;
   }
-  state.cfg.admin = {email, passHash: await sha256(pass)};
+  const passHash = pass ? await sha256(pass) : (state.cfg.admin?.passHash || '');
+  state.cfg.admin = {email, passHash};
   state.cfg.pin = '';
+  rememberAccount(email);
   saveState(); render();
   $('cfgAdminPass').value = '';
   toast('✅ 管理员账号已保存，进后台需登录', 'success');
@@ -3164,7 +3230,7 @@ $('btnChangePass').addEventListener('click', () => {
     sub:'需验证当前密码',
     fields:[
       {id:'cpOld', type:'password', placeholder:'当前密码'},
-      {id:'cpNew1', type:'password', placeholder:'新密码（至少 4 位）'},
+      {id:'cpNew1', type:'password', placeholder:'新密码（支持字母/数字/符号）'},
       {id:'cpNew2', type:'password', placeholder:'再输一遍'},
     ],
     actions:[
@@ -3176,7 +3242,7 @@ $('btnChangePass').addEventListener('click', () => {
           return;
         }
         const p1 = String(v.cpNew1 || ''), p2 = String(v.cpNew2 || '');
-        if(p1.length < 4){toast('新密码至少 4 位', 'error'); return;}
+        if(!p1){toast('请输入新密码', 'error'); return;}
         if(p1 !== p2){toast('两次输入不一致', 'error'); return;}
         state.cfg.admin.passHash = await sha256(p1);
         saveState(); render();
@@ -3226,6 +3292,9 @@ renderBrand();   // 品牌：{NAME}'S CREDITS PLAN + 货币首字母
 
 applyPrefs();   // 恢复上次选的主题
 
+// 老存档升级：把当前管理员邮箱补进记住列表
+if(state.cfg.admin && state.cfg.admin.email) rememberAccount(state.cfg.admin.email);
+
 // 初始向导：全新存档（无任何记录且未完成向导）或地址栏 ?register 时进入
 (function(){
   const fresh = !localStorage.getItem(STORAGE_KEY) && !state.cfg.setupDone;
@@ -3255,7 +3324,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.8.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.9.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
