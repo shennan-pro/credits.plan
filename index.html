@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v1.8.0</title>
+<title>Max's Credits Plan · v2.0.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -345,17 +345,18 @@ body{overflow-x:auto;}
    首页仪表盘（v1.9.0）
    ============================================================ */
 .dash-grid{display:grid;grid-template-columns:1fr;gap:16px;}
-.dash-tile{
+/* 统计砖：首页四宫格(.dash-tile) 与后台总览(.admin-tile) 共享样式 */
+.dash-tile,.admin-tile{
   background:var(--mc-cream-2);
   border:var(--border-thin);border-radius:var(--radius-sm);
   padding:16px;position:relative;
 }
-.dash-tile .label{font-size:10px;font-weight:900;letter-spacing:0.14em;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;}
-.dash-tile .val{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--mc-ink);}
-.dash-tile .val.green{color:var(--mc-green);}
-.dash-tile .val.red{color:var(--mc-red);}
-.dash-tile .val.yellow{color:#c79a00;}
-.dash-tile .val.blue{color:var(--mc-blue);}
+.dash-tile .label,.admin-tile .label{font-size:10px;font-weight:900;letter-spacing:0.14em;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;}
+.dash-tile .val,.admin-tile .val{font-size:28px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--mc-ink);}
+.dash-tile .val.green,.admin-tile .val.green{color:var(--mc-green);}
+.dash-tile .val.red,.admin-tile .val.red{color:var(--mc-red);}
+.dash-tile .val.yellow,.admin-tile .val.yellow{color:#c79a00;}
+.dash-tile .val.blue,.admin-tile .val.blue{color:var(--mc-blue);}
 .dash-row-4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 @media (min-width:520px){.dash-row-4{grid-template-columns:repeat(4,1fr);}}
 .dash-col-2{display:grid;grid-template-columns:1fr;gap:16px;}
@@ -486,16 +487,6 @@ body{overflow-x:auto;}
    爸妈控制台
    ============================================================ */
 .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-.admin-tile{
-  background:var(--mc-cream-2);
-  border:var(--border-thin);border-radius:var(--radius-sm);
-  padding:16px;position:relative;
-}
-.admin-tile .label{font-size:10px;font-weight:900;letter-spacing:0.15em;color:var(--text-3);text-transform:uppercase;margin-bottom:8px;}
-.admin-tile .val{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--mc-ink);}
-.admin-tile .val.green{color:var(--mc-green);}
-.admin-tile .val.red{color:var(--mc-red);}
-.admin-tile .val.yellow{color:#c79a00;}
 
 .admin-actions{display:flex;flex-direction:column;gap:10px;}
 .btn{
@@ -622,24 +613,6 @@ body{overflow-x:auto;}
    （纯新增规则，不改动上方任何既有样式）
    ============================================================ */
 
-/* 得分飞行数字：从被点的任务位置飘起并淡出 */
-.fly-score{
-  position:fixed; transform:translate(-50%,-50%);
-  font-family:var(--pixel-font); font-size:22px; font-weight:900;
-  pointer-events:none; z-index:300; white-space:nowrap;
-  text-shadow:2px 2px 0 var(--mc-ink), -2px 2px 0 var(--mc-ink),
-              2px -2px 0 var(--mc-ink), -2px -2px 0 var(--mc-ink),
-              0 4px 10px rgba(0,0,0,.25);
-  animation:flyScoreUp .9s cubic-bezier(.2,.8,.3,1) forwards;
-}
-.fly-score.in {color:var(--mc-yellow);}
-.fly-score.out{color:var(--mc-red);}
-@keyframes flyScoreUp{
-  0%  {opacity:0; transform:translate(-50%,-50%) scale(.6);}
-  22% {opacity:1; transform:translate(-50%,-75%) scale(1.25);}
-  100%{opacity:0; transform:translate(-50%,-170%) scale(1);}
-}
-
 /* 抖动：animationend 自动复位，替代 setTimeout 链（连点时不会状态打架） */
 .is-shaking{animation:shakeX .32s ease-in-out;}
 @keyframes shakeX{
@@ -758,21 +731,29 @@ body{overscroll-behavior-y:contain;}
 }
 
 /* ============================================================
-   v1.9.0 响应断点（清晰四档：何时满宽 / 何时单列）
+   v2.0 响应断点（清晰四档：何时满宽 / 何时单列）
    - <768px    移动端：单列，最小宽度 360px，防止过度挤压
    - 768-1023  平板：容器 720 居中
-   - 1024-1439 桌面：容器 1180，任务/商店/记录 2 列，首页双栏
-   - ≥1440     宽屏：容器 1380，任务墙/商店/记录 3 列
+   - 1024-1439 桌面：容器 1180，hero 双栏，任务/商店/记录 2 列
+   - ≥1440     宽屏：容器 1380，任务墙/商店/记录 3 列，卡片呼吸加大
    ============================================================ */
+.hero-row{display:flex;flex-direction:column;}
+.hero-hint{margin:0 20px 16px;}
+
 @media (min-width:768px){
-  .content{max-width:720px;margin:0 auto;}
-  .balance-wrap,.topbar,.bottombar{max-width:720px;margin-left:auto;margin-right:auto;}
+  /* #app 是 flex 容器：子元素必须 width:100% + max-width 才能居中（光写 margin:auto 会 shrink-to-fit） */
+  .content{width:100%;max-width:720px;margin:0 auto;}
+  .hero-row,.topbar,.bottombar{width:100%;max-width:720px;margin-left:auto;margin-right:auto;}
   .topbar,.bottombar{border-left:var(--border);border-right:var(--border);}
+  .balance-wrap{max-width:none;margin:0;padding-left:0;padding-right:0;}
+  .hero-hint{margin:0 0 16px;}
   .reward-grid{grid-template-columns:repeat(2,1fr);}
 }
 @media (min-width:1024px){
-  .topbar,.balance-wrap,.bottombar{max-width:1180px;}
-  .balance-wrap{padding-left:0;padding-right:0;}
+  .hero-row,.topbar,.bottombar{max-width:1180px;}
+  .hero-row{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:stretch;}
+  .balance-wrap{padding:24px 0 0;}
+  .hero-hint{margin:24px 0 0;}
   .content{max-width:1180px;padding:24px 24px 120px;}
   .topbar{padding:12px 22px;}
   .brand{font-size:19px;gap:10px;}
@@ -794,11 +775,16 @@ body{overscroll-behavior-y:contain;}
   .balance{padding:28px;}
 }
 @media (min-width:1440px){
-  .topbar,.balance-wrap,.bottombar{max-width:1380px;}
+  .hero-row,.topbar,.bottombar{max-width:1380px;}
   .content{max-width:1380px;}
-  .view.active[data-view=tasks] .card-body{columns:3;}
+  .view.active[data-view=tasks] .card-body{columns:3;column-gap:24px;}
   .reward-grid{grid-template-columns:repeat(3,1fr);gap:18px;}
-  #allRecords{columns:3;column-gap:22px;}
+  #allRecords{columns:3;column-gap:24px;}
+  /* 宽屏呼吸感：卡片加大一档 */
+  .card-body{padding:24px 26px;}
+  .card-head{padding:16px 26px;}
+  .card{margin-bottom:20px;}
+  .dash-grid,.dash-col-2{gap:20px;}
 }
 @media (max-width:380px){
   .balance-num .num{font-size:58px;}
@@ -809,12 +795,15 @@ body{overscroll-behavior-y:contain;}
    v1.8.0 追加 · 浮动按钮组（▲▼⚙）+ 响应断点统一
    ============================================================ */
 .floats{
-  display:none;position:fixed;right:16px;bottom:24px;
+  display:flex;position:fixed;right:14px;
+  bottom:calc(64px + env(safe-area-inset-bottom,0px));   /* 移动端：避开底部状态栏 */
   flex-direction:column;gap:10px;z-index:90;
 }
-@media (hover:hover) and (min-width:1024px){
-  /* 仅在桌面端「有 hover 设备」显示浮按钮；移动 / 触屏不显示避免遮挡 */
-  .floats{display:flex;}
+@media (min-width:1024px){
+  .floats{right:16px;bottom:24px;}   /* 桌面：回右下角 */
+}
+@media (max-width:520px){
+  .float-btn{width:42px;height:42px;font-size:16px;}
 }
 .float-btn{
   width:48px;height:48px;
@@ -929,10 +918,6 @@ html[data-theme="funny"]{
   .fly-score, .is-shaking, .particle{animation-duration:.01ms !important;}
 }
 
-/* 隐藏 Tab 导航的滚动条（移动端） */
-.tabs::-webkit-scrollbar{display:none;}
-.tabs{scrollbar-width:none;-ms-overflow-style:none;}
-
 /* ============================================================
    v1.4.0 · 超级管理员后台组件
    ============================================================ */
@@ -1031,11 +1016,12 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v1.9.0</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.0.0</span>
     </div>
   </header>
 
-  <!-- 余额卡片 -->
+  <!-- Hero 区：余额大卡 + 今日推荐（桌面并排 / 移动堆叠） -->
+  <section class="hero-row" data-page-node-id="heroRow">
   <section class="balance-wrap" data-page-node-id="e9W3vAKf69wYpbsNef4JGI">
     <div class="balance" data-page-node-id="qrUsgP6m0Vru4bN6Zv8W61">
       <div class="balance-grid" data-page-node-id="3hyiVd9bi9vMs9NFcj0yNs">
@@ -1073,21 +1059,22 @@ html[data-theme="funny"]{
     </div>
   </section>
 
+  <div class="card hero-hint" data-page-node-id="LtInCsY8CYNtXHxEo7uXtr">
+    <div class="card-head" data-page-node-id="lIQ6LlGIVnyX5GpMBePui9">
+      <div class="card-title yellow" data-page-node-id="h02zujbD6FY4Q0r1veUEI8"><span class="dot" data-page-node-id="38JyfZzunaLTuDOd6GITZG"></span>今日推荐</div>
+    </div>
+    <div class="card-body" data-page-node-id="bYeK3aeY5DBSKZe9fI1Nz8">
+      <div id="todayHint" style="font-size:13px;font-weight:700;line-height:1.6;" data-page-node-id="zwxTa0xIeBV4AJTrBY9MAY">
+        <!-- 动态注入 -->
+      </div>
+    </div>
+  </div>
+  </section>
+
   <!-- 内容区 -->
   <main class="content" data-page-node-id="5JPmUgrI9AOsUPBfrx4QHC">
     <!-- 首页 -->
     <div class="view active" data-view="home" data-page-node-id="RgE3fq1Chh9yoWNzigR4Vb">
-      <div class="card" data-page-node-id="LtInCsY8CYNtXHxEo7uXtr">
-        <div class="card-head" data-page-node-id="lIQ6LlGIVnyX5GpMBePui9">
-          <div class="card-title yellow" data-page-node-id="h02zujbD6FY4Q0r1veUEI8"><span class="dot" data-page-node-id="38JyfZzunaLTuDOd6GITZG"></span>今日推荐</div>
-        </div>
-        <div class="card-body" data-page-node-id="bYeK3aeY5DBSKZe9fI1Nz8">
-          <div id="todayHint" style="font-size:13px;font-weight:700;line-height:1.6;" data-page-node-id="zwxTa0xIeBV4AJTrBY9MAY">
-            <!-- 动态注入 -->
-          </div>
-        </div>
-      </div>
-
       <div class="dash-row-4" id="dashStats" data-page-node-id="dashStats">
         <!-- 动态注入四宫格 -->
       </div>
@@ -1436,7 +1423,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v1.9.0 · 2026-09-07</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.0.0 · 2026-09-29</span>
     </div>
   </footer>
 </div>
@@ -2001,6 +1988,7 @@ function completeTask(task, sourceEl){
             `${task.emoji} ${task.text} ${signed(val)}`, task.id);
   state.doneToday[task.id] = dayStr();
   saveState();   // v1.2 漏了这步 → 刷新后当天任务可重复点、无限刷分
+  if(navigator.vibrate) try{navigator.vibrate(10);}catch(e){}   // 移动端触感反馈（不支持自动跳过）
 
   const combo = bumpCombo();
   flyScore(sourceEl, `${signed(val)} ${COIN}`, val >= 0);
@@ -2129,21 +2117,9 @@ function renderHomeCards(){
     ? recent.map(recordHTML).join('')
     : '<div class="empty">还没有兑换记录，去商店看看吧 →</div>';
 
-  // 本周走势
+  // 本周走势 + 任务 TOP 3
   renderWeekChartInto($('homeChart'));
-
-  // 任务 TOP 3
-  const freq = {};
-  state.records.forEach(r => { if(r.taskId) freq[r.taskId] = (freq[r.taskId] || 0) + 1; });
-  const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  $('homeTopTasks').innerHTML = top.length
-    ? '<div class="rank-list">' + top.map(([id, n], i) => {
-        const t = mergedTasks().find(x => x.id === id);
-        return `<div class="rank-item"><span class="rk">${i + 1}</span>` +
-               `<span class="rn">${t ? t.emoji + ' ' + esc(t.type) : esc(id)}</span>` +
-               `<span class="rc">×${n}</span></div>`;
-      }).join('') + '</div>'
-    : '<div class="empty">还没有任务记录</div>';
+  renderRankList($('homeTopTasks'), 3);
 }
 
 function renderWeekChartInto(el){
@@ -2168,6 +2144,21 @@ function renderWeekChartInto(el){
       <div class="bar ${i === days.length - 1 ? 'today' : ''}" style="height:${Math.max(3, d.amount / max * 100)}%"></div>
       <div class="bar-x">${d.label}</div>
     </div>`).join('');
+}
+
+// 任务完成次数排行榜（首页 TOP3 / 后台 TOP5 共用）
+function renderRankList(el, limit){
+  const freq = {};
+  state.records.forEach(r => { if(r.taskId) freq[r.taskId] = (freq[r.taskId] || 0) + 1; });
+  const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, limit);
+  el.innerHTML = top.length
+    ? '<div class="rank-list">' + top.map(([id, n], i) => {
+        const t = mergedTasks().find(x => x.id === id);
+        return `<div class="rank-item"><span class="rk">${i + 1}</span>` +
+               `<span class="rn">${t ? t.emoji + ' ' + esc(t.type) : esc(id)}</span>` +
+               `<span class="rc">×${n}</span></div>`;
+      }).join('') + '</div>'
+    : '<div class="empty">还没有任务记录</div>';
 }
 
 const taskItemHTML = t => `
@@ -2470,45 +2461,22 @@ function confirmDelReward(id){
 // 数据统计：近 7 天入账柱状图 + 任务 TOP5 + 三个概览数
 function renderAdminStats(){
   const today = dayStr();
-  const days = [];
+  renderWeekChartInto($('weekChart'));
+  renderRankList($('topTasks'), 5);
+
+  // 近 7 天入账合计（算日均用）
+  let weekSum = 0;
   for(let i = 6; i >= 0; i--){
     const d = new Date();
     d.setDate(d.getDate() - i);
-    days.push({key: dayStr(d), label: `${d.getMonth() + 1}/${d.getDate()}`, amount: 0});
+    const k = dayStr(d);
+    state.records.forEach(r => {
+      if(r.type === 'in' && dayStr(new Date(r.time)) === k) weekSum += r.val;
+    });
   }
-  const index = {};
-  days.forEach(d => {index[d.key] = 0;});
-  state.records.forEach(r => {
-    if(r.type !== 'in') return;
-    const k = dayStr(new Date(r.time));
-    if(k in index) index[k] += r.val;
-  });
-  days.forEach(d => {d.amount = index[d.key];});
-
-  const max = Math.max(1, ...days.map(d => d.amount));
-  $('weekChart').innerHTML = days.map((d, i) => `
-    <div class="bar-col">
-      <div class="bar-v">${d.amount || ''}</div>
-      <div class="bar ${i === days.length - 1 ? 'today' : ''}" style="height:${Math.max(3, d.amount / max * 100)}%"></div>
-      <div class="bar-x">${d.label}</div>
-    </div>`).join('');
-
-  const freq = {};
-  state.records.forEach(r => {
-    if(r.taskId) freq[r.taskId] = (freq[r.taskId] || 0) + 1;
-  });
-  const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  $('topTasks').innerHTML = top.length
-    ? '<div class="rank-list">' + top.map(([id, n], i) => {
-        const t = mergedTasks().find(x => x.id === id);
-        return `<div class="rank-item"><span class="rk">${i + 1}</span>` +
-               `<span class="rn">${t ? t.emoji + ' ' + esc(t.type) : esc(id)}</span>` +
-               `<span class="rc">×${n}</span></div>`;
-      }).join('') + '</div>'
-    : '<div class="empty">还没有任务记录</div>';
 
   $('adDoneToday').textContent = Object.values(state.doneToday).filter(d => d === today).length;
-  $('adWeekAvg').textContent   = Math.round(days.reduce((sum, d) => sum + d.amount, 0) / days.length);
+  $('adWeekAvg').textContent   = Math.round(weekSum / 7);
   $('adRecCount').textContent  = state.records.length;
 }
 
@@ -2787,6 +2755,29 @@ document.querySelectorAll('#viewToggle .view-btn').forEach(btn => {
     else setViewMode('max');
   });
 });
+
+// 移动端左右滑动切 Tab（仅孩子视角；垂直滚动不受影响）
+(function(){
+  const order = ['home','tasks','shop','records'];
+  const content = document.querySelector('.content');
+  if(!content) return;
+  let sx = 0, sy = 0;
+  content.addEventListener('touchstart', e => {
+    const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
+  }, {passive:true});
+  content.addEventListener('touchend', e => {
+    if(state.view !== 'max') return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sx, dy = t.clientY - sy;
+    if(Math.abs(dx) < 60 || Math.abs(dy) > 40) return;
+    const cur = document.querySelector('#topnav .tn-tab.active');
+    const idx = order.indexOf(cur ? cur.dataset.tab : 'home');
+    const next = order[idx + (dx < 0 ? 1 : -1)];
+    if(!next) return;
+    const tab = document.querySelector(`#topnav .tn-tab[data-tab="${next}"]`);
+    if(tab) tab.click();
+  }, {passive:true});
+})();
 
 // 事件委托：任务/奖励都是动态渲染的，绑一次 document 即可
 document.addEventListener('click', e => {
@@ -3324,7 +3315,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v1.9.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.0.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -3344,6 +3335,8 @@ function runSelfTest(){
     assert('奖励价格覆盖', (state.cfg.rewardOv.r_cash = {cost: 7}) && rewardCost(REWARDS[0]) === 7 && (delete state.cfg.rewardOv.r_cash, rewardCost(REWARDS[0]) === REWARDS[0].cost)),
     assert('工坊合并列表', (state.cfg.customTasks.push({id:'c_t1', emoji:'⭐', type:'测试', text:'x', val:1, group:'daily'}), mergedTasks().some(t => t.id === 'c_t1')) && (state.cfg.customTasks.pop(), mergedTasks().every(t => t.id !== 'c_t1'))),
     assert('主题值合法', ['arcade', 'sweet', 'funny'].includes(state.cfg.theme || 'arcade')),
+    assert('导航四锚点齐全', ['home', 'tasks', 'shop', 'records'].every(v => document.querySelector(`#topnav .tn-tab[data-tab="${v}"]`))),
+    assert('邮箱记忆读写往返', (rememberAccount('__t@t.co'), loadAccounts()[0] === '__t@t.co') && (saveAccounts(loadAccounts().filter(e => e !== '__t@t.co')), !loadAccounts().includes('__t@t.co'))),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原
