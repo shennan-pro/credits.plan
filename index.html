@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v2.0.0</title>
+<title>Max's Credits Plan · v2.1.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1016,7 +1016,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.0.0</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.1.0</span>
     </div>
   </header>
 
@@ -1049,7 +1049,7 @@ html[data-theme="funny"]{
       </div>
       <div class="expire-bar" data-page-node-id="YmTNO3yGUTfqHoDKpnaarD">
         <div class="expire-bar-label" data-page-node-id="bJ0g2wCEpNlAC9h7gKTJFV">
-          <span data-page-node-id="oTZc1Gyh6K35yeJYvPKtRh">月底 10% 过期倒计时</span>
+          <span data-page-node-id="oTZc1Gyh6K35yeJYvPKtRh">月底 <span id="expireRateLabel">1%</span> 过期倒计时</span>
           <span id="expireDays" data-page-node-id="ytmx4ytbCNGc0G5HUrRocb">30 天</span>
         </div>
         <div class="expire-bar-track" data-page-node-id="2XNNEksV1pxICfRTVQ0opC">
@@ -1423,7 +1423,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.0.0 · 2026-09-29</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.1.0 · 2026-10-14</span>
     </div>
   </footer>
 </div>
@@ -1508,94 +1508,100 @@ html[data-theme="funny"]{
 
 // ---------- ① 数据定义 ----------
 // 分组配色提到顶层：渲染时查表即可，不必每次 render 重建对象
+// v2.1.0：按 v1.2.3 计划拆为 7 类（「个人荣誉与进步」与「挑战成就」拆开）
 const TASK_GROUPS = {
-  daily: {label:'🌅 日常习惯', color:'var(--primary)'},
-  study: {label:'📚 学习习惯', color:'var(--info)'},
-  fit:   {label:'💪 体能训练', color:'var(--accent-2)'},
-  achv:  {label:'🏆 成就系统', color:'var(--accent)'},
-  class: {label:'📝 课堂表现', color:'var(--purple)'},
-  behav: {label:'⚠️ 行为规范', color:'var(--danger)'},
+  daily:     {label:'🌅 作息与家庭', color:'var(--primary)'},
+  study:     {label:'📚 学习习惯', color:'var(--info)'},
+  fit:       {label:'💪 体能训练', color:'var(--accent-2)'},
+  honor:     {label:'🏅 个人荣誉与进步', color:'var(--accent)'},
+  challenge: {label:'🎯 挑战成就', color:'var(--pink)'},
+  class:     {label:'📝 课堂表现', color:'var(--purple)'},
+  behav:     {label:'⚠️ 行为规范', color:'var(--danger)'},
 };
 
 const REWARD_CATS = {
   daily: {label:'💸 日常级 (1~10C)', color:'var(--primary)'},
-  week:  {label:'🗓️ 周级 (15~50C)', color:'var(--accent)'},
-  month: {label:'📅 月级 (50~120C)', color:'var(--info)'},
+  week:  {label:'🗓️ 周级 (15~60C)', color:'var(--accent)'},
+  month: {label:'📅 月级 (50~150C)', color:'var(--info)'},
   big:   {label:'🌟 梦想级 (200+C)', color:'var(--purple)'},
 };
 
+// v2.1.0：按《MAX's CREDITS PLAN v1.2.3》(2026-10-12) 全量重录
+// legacy:true = 旧版条目，默认停用，后台工坊可勾选启用（"备选项"机制）
 const TASKS = [
-  // 日常习惯
-  {id:'t_dawn', emoji:'⏰', type:'晨起作息', text:'每天8点半前主动起床', val:1, group:'daily'},
-  {id:'t_home', emoji:'🏠', type:'家庭参与', text:'摆碗筷/洗碗/丢垃圾/倒米等家务', val:1, group:'daily', note:'单日一项即可，不累积'},
-  {id:'t_brush', emoji:'🪥', type:'个人卫生', text:'早上未刷牙（默认已养成，违规扣分）', val:-1, group:'daily', note:'连续不刷第二天-2'},
-  {id:'t_screen', emoji:'📱', type:'电子产品', text:'学习日电视/游戏超时', val:-10, group:'daily', note:'提醒后再超时+免除一周'},
+  // ── 作息与家庭类 ──
+  {id:'t_dawn', emoji:'⏰', type:'晨起作息', text:'每天 7 点半前主动起床（工作日）；超过 7 点半不起床扣积分', val:-1, group:'daily', note:'周末/假期除外；家长不必须提供唤醒服务'},
+  {id:'t_home', emoji:'🏠', type:'家务', text:'简单家务：摆放碗筷、洗碗、丢垃圾、倒米等', val:1, group:'daily', note:'单日完成一项即可记，不累积'},
+  {id:'t_screen', emoji:'📱', type:'电子产品管理', text:'工作日看电视/电子游戏，单日总计不超过半小时，超时扣积分', val:-10, group:'daily', note:'必须先完成当日学习任务；家长可提醒一次，提醒后再超时免除一周~一月电视/游戏时间'},
+  {id:'t_brush', emoji:'🪥', type:'个人卫生', text:'早上未刷牙（默认已养成，违规扣分）', val:-1, group:'daily', note:'连续不刷第二天-2', legacy:true},
 
-  // 学习
-  {id:'t_eng_p', emoji:'📚', type:'英语', text:'背句子/抄句子/做练习', val:2, group:'study', note:'表现优秀+1~3'},
-  {id:'t_read', emoji:'📖', type:'阅读', text:'每天阅读累计>30分钟', val:2, group:'study', note:'家里的书'},
-  {id:'t_check', emoji:'✅', type:'作业', text:'作业自查+家长查，确保全对', val:5, group:'study', note:'一科，可累积'},
-  {id:'t_eng_col', emoji:'📋', type:'英语常规', text:'单张常规表每一列连续都正确', val:5, group:'study', note:'限1~4列'},
-  {id:'t_eng_week', emoji:'🗓️', type:'英语周全对', text:'单周每一竖列一周全对', val:5, group:'study', note:'周末结算'},
-  {id:'t_careless', emoji:'❌', type:'粗心', text:'粗心大意导致2次以上错误', val:-2, group:'study', note:'单科/单日/可累积'},
+  // ── 学习习惯类 ──
+  {id:'t_eng_p', emoji:'📖', type:'学习惯做', text:'额外布置任务：英语背句子、抄句子、做练习', val:2, group:'study', note:'针对薄弱项；表现优秀视情况额外加 1~3'},
+  {id:'t_read', emoji:'📚', type:'阅读习惯', text:'每天阅读（文字为主）累计 ≥ 30 分钟；不阅读或不足时间扣积分', val:-2, group:'study', note:'书店、家里的纸质书'},
+  {id:'t_check', emoji:'✅', type:'作业习惯', text:'每日常规作业完成后自己检查一遍，然后家长检查、全对奖励积分', val:5, group:'study', note:'一科 +5；单日，可累积'},
+  {id:'t_eng_col', emoji:'📋', type:'作业习惯', text:'英语常规表，单张单周一周全对', val:5, group:'study', note:'仅限手写部分'},
+  {id:'t_careless', emoji:'❌', type:'粗心大意', text:'因粗心大意发生 2 次以上的错误', val:-1, group:'study', note:'每次 -1；单科、单日、可累积'},
+  {id:'t_eng_week', emoji:'🗓️', type:'英语周全对', text:'单周每一竖列一周全对', val:5, group:'study', note:'周末结算', legacy:true},
 
-  // 体能
-  {id:'t_fit_full', emoji:'💪', type:'体能全套', text:'每天完成完整一套体能训练', val:10, group:'fit', note:'俯卧撑/仰卧起坐等，可分次'},
-  {id:'t_fit_one', emoji:'🏋️', type:'体能单项', text:'每天完成单项体能训练', val:1, group:'fit', note:'在家·标准动作'},
+  // ── 体能训练类 ──
+  {id:'t_fit_full', emoji:'💪', type:'体能训练', text:'每天完成完整一整套体能训练（俯卧撑、仰卧起坐等）', val:10, group:'fit', note:'可分次完成；在家；标准动作；全套见《Max在家体能训练》表'},
+  {id:'t_fit_one', emoji:'🏋️', type:'体能训练', text:'每天完成单项体能训练（平板撑、跳绳等）', val:1, group:'fit', note:'在家；标准动作'},
 
-  // 成就
-  {id:'t_honor', emoji:'🏅', type:'个人荣誉', text:'学校奖励个人优秀荣誉/先进称号', val:20, group:'achv', note:'班级/年级/校级+10~30'},
-  {id:'t_progress', emoji:'📈', type:'进步成就', text:'阶段性显著进步（作业/单科上升10+/专业）', val:10, group:'achv', note:'家长评估或老师表扬'},
-  {id:'t_delta_up', emoji:'📊', type:'环比上升', text:'大/小考比上次提高≥2分', val:3, group:'achv', note:'单科分数变动'},
-  {id:'t_delta_dn', emoji:'📉', type:'环比下降', text:'大/小考比上次下降≥5分', val:-3, group:'achv', note:'单科分数变动'},
-  {id:'t_test_s', emoji:'🎯', type:'小考挑战', text:'单元/常规小考≥90分', val:20, group:'achv', note:'100分=100C·95~97=+50'},
-  {id:'t_test_b', emoji:'🏆', type:'大考挑战', text:'期中/期末大考≥90分', val:50, group:'achv', note:'100分=200C'},
-  {id:'t_compete', emoji:'🥇', type:'比赛获奖', text:'正式比赛/竞赛/考级取得名次', val:50, group:'achv', note:'最高翻4倍'},
-  {id:'t_white', emoji:'🌟', type:'白名单赛', text:'教育部白名单竞赛取得名次', val:200, group:'achv', note:'最高翻5倍'},
+  // ── 个人荣誉与进步类 ──
+  {id:'t_honor', emoji:'🏅', type:'个人荣誉', text:'学校奖励个人优秀荣誉、先进称号等（含奖状）', val:20, group:'honor', note:'根据实际成就酌情加 10~30，如班级 < 年级 < 校级'},
+  {id:'t_progress', emoji:'📈', type:'进步成就', text:'阶段性显著进步：作业表现、考试成绩单科上升 10 分及以上、羽毛球/中提琴等专业项目状态表现', val:20, group:'honor', note:'需家长评估；或老师、教练提出表扬'},
 
-  // 课堂
-  {id:'t_class_ap', emoji:'📝', type:'课堂A+', text:'听写/练习老师评 A+', val:5, group:'class', note:'一科一项，取最高'},
-  {id:'t_class_app', emoji:'📝', type:'课堂A++', text:'听写/练习老师评 A++', val:10, group:'class', note:'与A+不叠加'},
-  {id:'t_class_c', emoji:'📝', type:'课堂C', text:'课堂测验得C', val:-1, group:'class'},
-  {id:'t_class_d', emoji:'📝', type:'课堂D', text:'课堂测验得D', val:-2, group:'class'},
-  {id:'t_class_e', emoji:'📝', type:'课堂E', text:'课堂测验得E', val:-10, group:'class'},
+  // ── 挑战成就类 ──
+  {id:'t_test_s', emoji:'🎯', type:'小考', text:'单元测试、常规测验等打分小考，单科成绩 ≥ 90 分起奖励', val:20, group:'challenge', note:'90~94 分 +20；95~97 +50；98~99 +80；100 +100'},
+  {id:'t_test_b', emoji:'🏆', type:'大考', text:'期中、期末等大考，单科成绩 ≥ 90 分起奖励', val:50, group:'challenge', note:'90~94 分 +50；95~97 +80；98~99 +120；100 +200'},
+  {id:'t_delta_up', emoji:'📊', type:'环比奖惩', text:'大小考/卷子小测，距上次分数提高', val:1, group:'challenge', note:'提高几分加几分（分值可改）；单科单独计算'},
+  {id:'t_delta_dn', emoji:'📉', type:'环比奖惩', text:'大小考/卷子小测，距上次分数下降', val:-1, group:'challenge', note:'下降积分-几（分值可改）；单科单独计算'},
+  {id:'t_compete', emoji:'🥇', type:'挑战成就', text:'正式比赛、竞赛、考试、考级取得名次或优秀', val:50, group:'challenge', note:'根据实际成就酌情翻倍（最高可翻四倍）；根据表现状态（意志、策略、调整等）酌情奖励 +5~10'},
+  {id:'t_white', emoji:'🌟', type:'挑战成就', text:'教育部白名单竞赛取得名次', val:200, group:'challenge', note:'根据实际成就酌情翻倍（最高可翻五倍）；根据表现状态酌情奖励 +50~100'},
 
-  // 行为
-  {id:'t_excuse', emoji:'⚠️', type:'找借口', text:'找借口逃避任务', val:-2, group:'behav'},
-  {id:'t_temper', emoji:'😤', type:'发脾气', text:'辱骂/发脾气', val:-5, group:'behav', note:'冷静后可申请复议'},
-  {id:'t_cheat', emoji:'🚫', type:'作弊撒谎', text:'作弊或撒谎', val:0, group:'behav', note:'当次积分×3扣除'},
+  // ── 课堂表现类 ──
+  {id:'t_class_ap', emoji:'📝', type:'课堂表现', text:'课堂听写、练习等老师评为 A+', val:5, group:'class', note:'+5/科；一科一项'},
+  {id:'t_class_app', emoji:'📝', type:'课堂表现', text:'课堂听写、练习等老师评为 A++', val:10, group:'class', note:'+10/科；与 A+ 不叠加'},
+  {id:'t_class_c', emoji:'📝', type:'课堂表现', text:'课堂测验得 C', val:-2, group:'class', note:'一科一项'},
+  {id:'t_class_d', emoji:'📝', type:'课堂表现', text:'课堂测验得 D', val:-5, group:'class', note:'一科一项'},
+  {id:'t_class_e', emoji:'📝', type:'课堂表现', text:'课堂测验得 E', val:-10, group:'class', note:'一科一项'},
+  {id:'t_xdf_fail', emoji:'📖', type:'课外表现', text:'新东方词测不通过、被留班', val:-2, group:'class'},
+  {id:'t_xdf_good', emoji:'🌟', type:'课外表现', text:'新东方课上表现优秀，或被老师奖励', val:2, group:'class'},
+  {id:'t_xdf_hw', emoji:'📓', type:'课外表现', text:'新东方作业被老师在线督促', val:-1, group:'class'},
+
+  // ── 行为规范类 ──
+  {id:'t_excuse', emoji:'⚠️', type:'行为扣分', text:'找借口逃避任务、拖延时间', val:-10, group:'behav', note:'与任务本身扣分不叠加'},
+  {id:'t_cheat', emoji:'🚫', type:'行为扣分', text:'作弊/撒谎', val:-100, group:'behav', note:'如有积分奖励则取消'},
+  {id:'t_temper', emoji:'😤', type:'发脾气', text:'辱骂/发脾气', val:-5, group:'behav', note:'冷静后可申请复议', legacy:true},
 ];
 
-// ----- 奖励定义（按梯度） -----
+// v2.1.0：按 v1.2.3「奖励兑换商店」9 项重录；旧 21 项商品 legacy:true 默认停用，后台可勾选启用
 const REWARDS = [
-  // 日常
-  {id:'r_cash', emoji:'💵', name:'现金 1元', cost:1, cat:'daily', tag:'现金'},
-  {id:'r_fruit', emoji:'🍎', name:'水果时间', cost:3, cat:'daily', tag:'NEW'},
-  {id:'r_ep', emoji:'📺', name:'1集动画', cost:3, cat:'daily', tag:'NEW'},
-  {id:'r_piggy', emoji:'💰', name:'5元小金库', cost:5, cat:'daily', tag:'NEW'},
-  {id:'r_drink', emoji:'🥤', name:'甜饮料', cost:8, cat:'daily'},
-  {id:'r_ice', emoji:'🍦', name:'冰淇淋/雪糕', cost:10, cat:'daily'},
+  {id:'r_cash', emoji:'💵', name:'现金', cost:1, cat:'daily', note:'1 元起，不封顶；人民币（现金或转账）'},
+  {id:'r_stationery', emoji:'✏️', name:'文具（单件）', cost:20, cat:'week', note:'购买一件精美、高级的笔、橡皮等'},
+  {id:'r_tv15', emoji:'📺', name:'延长 15 分钟电视时间', cost:30, cat:'week', note:'额外电视时间；限一周一次；仅限工作日'},
+  {id:'r_game30', emoji:'📱', name:'额外 30 分钟游戏', cost:60, cat:'week', note:'一月限兑换一次；仅限周末'},
+  {id:'r_sport', emoji:'🏀', name:'运动器材', cost:50, cat:'month', note:'小型运动器材（球类、跳绳、哑铃等）'},
+  {id:'r_book', emoji:'📚', name:'书籍购买', cost:100, cat:'month', note:'一次 ≤ 五本；内容/价格不限'},
+  {id:'r_toy', emoji:'🧸', name:'玩具', cost:150, cat:'month', note:'益智类、科技类优先'},
+  {id:'r_badm', emoji:'🏸', name:'羽毛球拍（进阶款）', cost:300, cat:'big', note:'计划外的球拍'},
+  {id:'r_special', emoji:'✨', name:'特别礼物', cost:1000, cat:'big', note:'购买一个特别想要的礼物（需家长同意）'},
 
-  // 周级
-  {id:'r_dessert', emoji:'🍰', name:'甜点一份', cost:15, cat:'week'},
-  {id:'r_out', emoji:'🌳', name:'一次小出游', cost:15, cat:'week', tag:'NEW'},
-  {id:'r_snack', emoji:'🍫', name:'零食两份', cost:20, cat:'week'},
-  {id:'r_stationery', emoji:'✏️', name:'文具（单件）', cost:20, cat:'week'},
-  {id:'r_friend', emoji:'👫', name:'朋友聚会/过夜', cost:25, cat:'week', tag:'NEW'},
-  {id:'r_screen30', emoji:'📱', name:'额外30min游戏/电视', cost:30, cat:'week', note:'一周限一次'},
-  {id:'r_pizza', emoji:'🍕', name:'披萨/汉堡', cost:50, cat:'week', note:'一周限一次'},
-  {id:'r_book_s', emoji:'📖', name:'小书（¥50内）', cost:40, cat:'week', tag:'NEW'},
-
-  // 月级
-  {id:'r_sport', emoji:'🏀', name:'小型运动器材', cost:50, cat:'month'},
-  {id:'r_sci', emoji:'🔬', name:'科学实验套装', cost:80, cat:'month'},
-  {id:'r_book', emoji:'📚', name:'书籍（>¥200）', cost:100, cat:'month'},
-  {id:'r_toy', emoji:'🧸', name:'益智/科技玩具', cost:120, cat:'month'},
-
-  // 季级+
-  {id:'r_cs', emoji:'🔫', name:'真人CS一次', cost:200, cat:'big'},
-  {id:'r_badm', emoji:'🏸', name:'进阶款羽毛球拍', cost:300, cat:'big'},
-  {id:'r_special', emoji:'✨', name:'特别礼物', cost:1000, cat:'big', note:'需家长同意'},
+  // ── 以下为旧版商品（v1.2.3 已下架），默认停用，后台工坊可勾选启用 ──
+  {id:'r_fruit', emoji:'🍎', name:'水果时间', cost:3, cat:'daily', legacy:true},
+  {id:'r_ep', emoji:'📺', name:'1集动画', cost:3, cat:'daily', legacy:true},
+  {id:'r_piggy', emoji:'💰', name:'5元小金库', cost:5, cat:'daily', legacy:true},
+  {id:'r_drink', emoji:'🥤', name:'甜饮料', cost:8, cat:'daily', legacy:true},
+  {id:'r_ice', emoji:'🍦', name:'冰淇淋/雪糕', cost:10, cat:'daily', legacy:true},
+  {id:'r_dessert', emoji:'🍰', name:'甜点一份', cost:15, cat:'week', legacy:true},
+  {id:'r_out', emoji:'🌳', name:'一次小出游', cost:15, cat:'week', legacy:true},
+  {id:'r_snack', emoji:'🍫', name:'零食两份', cost:20, cat:'week', legacy:true},
+  {id:'r_friend', emoji:'👫', name:'朋友聚会/过夜', cost:25, cat:'week', legacy:true},
+  {id:'r_screen30', emoji:'📱', name:'额外30min游戏/电视', cost:30, cat:'week', legacy:true},
+  {id:'r_pizza', emoji:'🍕', name:'披萨/汉堡', cost:50, cat:'week', legacy:true},
+  {id:'r_book_s', emoji:'📖', name:'小书（¥50内）', cost:40, cat:'week', legacy:true},
+  {id:'r_sci', emoji:'🔬', name:'科学实验套装', cost:80, cat:'month', legacy:true},
+  {id:'r_cs', emoji:'🔫', name:'真人CS一次', cost:200, cat:'big', legacy:true},
 ];
 
 // ----- 默认快捷任务（首页显示） -----
@@ -1613,12 +1619,13 @@ const defaultState = () => ({
   totalIn: 0,
   totalOut: 0,
   cfg: {
-    expireRate: 10, initBal: 0, expireOn: true,
+    expireRate: 1, initBal: 0, expireOn: true,   // v2.1.0：v1.2.3 规则 = 月底扣 1%，最低 1
     pin: '',          // 管理员 PIN（旧版兼容；设置账号后清空）
     sound: true,      // 得分音效开关
     childName: '',    // 孩子英文名（必填，空则回落 CHILD_NAME）
     admin: {email: '', passHash: ''},   // 管理员账号：邮箱 + 密码哈希（找回凭证）
     setupDone: false, // 初始向导是否已完成
+    pack: 'v1.2.3',   // 当前生效的规则包版本（商业化预留：规则与数据分离的锚点）
     theme: 'arcade',  // 外观主题：arcade 街机 | sweet 甜美 | funny 搞怪
     sfxStyle: 'retro',// 音效风格：retro 复古 | soft 柔和 | silly 滑稽
     fx: 'full',       // 特效档位：full 全开 | mini 轻量 | off 关闭
@@ -1706,7 +1713,10 @@ const recordTimeStr = ms => {const t = new Date(ms); return `${t.getMonth() + 1}
 
 const daysInMonth     = () => new Date(now().getFullYear(), now().getMonth() + 1, 0).getDate();
 const daysLeftInMonth = () => daysInMonth() - now().getDate();
-const pendingExpire   = () => state.cfg.expireOn ? Math.floor(state.balance * state.cfg.expireRate / 100) : 0;
+const pendingExpire   = () => {
+  if(!state.cfg.expireOn || state.balance <= 0) return 0;
+  return Math.max(1, Math.floor(state.balance * state.cfg.expireRate / 100));   // v1.2.3：最低扣 1
+};
 const isDoneToday     = id => state.doneToday[id] === dayStr();
 const signed          = n => (n >= 0 ? '+' : '') + n;
 
@@ -1716,6 +1726,7 @@ const taskOff    = t => !!state.cfg.taskOv[t.id]?.off;
 const rewardCost = r => state.cfg.rewardOv[r.id]?.cost ?? r.cost;
 const rewardOff  = r => !!state.cfg.rewardOv[r.id]?.off;
 // 工坊合并视图：内置常量 + 覆盖 + 自定义，UI 渲染统一走这里
+// legacy:true 旧版条目默认停用（后台可勾选启用 = 备选项机制）
 function mergedTasks(){
   const ov = state.cfg.taskOv || {};
   const base = TASKS.map(t => ({
@@ -1724,7 +1735,7 @@ function mergedTasks(){
     type:  ov[t.id]?.type  ?? t.type,
     text:  ov[t.id]?.text  ?? t.text,
     val:   ov[t.id]?.val   ?? t.val,
-    off:   !!ov[t.id]?.off,
+    off:   ov[t.id]?.off ?? !!t.legacy,
   }));
   return base.concat((state.cfg.customTasks || []).map(t => ({...t, off: !!t.off})));
 }
@@ -1736,7 +1747,7 @@ function mergedRewards(){
     name:  ov[r.id]?.name  ?? r.name,
     note:  ov[r.id]?.note  ?? r.note,
     cost:  ov[r.id]?.cost  ?? r.cost,
-    off:   !!ov[r.id]?.off,
+    off:   ov[r.id]?.off ?? !!r.legacy,
   }));
   return base.concat((state.cfg.customRewards || []).map(r => ({...r, off: !!r.off})));
 }
@@ -1919,7 +1930,7 @@ function checkMonthlyExpire(){
 
   const monthChanged = state.lastResetMonth !== null;
   if(monthChanged && state.cfg.expireOn && state.balance > 0){
-    const expire = Math.floor(state.balance * state.cfg.expireRate / 100);
+    const expire = pendingExpire();   // v1.2.3：1% 取整，最低扣 1
     if(expire > 0){
       state.balance -= expire;
       state.monthOut += expire;
@@ -1958,30 +1969,7 @@ function checkMilestone(before, after){
 }
 
 function completeTask(task, sourceEl){
-  // 作弊/撒谎：按当次积分 ×3 扣除，基数由家长输入
-  if(task.id === 't_cheat'){
-    showModal({
-      emoji:'🤨',
-      title:'作弊/撒谎处理',
-      sub:'将按当次任务积分 × 3 扣除。请输入当次积分：',
-      input:{value:5, min:1, max:100},
-      actions:[
-        {label:'取消'},
-        {label:'确认扣除', cls:'danger', onClick:v => {
-          const penalty = (parseInt(v, 10) || 0) * 3;
-          addRecord('out', -penalty, `🚫 作弊撒谎 -${penalty}`, task.id);
-          state.doneToday[task.id] = dayStr();
-          saveState();                      // addRecord 已落盘，这里补落 doneToday
-          burst(); render();
-          sfx.undo();
-          toast(`已扣除 ${penalty}${COIN}`, 'error');
-          closeModal();
-        }},
-      ],
-    });
-    return;
-  }
-
+  // v2.1.0：作弊/撒谎按 v1.2.3 规则统一 -100（旧版「×3 扣除」弹窗已移除）
   const val = taskVal(task);
   const before = state.balance;
   addRecord(val >= 0 ? 'in' : 'out', val,
@@ -2006,10 +1994,35 @@ function completeTask(task, sourceEl){
   checkMilestone(before, state.balance);
 }
 
+// v1.2.3 兑换频次：≤50🪙 每周限一次；≥100🪙 每月限一次（单条 note 另有说明的以 note 为准）
+function redeemLimitHit(r){
+  const cost = rewardCost(r);
+  if(cost <= 0) return null;
+  const mine = state.records.filter(x => x.type === 'out' && x.taskId === r.id);
+  const nowD = new Date();
+  if(cost <= 50){
+    const monday = new Date(nowD);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    if(mine.some(x => x.time >= monday.getTime())) return '本周已兑换过该奖励（≤50🪙 每周限一次）';
+  }
+  if(cost >= 100){
+    const monthStart = new Date(nowD.getFullYear(), nowD.getMonth(), 1).getTime();
+    if(mine.some(x => x.time >= monthStart)) return '本月已兑换过该奖励（≥100🪙 每月限一次）';
+  }
+  return null;
+}
+
 function redeemReward(r){
   const cost = rewardCost(r);
   if(state.balance < cost){
     toast(`余额不足！还差 ${cost - state.balance}${COIN}`, 'error');
+    shake($('balNum'));
+    return;
+  }
+  const limitMsg = redeemLimitHit(r);
+  if(limitMsg){
+    toast(`⏱ ${limitMsg}`, 'error');
     shake($('balNum'));
     return;
   }
@@ -2066,6 +2079,7 @@ function renderBalance(){
 
   const left = daysLeftInMonth(), total = daysInMonth();
   $('expireDays').textContent   = left + ' 天';
+  $('expireRateLabel').textContent = state.cfg.expireRate + '%';   // v2.1.0：跟随设置（默认 1%）
   $('expireFill').style.width   = ((total - left) / total * 100) + '%';
   $('expireSoon').textContent   = pendingExpire();
 
@@ -2656,18 +2670,35 @@ async function requestAdminAccess(){
     });
     return;
   }
-  setViewMode('parent');
+  noAdminGuide();   // v2.1.0：无账号无 PIN 时引导创建，不再直通后台
 }
 
-// 忘记密码：本地校验注册邮箱后直接重置。云同步版本将升级为邮件验证码。
-// 浮按钮 ⚙️：有账号走登录 modal；无账号直进后台（后台里有「保存账号」入口）
+// 未设家长账号时的统一引导：不直接放行后台，引导去创建账号
+function noAdminGuide(){
+  showModal({
+    emoji:'🔐',
+    title:'家长后台未设置',
+    sub:'后台由家长管理。请先创建家长账号（邮箱 + 密码），之后凭密码进入。孩子看不到也进不去。',
+    actions:[
+      {label:'取消'},
+      {label:'去设置', cls:'primary', onClick:() => {
+        closeModal();
+        wizShow();
+        $('wizStep1').style.display = 'none';   // 直接跳到家长账号步
+        $('wizStep2').style.display = '';
+      }},
+    ],
+  });
+}
+
+// 浮按钮 ⚙️：有账号走登录；无账号引导创建（不再直通后台）
 function goAdmin(){
   const admin = state.cfg.admin;
   if(admin && admin.email && admin.passHash){
     requestAdminAccess();
     return;
   }
-  setViewMode('parent');
+  noAdminGuide();
 }
 
 function forgotPassword(){
@@ -2734,7 +2765,12 @@ function setViewMode(mode){
     if(homeTab) homeTab.classList.add('active');
     showView(document.querySelector('#topnav .tn-tab.active')?.dataset.tab || 'home');
   }
+  // v2.1.0：parent 是「会话态」不是「持久态」——落盘永远只存 'max'，
+  // 刷新 / 重开标签页必须重新登录，堵住「刷新直通后台」
+  const session = state.view;
+  state.view = 'max';
   saveState();
+  state.view = session;
   render();
 }
 
@@ -2751,7 +2787,11 @@ document.querySelectorAll('#topnav .tn-tab').forEach(tab => {
 
 document.querySelectorAll('#viewToggle .view-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    if(btn.dataset.view === 'parent') requestAdminAccess();
+    if(btn.dataset.view === 'parent'){
+      // 已登录 → 再点一次 = 退出后台；未登录 → 弹登录
+      if(state.view === 'parent') setViewMode('max');
+      else requestAdminAccess();
+    }
     else setViewMode('max');
   });
 });
@@ -3299,8 +3339,8 @@ window.addEventListener('scroll', () => {
   $('miniBal').classList.toggle('show', _balSection.getBoundingClientRect().bottom < 0);
 }, {passive:true});
 
-// 设了 PIN 时，刷新后不自动留在后台
-if(state.view === 'parent' && state.cfg.pin) state.view = 'max';
+// v2.1.0：parent 是会话态，刷新/重开一律回孩子视角（旧 PIN 时代的防护升级为无条件）
+if(state.view !== 'max') state.view = 'max';
 
 setViewMode(state.view);   // 同步视角按钮 + 首屏
 checkMonthlyExpire();
@@ -3315,7 +3355,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.0.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.1.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -3331,12 +3371,16 @@ function runSelfTest(){
     assert('日期补零', dayStr(new Date(2026, 0, 5)) === '2026-01-05'),
     assert('HTML 转义', esc('<img src=x onerror=1>') === '&lt;img src=x onerror=1&gt;'),
     assert('规则覆盖生效', (state.cfg.taskOv = {t_dawn: {val: 99}}) && taskVal(TASKS[0]) === 99 && (delete state.cfg.taskOv.t_dawn, taskVal(TASKS[0]) === TASKS[0].val)),
-    assert('停用过滤生效', (state.cfg.taskOv.t_read = {off: true}) && activeTasks().length === TASKS.length - 1 && (delete state.cfg.taskOv.t_read, true)),
+    assert('停用过滤生效', (state.cfg.taskOv.t_home = {off: true}) && activeTasks().length === TASKS.filter(t => !t.legacy).length - 1 && (delete state.cfg.taskOv.t_home, activeTasks().length === TASKS.filter(t => !t.legacy).length)),
     assert('奖励价格覆盖', (state.cfg.rewardOv.r_cash = {cost: 7}) && rewardCost(REWARDS[0]) === 7 && (delete state.cfg.rewardOv.r_cash, rewardCost(REWARDS[0]) === REWARDS[0].cost)),
     assert('工坊合并列表', (state.cfg.customTasks.push({id:'c_t1', emoji:'⭐', type:'测试', text:'x', val:1, group:'daily'}), mergedTasks().some(t => t.id === 'c_t1')) && (state.cfg.customTasks.pop(), mergedTasks().every(t => t.id !== 'c_t1'))),
     assert('主题值合法', ['arcade', 'sweet', 'funny'].includes(state.cfg.theme || 'arcade')),
     assert('导航四锚点齐全', ['home', 'tasks', 'shop', 'records'].every(v => document.querySelector(`#topnav .tn-tab[data-tab="${v}"]`))),
     assert('邮箱记忆读写往返', (rememberAccount('__t@t.co'), loadAccounts()[0] === '__t@t.co') && (saveAccounts(loadAccounts().filter(e => e !== '__t@t.co')), !loadAccounts().includes('__t@t.co'))),
+    assert('parent 会话态不落盘', (setViewMode('parent'), JSON.parse(localStorage.getItem(STORAGE_KEY)).view === 'max') && (setViewMode('max'), true)),
+    assert('v1.2.3 七大分类齐全', ['daily','study','fit','honor','challenge','class','behav'].every(g => Object.values(TASKS).some(t => t.group === g))),
+    assert('旧版条目默认停用', TASKS.filter(t => t.legacy).every(t => mergedTasks().find(x => x.id === t.id).off) && REWARDS.filter(r => r.legacy).every(r => mergedRewards().find(x => x.id === r.id).off)),
+    assert('过期最低扣 1', ((bal) => { state.balance = 50; const a = pendingExpire() === 1; state.balance = 0; const b = pendingExpire() === 0; state.balance = 500; const c = pendingExpire() === 5; state.balance = bal; return a && b && c; })(state.balance)),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原

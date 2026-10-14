@@ -1,7 +1,7 @@
 # Max's Credits Plan · 工作文档（WORKDOC）
 
 > 协作交接用。新人读本文件 + `changelog.md` 即可接手。
-> 当前版本：v2.0.0｜基线：v1.9.0 @ `fix_general_03` → 重构分支 `_refactor_v2_01`
+> 当前版本：v2.1.0（规则包 v1.2.3）｜重构线：`_refactor_v2_01`(v2.0.0) → `_check01`(v2.1.0)
 
 ---
 
@@ -72,13 +72,22 @@
   cfg: {
     expireRate, initBal, expireOn, pin(旧兼容), sound,
     childName, admin:{email, passHash}, setupDone,
+    pack:'v1.2.3',   // 规则包版本（商业化锚点）
     theme:'arcade|sweet|funny', sfxStyle:'retro|soft|silly', fx:'full|mini|off',
     customTasks:[], customRewards:[], taskOv:{}, rewardOv:{}
   }
 }
 ```
 
-规则覆盖链：内置常量 → `taskOv/rewardOv` 覆盖 → `customTasks/customRewards` 追加 → `mergedTasks()/mergedRewards()` 统一出口。
+规则覆盖链：内置常量（v1.2.3 重录）→ `taskOv/rewardOv` 覆盖 → `customTasks/customRewards` 追加 → `mergedTasks()/mergedRewards()` 统一出口。
+`legacy:true` 条目（旧版 3 任务 + 14 奖励）默认停用，后台工坊勾选启用 = 备选项机制。
+
+### 生效规则（v1.2.3）
+
+- 月度清除：最后一日扣 **1%**（取整，**最低扣 1**），配置项 `expireRate` 默认 1
+- 兑换频次：**≤50🪙 每周限一次；≥100🪙 每月限一次**（`redeemLimitHit` 拦截；单条 note 另有说明的以 note 为准）
+- 任务 7 类：作息与家庭 / 学习习惯 / 体能训练 / 个人荣誉与进步 / 挑战成就 / 课堂表现 / 行为规范
+- 积分银行：余额不足禁购（不可透支）；家长后台 = 积分银行管理员
 
 ---
 
@@ -134,3 +143,5 @@
 - headless Chrome `--virtual-time-budget` 下 rAF/transition 不推进：验证布局用 DOM 探针（getBoundingClientRect + --dump-dom），别只信截图
 - present_files / 静态预览管线可能往 HTML 注入 `data-page-node-id` 属性：二次编辑前先重新 Read 或 grep 确认
 - 动效冻结面（飞字/金币/粒子/音效）改动后必须真机复验，headless 截图会漏动效问题
+- **parent 视角是会话态不是持久态**（v2.1.0 修复）：落盘只写 `view:'max'`；任何「刷新/重开保持在后台」的需求都是安全倒退，别改回去
+- 无家长账号时后台入口必须走 `noAdminGuide()` 引导创建，禁止直接 `setViewMode('parent')` 放行
