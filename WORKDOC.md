@@ -1,7 +1,7 @@
 # Max's Credits Plan · 工作文档（WORKDOC）
 
 > 协作交接用。新人读本文件 + `changelog.md` 即可接手。
-> 当前版本：v2.1.0（规则包 v1.2.3）｜重构线：`_refactor_v2_01`(v2.0.0) → `_check01`(v2.1.0)
+> 当前版本：v2.2.0（规则包 v1.2.3 + Supabase 云同步）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
 
 ---
 
@@ -18,6 +18,8 @@
 - **存储**：localStorage，无后端
   - `max_credits_v12` —— 主存档（schema 见第五节）
   - `max_credits_accounts` —— 记住的家长邮箱列表（独立，导入/重置不丢）
+  - `max_credits_cloud` —— 云同步凭证（URL/anon key/家庭码/开关，**不进导出**）
+  - `max_credits_backup_<时间戳>` —— 拉取云端前的本地旧档备份
 - **字体**：Baloo 2 ExtraBold（latin 子集 base64 内嵌，SIL OFL 1.1）；正文走系统字体
 - **版本规则**：`vX.Y.Z_YYMMDD`；历史版本全保留在 `versions/`
 - **调试**：地址栏加 `?selftest`（控制台自检）/ `?register`（重走向导）；控制台 `window.MAX`
@@ -53,7 +55,7 @@
 | ③ 工具函数 | $ / esc / 日期 / 业务小算 | pendingExpire / isDoneToday / mergedTasks / mergedRewards |
 | ④ 核心业务 | 完成任务 / 撤销 / 兑换 / 月过期 / 连击 / 里程碑 | completeTask / undoTask / redeemReward / checkMonthlyExpire |
 | ⑤ 渲染层 | render() 总出口 + 各子渲染器（只读 state） | renderHomeCards / renderTaskWall / renderShop / renderAdmin* / renderWeekChartInto / renderRankList |
-| ⑥ 交互绑定 | Tab / 视角 / 点击委托 / 后台按钮 / 滑动切页 / 向导 | showView / setViewMode / showModal / requestAdminAccess |
+| ⑥ 交互绑定 | Tab / 视角 / 点击委托 / 后台按钮 / 滑动切页 / 向导 / 云同步 | showView / setViewMode / showModal / requestAdminAccess / cloudPush / cloudSyncNow |
 | ⑦ 动效层 | 飞字 / 金币 / 粒子 / 礼盒 / toast / Web Audio 音效 | burst / flyScore / coinPop / sfx.* |
 | ⑧ 启动 | 主题恢复 / 向导判断 / 吸顶余额 / 自检 | init 内联 / runSelfTest |
 
@@ -69,6 +71,7 @@
   records: [{time, type:'in'|'out', val, name, taskId?}],   // 倒序，最新在前
   doneToday: {taskId: 'YYYY-MM-DD'},
   view: 'max'|'parent', lastResetMonth: 'YYYY-MM',
+  updatedAt: 0,           // v2.2.0：本地最后修改时间戳（云同步 LWW 用）
   cfg: {
     expireRate, initBal, expireOn, pin(旧兼容), sound,
     childName, admin:{email, passHash}, setupDone,
@@ -88,6 +91,22 @@
 - 兑换频次：**≤50🪙 每周限一次；≥100🪙 每月限一次**（`redeemLimitHit` 拦截；单条 note 另有说明的以 note 为准）
 - 任务 7 类：作息与家庭 / 学习习惯 / 体能训练 / 个人荣誉与进步 / 挑战成就 / 课堂表现 / 行为规范
 - 积分银行：余额不足禁购（不可透支）；家长后台 = 积分银行管理员
+
+### 云同步（v2.2.0 · Supabase）
+
+| 项 | 设计 |
+|---|---|
+| 接入方式 | 零 SDK：fetch 直连 Supabase REST（`/rest/v1/family_state`），单文件保持零依赖 |
+| 数据模型 | 一张表 `family_state(family_code PK, state jsonb, updated_at)`，一家一行整包存 |
+| 身份 | **家庭码配对**（6 位，A 生成 B 输入）；无账号体系，孩子设备零门槛 |
+| 冲突 | 整包 **last-write-wins**（比较 `state.updatedAt` 本地时钟）；本地不旧于云端才推送 |
+| 拉取保护 | 拉取前自动把本地旧档写入 `max_credits_backup_<时间戳>` |
+| 凭证 | 独立键 `max_credits_cloud`，只存本机；**不进导出 JSON** |
+| 入口 | 后台「云同步 · Supabase」卡：保存/测试连接/立即同步/自动同步开关 |
+| 建表 | `supabase-setup.sql`（含 RLS：anon 可读写——家庭码即凭证） |
+| 已知限制 | ① 家庭码 = 读写凭证，外传=数据外泄；② 设备时钟差过大时推送被跳过（防覆盖，fail-safe）；③ 整包 LWW 极端同刻双改会丢一笔——可接受，升级路径是记录级合并表 |
+| 关键函数 | cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard |
+| 存档合并 | `hydrate(saved)` 统一深合并（localStorage/云端/导入三条路径共用，浅合并曾把 cfg 整体替换导致渲染崩） |
 
 ---
 
@@ -121,11 +140,12 @@
 
 ## 八、后续待办（Backlog）
 
-- [ ] 云同步（多端）：先 JSON 导出 + 网盘手动同步，再评估轻后端账号制
+- [x] ~~云同步（多端）~~ v2.2.0 已交付 Supabase 版（家庭码 + 整包 LWW）
+- [ ] 云同步加固：配对密钥 / 记录级合并（同刻双改丢一笔的根治）
+- [ ] 商业化预研：多家庭隔离（familyId + 配对密钥）、规则包售卖、实物卡兑码核销
 - [ ] PWA：manifest + 离线缓存 + 添加到主屏幕
 - [ ] 过期机制阶梯化（<50C 免扣 / 50–200C 10% / >200C 20%）
 - [ ] 现金奖励「5C 小金库」攒兑零花钱
-- [ ] 实物兑换专块（Credits 实物卡联动）
 - [ ] 交互流程图 SVG
 - [ ] GitHub Pages 部署（需用户口令授权）
 

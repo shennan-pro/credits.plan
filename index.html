@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v2.1.0</title>
+<title>Max's Credits Plan · v2.2.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1016,7 +1016,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.1.0</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.0</span>
     </div>
   </header>
 
@@ -1335,6 +1335,61 @@ html[data-theme="funny"]{
         </div>
       </div>
 
+      <!-- 云同步（v2.2.0 · Supabase，家长后台配置） -->
+      <div class="card ag-custom" id="cloudCard">
+        <div class="card-head">
+          <div class="card-title green"><span class="dot"></span>云同步 · Supabase</div>
+          <div class="tag tag-yellow" id="cloudStateTag">未配置</div>
+        </div>
+        <div class="card-body">
+          <div class="rule-col-head">① 填入你的 Supabase 项目（凭证只存本机，不进入导出文件）</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">项目 URL</div>
+              <div class="setting-desc">Supabase → Project Settings → API，形如 https://xxxx.supabase.co</div>
+            </div>
+            <input type="text" class="setting-input" id="cloudUrl" placeholder="https://xxxx.supabase.co" style="width:220px">
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">anon public key</div>
+              <div class="setting-desc">同一页面里的 anon / public 密钥（不是 service_role！）</div>
+            </div>
+            <input type="text" class="setting-input" id="cloudKey" placeholder="eyJhbGciOi..." style="width:220px">
+          </div>
+          <div class="rule-col-head" style="margin-top:14px">② 家庭码：两台设备填同一个码即视为同一家庭</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">家庭码</div>
+              <div class="setting-desc">在 A 设备生成，B 设备手动输入绑定；谁拿到码谁就能同步该家庭数据</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" class="setting-input" id="cloudCode" placeholder="6 位家庭码" maxlength="8" style="width:110px;text-align:center">
+              <button class="btn" id="btnCloudGen" style="padding:10px 14px"><span>🎲 生成</span></button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">自动同步</div>
+              <div class="setting-desc">开启后：本地有改动自动上云；打开页面时若云端更新则拉取（拉取前自动本地备份）</div>
+            </div>
+            <div class="toggle" id="cloudAuto"></div>
+          </div>
+          <div class="admin-actions row" style="margin-top:14px">
+            <button class="btn" id="btnCloudSave" style="background:var(--mc-green);color:#fff"><span>💾 保存云配置</span></button>
+            <button class="btn" id="btnCloudTest"><span>🔌 测试连接</span></button>
+            <button class="btn" id="btnCloudSync"><span>☁️ 立即同步</span></button>
+          </div>
+          <div class="rule-col-head" style="margin-top:14px">状态</div>
+          <div class="setting-row" style="border-bottom:none">
+            <div>
+              <div class="setting-label" id="cloudStatus">尚未配置</div>
+              <div class="setting-desc">首次使用需先在 Supabase 执行建表 SQL（见 supabase-setup.sql）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card ag-custom">
         <div class="card-head">
           <div class="card-title blue"><span class="dot"></span>外观与体验</div>
@@ -1423,7 +1478,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.1.0 · 2026-10-14</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.0 · 2026-10-14</span>
     </div>
   </footer>
 </div>
@@ -1634,8 +1689,9 @@ const defaultState = () => ({
     taskOv: {},       // 任务覆盖：{taskId: {val?, off?}}
     rewardOv: {},     // 奖励覆盖：{rewardId: {cost?, off?}}
   },
-  view: 'max',            // 'max' | 'parent'
+  view: 'max',            // 'max' | 'parent'（parent 为会话态，不落盘）
   lastResetMonth: null,   // 'YYYY-MM'，防重复执行月过期
+  updatedAt: 0,           // v2.2.0：本地最后修改时间戳（云同步 LWW 用）
 });
 
 let state = loadState();
@@ -1644,21 +1700,26 @@ function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return defaultState();
-    const saved = JSON.parse(raw) || {};
-    const base = defaultState();
-    // cfg 逐字段合并：老存档缺新增设置项时不至于被整体覆盖丢失
-    return Object.assign(base, saved, {
-      cfg: Object.assign(base.cfg, saved.cfg || {}),
-      records: Array.isArray(saved.records) ? saved.records : base.records,
-      doneToday: (saved.doneToday && typeof saved.doneToday === 'object') ? saved.doneToday : {},
-    });
+    return hydrate(JSON.parse(raw) || {});
   }catch(e){
     console.warn('[MAX] 存档读取失败，已回退初始状态', e);
     return defaultState();
   }
 }
 
+// 深合并存档（localStorage / 云端 / 导入共用）：cfg 逐字段合，老存档缺新字段不丢
+// v2.2.0：云同步发现浅合并会把 cfg 整体替换掉 → taskOv 丢失 → 渲染崩
+function hydrate(saved){
+  const base = defaultState();
+  return Object.assign(base, saved, {
+    cfg: Object.assign(base.cfg, saved.cfg || {}),
+    records: Array.isArray(saved.records) ? saved.records : base.records,
+    doneToday: (saved.doneToday && typeof saved.doneToday === 'object') ? saved.doneToday : {},
+  });
+}
+
 function saveState(){
+  state.updatedAt = Date.now();   // v2.2.0：本地修改时间戳，云同步 LWW 比较用
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }catch(e){
@@ -1666,6 +1727,7 @@ function saveState(){
     toast('⚠️ 保存失败：浏览器存储不可用', 'error');
     console.error('[MAX] saveState 失败', e);
   }
+  scheduleCloudPush();   // 配置了自动同步才真正发起
 }
 
 // 记住的登录邮箱（与主数据分开，导入/重置不丢账号列表）
@@ -2059,6 +2121,7 @@ function render(){
     renderAdmin();
     renderAdminRules();
     renderAdminStats();
+    renderCloudCard();
   }
 
   if(activeView) activeView.scrollTop = viewScroll;
@@ -2974,7 +3037,7 @@ $('fileInput').addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = ev => {
     try{
-      state = Object.assign(defaultState(), JSON.parse(ev.target.result));
+      state = hydrate(JSON.parse(ev.target.result));   // v2.2.0：与云端同走深合并
       saveState(); render();
       toast('已导入数据', 'success');
     }catch(err){
@@ -3097,6 +3160,142 @@ $('btnAdminSave').addEventListener('click', async () => {
   saveState(); render();
   $('cfgAdminPass').value = '';
   toast('✅ 管理员账号已保存，进后台需登录', 'success');
+});
+
+/* ============================================================
+   v2.2.0 云同步 · Supabase（家长后台配置，凭证独立存储）
+   ------------------------------------------------------------
+   数据模型：一张表 family_state(family_code PK, state jsonb, updated_at)
+   冲突策略：整包 last-write-wins（按 state.updatedAt 比较本地时钟）
+   拉取前自动把当前本地存档备份到 max_credits_backup_<时间戳>
+   ============================================================ */
+const CLOUD_KEY = 'max_credits_cloud';
+const cloudCfg = () => {
+  try{ return Object.assign({url:'', anonKey:'', familyCode:'', autoSync:false, lastSync:0}, JSON.parse(localStorage.getItem(CLOUD_KEY) || '{}')); }
+  catch(e){ return {url:'', anonKey:'', familyCode:'', autoSync:false, lastSync:0}; }
+};
+const saveCloudCfg = c => { try{ localStorage.setItem(CLOUD_KEY, JSON.stringify(c)); }catch(e){} };
+const cloudReady = () => { const c = cloudCfg(); return !!(c.url && c.anonKey && c.familyCode); };
+const genFamilyCode = () => {
+  const abc = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // 去掉易混淆字符
+  let s = '';
+  for(let i = 0; i < 6; i++) s += abc[Math.floor(Math.random() * abc.length)];
+  return s;
+};
+const cloudRest = () => {
+  const c = cloudCfg();
+  return `${c.url.replace(/\/+$/, '')}/rest/v1/family_state?family_code=eq.${encodeURIComponent(c.familyCode)}`;
+};
+const cloudHeaders = () => {
+  const c = cloudCfg();
+  return {apikey: c.anonKey, Authorization: `Bearer ${c.anonKey}`, 'Content-Type': 'application/json'};
+};
+const cloudStampStr = ms => ms ? new Date(ms).toLocaleString('zh-CN', {hour12:false}) : '从未';
+
+function renderCloudCard(){
+  const c = cloudCfg();
+  $('cloudUrl').value  = c.url;
+  $('cloudKey').value  = c.anonKey;
+  $('cloudCode').value = c.familyCode;
+  $('cloudAuto').classList.toggle('on', !!c.autoSync);
+  $('cloudStateTag').textContent = cloudReady() ? (c.autoSync ? '已连接 · 自动' : '已连接 · 手动') : '未配置';
+  $('cloudStatus').textContent = cloudReady()
+    ? `上次同步：${cloudStampStr(c.lastSync)}｜家庭码 ${c.familyCode}`
+    : '尚未配置';
+}
+
+// 拉取：返回 {state, updatedAt} 或 null（云端无该家庭）
+async function cloudPull(){
+  if(!cloudReady()) throw new Error('云未配置');
+  const res = await fetch(cloudRest(), {headers: cloudHeaders()});
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const rows = await res.json();
+  return rows && rows.length ? rows[0] : null;
+}
+
+// 推送：整包 upsert（仅当本地不旧于云端，避免覆盖别人的新数据）
+async function cloudPush(){
+  if(!cloudReady()) throw new Error('云未配置');
+  const remote = await cloudPull();
+  if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
+    return {skipped:true, remoteAt: remote.state.updatedAt};
+  }
+  const res = await fetch(cloudRest(), {
+    method: 'POST',
+    headers: {...cloudHeaders(), Prefer: 'resolution=merge-duplicates,return=minimal'},
+    body: JSON.stringify({family_code: cloudCfg().familyCode, state, updated_at: new Date().toISOString()}),
+  });
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const c = cloudCfg(); c.lastSync = Date.now(); saveCloudCfg(c);
+  return {skipped:false};
+}
+
+async function cloudSyncNow(){
+  const remote = await cloudPull();
+  if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
+    // 云端更新 → 备份本地后拉取
+    const bk = `max_credits_backup_${dayStr()}_${clockStr().replace(':','')}`;
+    try{ localStorage.setItem(bk, JSON.stringify(state)); }catch(e){}
+    state = hydrate(remote.state);   // 深合并：缺字段回落默认，不崩渲染
+    saveState(); render();
+    const c = cloudCfg(); c.lastSync = Date.now(); saveCloudCfg(c);
+    toast(`☁️ 已拉取云端新数据（本地旧档备份：${bk}）`, 'success');
+    return;
+  }
+  await cloudPush();
+  toast('☁️ 已推送到云端', 'success');
+}
+
+async function testCloud(){
+  try{
+    const remote = await cloudPull();
+    const c = cloudCfg();
+    $('cloudStatus').textContent = remote
+      ? `连接成功｜云端有数据（${cloudStampStr(remote.state?.updatedAt || 0)}）`
+      : '连接成功｜云端暂无该家庭数据（保存配置后点「立即同步」即可上传）';
+    toast('🔌 连接成功', 'success');
+  }catch(e){
+    $('cloudStatus').textContent = `连接失败：${e.message}`;
+    toast('🔌 连接失败：' + e.message, 'error');
+  }
+  renderCloudCard();
+}
+
+// 自动推送：防抖 2 秒（保存频繁，但数据极小）
+let _cloudTimer = 0;
+function scheduleCloudPush(){
+  if(!cloudReady() || !cloudCfg().autoSync) return;
+  clearTimeout(_cloudTimer);
+  _cloudTimer = setTimeout(async () => {
+    try{ await cloudPush(); }catch(e){ console.warn('[MAX] 自动上云失败', e); }
+  }, 2000);
+}
+
+$('btnCloudGen').addEventListener('click', () => {
+  $('cloudCode').value = genFamilyCode();
+  toast('🎲 已生成家庭码，保存配置后生效');
+});
+$('btnCloudSave').addEventListener('click', () => {
+  const url = String($('cloudUrl').value || '').trim().replace(/\/+$/, '');
+  const anonKey = String($('cloudKey').value || '').trim();
+  const familyCode = String($('cloudCode').value || '').trim().toUpperCase();
+  if(!/^https:\/\/[^\s]+\.supabase\.co$/.test(url)){ toast('URL 格式不对：https://xxxx.supabase.co', 'error'); return; }
+  if(!anonKey){ toast('请填写 anon key', 'error'); return; }
+  if(!/^[A-Z0-9]{4,8}$/.test(familyCode)){ toast('家庭码为 4-8 位字母数字', 'error'); return; }
+  saveCloudCfg({...cloudCfg(), url, anonKey, familyCode});
+  renderCloudCard();
+  toast('💾 云配置已保存（只存本机）', 'success');
+});
+$('cloudAuto').addEventListener('click', () => {
+  const c = cloudCfg(); c.autoSync = !c.autoSync; saveCloudCfg(c);
+  renderCloudCard();
+  toast(c.autoSync ? '☁️ 自动同步已开启' : '☁️ 自动同步已关闭');
+  if(c.autoSync) scheduleCloudPush();
+});
+$('btnCloudTest').addEventListener('click', testCloud);
+$('btnCloudSync').addEventListener('click', async () => {
+  try{ await cloudSyncNow(); }catch(e){ toast('同步失败：' + e.message, 'error'); }
+  renderCloudCard();
 });
 
 $('btnReset').addEventListener('click', () => {
@@ -3346,6 +3545,11 @@ setViewMode(state.view);   // 同步视角按钮 + 首屏
 checkMonthlyExpire();
 render();
 
+// v2.2.0：配置了自动同步 → 启动时拉一次云端（云端更新则备份本地后拉取）
+if(cloudReady() && cloudCfg().autoSync){
+  cloudSyncNow().catch(e => console.warn('[MAX] 启动云拉取失败', e));
+}
+
 // 调试入口：控制台可手动刷分排查
 window.MAX = {
   get state(){return state;},   // 用 getter，重置后仍指向当前 state
@@ -3355,7 +3559,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.1.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -3381,6 +3585,8 @@ function runSelfTest(){
     assert('v1.2.3 七大分类齐全', ['daily','study','fit','honor','challenge','class','behav'].every(g => Object.values(TASKS).some(t => t.group === g))),
     assert('旧版条目默认停用', TASKS.filter(t => t.legacy).every(t => mergedTasks().find(x => x.id === t.id).off) && REWARDS.filter(r => r.legacy).every(r => mergedRewards().find(x => x.id === r.id).off)),
     assert('过期最低扣 1', ((bal) => { state.balance = 50; const a = pendingExpire() === 1; state.balance = 0; const b = pendingExpire() === 0; state.balance = 500; const c = pendingExpire() === 5; state.balance = bal; return a && b && c; })(state.balance)),
+    assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
+    assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原
