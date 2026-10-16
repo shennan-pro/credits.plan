@@ -1,13 +1,13 @@
 # Max's Credits Plan · 工作文档（WORKDOC）
 
-> 协作交接用。新人读本文件 + `changelog.md` 即可接手。
+> 协作交接用。新人读本文件 + `changelog.md` 即可接手。  
 > 当前版本：v2.2.0（规则包 v1.2.3 + Supabase 云同步）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
 
 ---
 
 ## 一、产品一句话
 
-小学生好习惯积分系统：孩子做任务赚 Credits → 商店兑换奖励 → 月底未花的自动过期 10%（倒逼消费）。
+小学生好习惯积分系统：孩子做任务赚 Credits → 商店兑换奖励 → 月底未花的自动过期 10%（倒逼消费）。  
 双角色：孩子（MAX 视角，看数据/做任务/兑换）+ 家长（爸妈后台，调规则/看统计/管账号）。
 
 ---
@@ -48,16 +48,16 @@
 
 ## 四、JS 八区索引（script 顺序即依赖顺序）
 
-| 区 | 内容 | 关键函数 |
-|---|---|---|
-| ① 数据定义 | TASK_GROUPS / REWARD_CATS / TASKS / REWARDS / QUICK_IDS | — |
-| ② 状态存取 | defaultState / loadState / saveState / 邮箱记忆 | loadAccounts / rememberAccount / accountOptions |
-| ③ 工具函数 | $ / esc / 日期 / 业务小算 | pendingExpire / isDoneToday / mergedTasks / mergedRewards |
-| ④ 核心业务 | 完成任务 / 撤销 / 兑换 / 月过期 / 连击 / 里程碑 | completeTask / undoTask / redeemReward / checkMonthlyExpire |
-| ⑤ 渲染层 | render() 总出口 + 各子渲染器（只读 state） | renderHomeCards / renderTaskWall / renderShop / renderAdmin* / renderWeekChartInto / renderRankList |
-| ⑥ 交互绑定 | Tab / 视角 / 点击委托 / 后台按钮 / 滑动切页 / 向导 / 云同步 | showView / setViewMode / showModal / requestAdminAccess / cloudPush / cloudSyncNow |
-| ⑦ 动效层 | 飞字 / 金币 / 粒子 / 礼盒 / toast / Web Audio 音效 | burst / flyScore / coinPop / sfx.* |
-| ⑧ 启动 | 主题恢复 / 向导判断 / 吸顶余额 / 自检 | init 内联 / runSelfTest |
+| 区      | 内容                                                      | 关键函数                                                                                                |
+| ------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| ① 数据定义 | TASK_GROUPS / REWARD_CATS / TASKS / REWARDS / QUICK_IDS | —                                                                                                   |
+| ② 状态存取 | defaultState / loadState / saveState / 邮箱记忆             | loadAccounts / rememberAccount / accountOptions                                                     |
+| ③ 工具函数 | $ / esc / 日期 / 业务小算                                     | pendingExpire / isDoneToday / mergedTasks / mergedRewards                                           |
+| ④ 核心业务 | 完成任务 / 撤销 / 兑换 / 月过期 / 连击 / 里程碑                         | completeTask / undoTask / redeemReward / checkMonthlyExpire                                         |
+| ⑤ 渲染层  | render() 总出口 + 各子渲染器（只读 state）                          | renderHomeCards / renderTaskWall / renderShop / renderAdmin* / renderWeekChartInto / renderRankList |
+| ⑥ 交互绑定 | Tab / 视角 / 点击委托 / 后台按钮 / 滑动切页 / 向导 / 云同步                | showView / setViewMode / showModal / requestAdminAccess / cloudPush / cloudSyncNow                  |
+| ⑦ 动效层  | 飞字 / 金币 / 粒子 / 礼盒 / toast / Web Audio 音效                | burst / flyScore / coinPop / sfx.*                                                                  |
+| ⑧ 启动   | 主题恢复 / 向导判断 / 吸顶余额 / 自检                                 | init 内联 / runSelfTest                                                                               |
 
 **改 state 的分支必须落盘**（saveState 或经 addRecord 间接落盘）。
 
@@ -82,7 +82,7 @@
 }
 ```
 
-规则覆盖链：内置常量（v1.2.3 重录）→ `taskOv/rewardOv` 覆盖 → `customTasks/customRewards` 追加 → `mergedTasks()/mergedRewards()` 统一出口。
+规则覆盖链：内置常量（v1.2.3 重录）→ `taskOv/rewardOv` 覆盖 → `customTasks/customRewards` 追加 → `mergedTasks()/mergedRewards()` 统一出口。  
 `legacy:true` 条目（旧版 3 任务 + 14 奖励）默认停用，后台工坊勾选启用 = 备选项机制。
 
 ### 生效规则（v1.2.3）
@@ -94,47 +94,47 @@
 
 ### 云同步（v2.2.0 · Supabase）
 
-| 项 | 设计 |
-|---|---|
-| 接入方式 | 零 SDK：fetch 直连 Supabase REST（`/rest/v1/family_state`），单文件保持零依赖 |
-| 数据模型 | 一张表 `family_state(family_code PK, state jsonb, updated_at)`，一家一行整包存 |
-| 身份 | **家庭码配对**（6 位，A 生成 B 输入）；无账号体系，孩子设备零门槛 |
-| 冲突 | 整包 **last-write-wins**（比较 `state.updatedAt` 本地时钟）；本地不旧于云端才推送 |
-| 拉取保护 | 拉取前自动把本地旧档写入 `max_credits_backup_<时间戳>` |
-| 凭证 | 独立键 `max_credits_cloud`，只存本机；**不进导出 JSON** |
-| 入口 | 后台「云同步 · Supabase」卡：保存/测试连接/立即同步/自动同步开关 |
-| 建表 | `supabase-setup.sql`（含 RLS：anon 可读写——家庭码即凭证） |
+| 项    | 设计                                                                                       |
+| ---- | ---------------------------------------------------------------------------------------- |
+| 接入方式 | 零 SDK：fetch 直连 Supabase REST（`/rest/v1/family_state`），单文件保持零依赖                           |
+| 数据模型 | 一张表 `family_state(family_code PK, state jsonb, updated_at)`，一家一行整包存                      |
+| 身份   | **家庭码配对**（6 位，A 生成 B 输入）；无账号体系，孩子设备零门槛                                                   |
+| 冲突   | 整包 **last-write-wins**（比较 `state.updatedAt` 本地时钟）；本地不旧于云端才推送                             |
+| 拉取保护 | 拉取前自动把本地旧档写入 `max_credits_backup_<时间戳>`                                                  |
+| 凭证   | 独立键 `max_credits_cloud`，只存本机；**不进导出 JSON**                                               |
+| 入口   | 后台「云同步 · Supabase」卡：保存/测试连接/立即同步/自动同步开关                                                  |
+| 建表   | `supabase-setup.sql`（含 RLS：anon 可读写——家庭码即凭证）                                             |
 | 已知限制 | ① 家庭码 = 读写凭证，外传=数据外泄；② 设备时钟差过大时推送被跳过（防覆盖，fail-safe）；③ 整包 LWW 极端同刻双改会丢一笔——可接受，升级路径是记录级合并表 |
-| 关键函数 | cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard |
-| 存档合并 | `hydrate(saved)` 统一深合并（localStorage/云端/导入三条路径共用，浅合并曾把 cfg 整体替换导致渲染崩） |
+| 关键函数 | cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard   |
+| 存档合并 | `hydrate(saved)` 统一深合并（localStorage/云端/导入三条路径共用，浅合并曾把 cfg 整体替换导致渲染崩）                     |
 
 ---
 
 ## 六、组件清单（CSS）
 
-| 组件 | 类名 | 备注 |
-|---|---|---|
-| 卡片 | .card / .card-head / .card-title(色点) / .card-body | 全站统一 |
-| 统计砖 | .dash-tile / .admin-tile | v2.0 起共享同一组样式（双类名合并选择器） |
-| 任务卡 | .task(.done) / task-emoji / task-val | 二次点击=撤销 |
-| 奖励卡 | .reward(.disabled) / reward-grid | 网格随断点 2/3 列 |
-| 记录条 | .record | 多列瀑布 |
-| 导航 | .topnav > .tn-tab | 桌面胶囊；<420px 图标-only |
-| 图表 | .chart > .bar-col > .bar | 纯 CSS 柱状图 |
-| 排行 | .rank-list > .rank-item | TOP 榜 |
-| 货币 | .coin(.lg/.sm) | M-Coin，字母=孩子首字母 |
-| 动效 | .fly-score / .coin-pop / .particle / .toast | 冻结面，勿改 |
+| 组件  | 类名                                                | 备注                      |
+| --- | ------------------------------------------------- | ----------------------- |
+| 卡片  | .card / .card-head / .card-title(色点) / .card-body | 全站统一                    |
+| 统计砖 | .dash-tile / .admin-tile                          | v2.0 起共享同一组样式（双类名合并选择器） |
+| 任务卡 | .task(.done) / task-emoji / task-val              | 二次点击=撤销                 |
+| 奖励卡 | .reward(.disabled) / reward-grid                  | 网格随断点 2/3 列             |
+| 记录条 | .record                                           | 多列瀑布                    |
+| 导航  | .topnav > .tn-tab                                 | 桌面胶囊；<420px 图标-only     |
+| 图表  | .chart > .bar-col > .bar                          | 纯 CSS 柱状图               |
+| 排行  | .rank-list > .rank-item                           | TOP 榜                   |
+| 货币  | .coin(.lg/.sm)                                    | M-Coin，字母=孩子首字母         |
+| 动效  | .fly-score / .coin-pop / .particle / .toast       | 冻结面，勿改                  |
 
 ---
 
 ## 七、响应断点（v2.0 定稿）
 
-| 视口 | 布局 |
-|---|---|
-| <768px | 单列；`#app` min-width:360px 防挤压；导航图标-only |
-| 768–1023 | 单列，容器 720 居中 |
-| 1024–1439 | 容器 1180；任务/商店/记录 2 列；hero 双栏 |
-| ≥1440 | 容器 1380；任务/商店/记录 3 列；卡片 padding 24px |
+| 视口        | 布局                                      |
+| --------- | --------------------------------------- |
+| <768px    | 单列；`#app` min-width:360px 防挤压；导航图标-only |
+| 768–1023  | 单列，容器 720 居中                            |
+| 1024–1439 | 容器 1180；任务/商店/记录 2 列；hero 双栏            |
+| ≥1440     | 容器 1380；任务/商店/记录 3 列；卡片 padding 24px    |
 
 ---
 
