@@ -1,4 +1,4 @@
-# Max's Credits Plan · v2.2.0
+# Kid's Credits Plan · v2.2.1
 
 给小学生设计的**好习惯积分系统**（品牌名 = 孩子英文名 + Credits Plan，默认 Max）：完成任务赚 Credits，商店兑换奖励，月底未花的 Credits 自动过期 10%（倒逼消费，也倒逼「赚」）。
 
@@ -71,8 +71,7 @@
 
 1. Supabase 控制台 → SQL Editor，执行一次 `supabase-setup.sql`（建表 + RLS）
 2. 爸妈后台 → 定制工坊 → **云同步 · Supabase**：填项目 URL + anon public key
-3. A 设备点「🎲 生成」家庭码并「💾 保存云配置」→「☁️ 立即同步」
-4. B 设备填同样 URL/key，手动输入同一个家庭码 → 保存 → 立即同步
+3. A 设备点「🎲 生成」家庭码（**填完 URL/key 不用点保存**，直接点「🔌 测试连接」或「☁️ 立即同步」即可）→ 4. B 设备填同样 URL/key，手动输入同一个家庭码 → 同上
 5. 之后开「自动同步」：本地改动自动上云，打开页面自动拉取（拉取前自动备份本地旧档）
 
 - 凭证只存本机浏览器（键 `max_credits_cloud`），不进导出文件

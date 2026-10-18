@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v2.2.0</title>
+<title>Max's Credits Plan · v2.2.1</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1016,7 +1016,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.0</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.1</span>
     </div>
   </header>
 
@@ -1478,7 +1478,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.0 · 2026-10-14</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.1 · 2026-10-18</span>
     </div>
   </footer>
 </div>
@@ -3201,12 +3201,46 @@ function renderCloudCard(){
   $('cloudStateTag').textContent = cloudReady() ? (c.autoSync ? '已连接 · 自动' : '已连接 · 手动') : '未配置';
   $('cloudStatus').textContent = cloudReady()
     ? `上次同步：${cloudStampStr(c.lastSync)}｜家庭码 ${c.familyCode}`
-    : '尚未配置';
+    : (cloudMissing().length ? `尚未配置 · 还缺：${cloudMissing().join(' / ')}` : '尚未配置');
+}
+
+// v2.2.1：缺什么说清楚，别只丢一句「云未配置」
+function cloudMissing(){
+  const c = cloudCfg();
+  const miss = [];
+  if(!c.url) miss.push('项目 URL');
+  if(!c.anonKey) miss.push('anon key');
+  if(!c.familyCode) miss.push('家庭码');
+  return miss;
+}
+function requireCloud(){
+  if(!cloudReady()){
+    const miss = cloudMissing();
+    throw new Error(`云未配置，还缺：${miss.join(' / ') || '未知'}`);
+  }
+}
+const normalizeCloudUrl = raw => {
+  let u = String(raw || '').trim();
+  if(!u) return '';
+  if(!/^https?:\/\//i.test(u)) u = 'https://' + u;   // 少打 https:// 也认
+  return u.replace(/\/+$/, '');                       // 结尾斜杠去掉
+};
+// 从输入框读取并落盘：测试/同步时自动调用，免去「填了但忘保存」
+function saveCloudFromInputs(silent){
+  const url = normalizeCloudUrl($('cloudUrl').value);
+  const anonKey = String($('cloudKey').value || '').trim();
+  const familyCode = String($('cloudCode').value || '').trim().toUpperCase();
+  if(url && !/^https:\/\/[^\s]+\.supabase\.co$/i.test(url)){ toast('URL 格式不对：应形如 https://xxxx.supabase.co', 'error'); return false; }
+  if(familyCode && !/^[A-Z0-9]{4,8}$/.test(familyCode)){ toast('家庭码是 4-8 位字母/数字（点 🎲 生成）', 'error'); return false; }
+  saveCloudCfg({...cloudCfg(), url, anonKey, familyCode});
+  renderCloudCard();
+  if(!silent) toast('💾 云配置已保存（只存本机）', 'success');
+  return true;
 }
 
 // 拉取：返回 {state, updatedAt} 或 null（云端无该家庭）
 async function cloudPull(){
-  if(!cloudReady()) throw new Error('云未配置');
+  requireCloud();
   const res = await fetch(cloudRest(), {headers: cloudHeaders()});
   if(!res.ok) throw new Error(`HTTP ${res.status}`);
   const rows = await res.json();
@@ -3215,7 +3249,7 @@ async function cloudPull(){
 
 // 推送：整包 upsert（仅当本地不旧于云端，避免覆盖别人的新数据）
 async function cloudPush(){
-  if(!cloudReady()) throw new Error('云未配置');
+  requireCloud();
   const remote = await cloudPull();
   if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
     return {skipped:true, remoteAt: remote.state.updatedAt};
@@ -3273,27 +3307,23 @@ function scheduleCloudPush(){
 
 $('btnCloudGen').addEventListener('click', () => {
   $('cloudCode').value = genFamilyCode();
-  toast('🎲 已生成家庭码，保存配置后生效');
+  saveCloudFromInputs(true);          // 生成即生效，省得再点保存
+  toast('🎲 已生成家庭码并保存');
 });
-$('btnCloudSave').addEventListener('click', () => {
-  const url = String($('cloudUrl').value || '').trim().replace(/\/+$/, '');
-  const anonKey = String($('cloudKey').value || '').trim();
-  const familyCode = String($('cloudCode').value || '').trim().toUpperCase();
-  if(!/^https:\/\/[^\s]+\.supabase\.co$/.test(url)){ toast('URL 格式不对：https://xxxx.supabase.co', 'error'); return; }
-  if(!anonKey){ toast('请填写 anon key', 'error'); return; }
-  if(!/^[A-Z0-9]{4,8}$/.test(familyCode)){ toast('家庭码为 4-8 位字母数字', 'error'); return; }
-  saveCloudCfg({...cloudCfg(), url, anonKey, familyCode});
-  renderCloudCard();
-  toast('💾 云配置已保存（只存本机）', 'success');
-});
+$('btnCloudSave').addEventListener('click', () => { saveCloudFromInputs(false); });
 $('cloudAuto').addEventListener('click', () => {
   const c = cloudCfg(); c.autoSync = !c.autoSync; saveCloudCfg(c);
   renderCloudCard();
   toast(c.autoSync ? '☁️ 自动同步已开启' : '☁️ 自动同步已关闭');
   if(c.autoSync) scheduleCloudPush();
 });
-$('btnCloudTest').addEventListener('click', testCloud);
+// v2.2.1：测试/同步前自动读取输入框并保存（不再要求先点保存）
+$('btnCloudTest').addEventListener('click', () => {
+  if(!saveCloudFromInputs(true)) return;
+  testCloud();
+});
 $('btnCloudSync').addEventListener('click', async () => {
+  if(!saveCloudFromInputs(true)) return;
   try{ await cloudSyncNow(); }catch(e){ toast('同步失败：' + e.message, 'error'); }
   renderCloudCard();
 });
@@ -3559,7 +3589,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.1 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
