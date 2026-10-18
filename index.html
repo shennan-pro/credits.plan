@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Kid's Credits Plan · v2.2.2</title>
+<title>Kid's Credits Plan · v2.2.3</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1016,7 +1016,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.2</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.3</span>
     </div>
   </header>
 
@@ -1377,6 +1377,7 @@ html[data-theme="funny"]{
           </div>
           <div class="admin-actions row" style="margin-top:14px">
             <button class="btn" id="btnCloudSave" style="background:var(--mc-green);color:#fff"><span>💾 保存云配置</span></button>
+            <button class="btn" id="btnCloudSql"><span>📋 复制建表 SQL</span></button>
             <button class="btn" id="btnCloudTest"><span>🔌 测试连接</span></button>
             <button class="btn" id="btnCloudSync"><span>☁️ 立即同步</span></button>
           </div>
@@ -1478,7 +1479,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.2 · 2026-10-18</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.3 · 2026-10-18</span>
     </div>
   </footer>
 </div>
@@ -3247,11 +3248,31 @@ function saveCloudFromInputs(silent){
   return true;
 }
 
+// v2.2.3：把服务端返回体带出来 + 翻译成人话
+// （404 有两种完全不同的原因：不带 key 是"路径不存在"，带 key 是"表不存在"）
+function explainCloudError(status, detail){
+  const t = String(detail || '');
+  if(status === 404 && /PGRST205|Could not find the table|schema cache/i.test(t)){
+    return 'HTTP 404：云端还没有 family_state 表 → 请在 Supabase SQL Editor 执行一次 supabase-setup.sql';
+  }
+  if(status === 404) return 'HTTP 404：REST 路径或表不通 → 确认项目 URL 是否完整、建表 SQL 是否已执行';
+  if(status === 401) return 'HTTP 401：anon key 无效或未填 → Project Settings → API → anon public key';
+  if(status === 403) return 'HTTP 403：被权限策略拦截 → 确认建表 SQL 里的 RLS 策略已执行';
+  if(status >= 500)  return `HTTP ${status}：云端服务异常，稍后重试`;
+  return `HTTP ${status}${t ? '：' + t.slice(0, 120) : ''}`;
+}
+async function cloudFetch(url, opts){
+  const res = await fetch(url, opts);
+  if(res.ok) return res;
+  let detail = '';
+  try{ detail = (await res.text() || '').slice(0, 400); }catch(e){}
+  throw new Error(explainCloudError(res.status, detail));
+}
+
 // 拉取：返回 {state, updatedAt} 或 null（云端无该家庭）
 async function cloudPull(){
   requireCloud();
-  const res = await fetch(cloudRest(), {headers: cloudHeaders()});
-  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const res = await cloudFetch(cloudRest(), {headers: cloudHeaders()});
   const rows = await res.json();
   return rows && rows.length ? rows[0] : null;
 }
@@ -3263,12 +3284,11 @@ async function cloudPush(){
   if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
     return {skipped:true, remoteAt: remote.state.updatedAt};
   }
-  const res = await fetch(cloudRest(), {
+  await cloudFetch(cloudRest(), {
     method: 'POST',
     headers: {...cloudHeaders(), Prefer: 'resolution=merge-duplicates,return=minimal'},
     body: JSON.stringify({family_code: cloudCfg().familyCode, state, updated_at: new Date().toISOString()}),
   });
-  if(!res.ok) throw new Error(`HTTP ${res.status}`);
   const c = cloudCfg(); c.lastSync = Date.now(); saveCloudCfg(c);
   return {skipped:false};
 }
@@ -3290,18 +3310,17 @@ async function cloudSyncNow(){
 }
 
 async function testCloud(){
+  renderCloudCard();   // 先刷新表单与标签（它会重置状态行），再写本次结果
   try{
     const remote = await cloudPull();
-    const c = cloudCfg();
     $('cloudStatus').textContent = remote
       ? `连接成功｜云端有数据（${cloudStampStr(remote.state?.updatedAt || 0)}）`
       : '连接成功｜云端暂无该家庭数据（保存配置后点「立即同步」即可上传）';
     toast('🔌 连接成功', 'success');
   }catch(e){
     $('cloudStatus').textContent = `连接失败：${e.message}`;
-    toast('🔌 连接失败：' + e.message, 'error');
+    toast('🔌 ' + e.message, 'error');
   }
-  renderCloudCard();
 }
 
 // 自动推送：防抖 2 秒（保存频繁，但数据极小）
@@ -3313,6 +3332,39 @@ function scheduleCloudPush(){
     try{ await cloudPush(); }catch(e){ console.warn('[MAX] 自动上云失败', e); }
   }, 2000);
 }
+
+// v2.2.3：建表 SQL 内置一份，手机上点一下就能复制到剪贴板
+const SUPABASE_SQL = [
+  "-- Max's Credits Plan · Supabase 建表脚本（v2.2.x）",
+  "-- 用法：Supabase 控制台 → SQL Editor → New query → 粘贴 → Run",
+  "create table if not exists public.family_state (",
+  "  family_code text primary key,",
+  "  state       jsonb       not null,",
+  "  updated_at  timestamptz not null default now()",
+  ");",
+  "alter table public.family_state enable row level security;",
+  "drop policy if exists \"family_state anon rw\" on public.family_state;",
+  "create policy \"family_state anon rw\" on public.family_state",
+  "  for all to anon, authenticated using (true) with check (true);",
+  "-- 验证：能查到空结果即成功（0 行 = 正常）",
+  "-- select * from family_state limit 1;",
+].join('\n');
+
+async function copyCloudSql(){
+  try{
+    await navigator.clipboard.writeText(SUPABASE_SQL);
+    toast('📋 建表 SQL 已复制 → 粘贴到 Supabase SQL Editor 执行', 'success');
+  }catch(e){
+    showModal({
+      emoji:'📋',
+      title:'建表 SQL（长按复制）',
+      sub:'粘贴到 Supabase → SQL Editor → New query → Run',
+      fields:[{id:'sqlOut', type:'text', value:SUPABASE_SQL}],
+      actions:[{label:'关闭', cls:'primary'}],
+    });
+  }
+}
+$('btnCloudSql').addEventListener('click', copyCloudSql);
 
 $('btnCloudGen').addEventListener('click', () => {
   $('cloudCode').value = genFamilyCode();
@@ -3598,7 +3650,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.2 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.3 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果

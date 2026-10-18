@@ -1,4 +1,4 @@
-# Kid's Credits Plan · v2.2.2
+# Kid's Credits Plan · v2.2.3
 
 给小学生设计的**好习惯积分系统**（品牌名 = 孩子英文名 + Credits Plan，默认 Max）：完成任务赚 Credits，商店兑换奖励，月底未花的 Credits 自动过期 10%（倒逼消费，也倒逼「赚」）。
 
@@ -69,7 +69,7 @@
 
 多设备共用一套数据（如家长手机 + 孩子平板）：
 
-1. Supabase 控制台 → SQL Editor，执行一次 `supabase-setup.sql`（建表 + RLS）
+1. Supabase 控制台 → SQL Editor，执行一次 `supabase-setup.sql`（建表 + RLS）。**页面里也有「📋 复制建表 SQL」按钮，一键复制**
 2. 爸妈后台 → 定制工坊 → **云同步 · Supabase**：填项目 URL + anon public key
    - URL 官方托管 `https://xxx.supabase.co`、国内托管（如 `xxx.supabase.opentrust.net`）、自建域名都支持
 3. A 设备点「🎲 生成」家庭码（**填完 URL/key 不用点保存**，直接点「🔌 测试连接」或「☁️ 立即同步」即可）→ 4. B 设备填同样 URL/key，手动输入同一个家庭码 → 同上

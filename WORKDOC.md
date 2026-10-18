@@ -1,7 +1,7 @@
 # Max's Credits Plan · 工作文档（WORKDOC）
 
 > 协作交接用。新人读本文件 + `changelog.md` 即可接手。  
-> 当前版本：v2.2.0（规则包 v1.2.3 + Supabase 云同步）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
+> 当前版本：v2.2.3（规则包 v1.2.3 + Supabase 云同步）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
 
 ---
 
@@ -105,6 +105,7 @@
 | 凭证   | 独立键 `max_credits_cloud`，只存本机；**不进导出 JSON**                                               |
 | 入口   | 后台「云同步 · Supabase」卡：保存/测试连接/立即同步/自动同步开关                                                  |
 | 建表   | `supabase-setup.sql`（含 RLS：anon 可读写——家庭码即凭证）                                             |
+| 错误翻译 |  把 HTTP 状态 + 服务端返回体翻成人话：缺表(PGRST205)/401 key/403 RLS/5xx |
 | 已知限制 | ① 家庭码 = 读写凭证，外传=数据外泄；② 设备时钟差过大时推送被跳过（防覆盖，fail-safe）；③ 整包 LWW 极端同刻双改会丢一笔——可接受，升级路径是记录级合并表 |
 | 关键函数 | cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard   |
 | 存档合并 | `hydrate(saved)` 统一深合并（localStorage/云端/导入三条路径共用，浅合并曾把 cfg 整体替换导致渲染崩）                     |
