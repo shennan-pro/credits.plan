@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Max's Credits Plan · v2.2.1</title>
+<title>Kid's Credits Plan · v2.2.2</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1016,7 +1016,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.1</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.2</span>
     </div>
   </header>
 
@@ -1346,9 +1346,9 @@ html[data-theme="funny"]{
           <div class="setting-row">
             <div>
               <div class="setting-label">项目 URL</div>
-              <div class="setting-desc">Supabase → Project Settings → API，形如 https://xxxx.supabase.co</div>
+              <div class="setting-desc">Supabase → Project Settings → API。官方 <code>https://xxx.supabase.co</code>；国内托管（如华为 OpenTrust <code>.supabase.opentrust.net</code>）或自建域名同样可用</div>
             </div>
-            <input type="text" class="setting-input" id="cloudUrl" placeholder="https://xxxx.supabase.co" style="width:220px">
+            <input type="text" class="setting-input" id="cloudUrl" placeholder="https://xxx.supabase.co" style="width:220px">
           </div>
           <div class="setting-row">
             <div>
@@ -1478,7 +1478,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.1 · 2026-10-18</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.2 · 2026-10-18</span>
     </div>
   </footer>
 </div>
@@ -3219,21 +3219,30 @@ function requireCloud(){
     throw new Error(`云未配置，还缺：${miss.join(' / ') || '未知'}`);
   }
 }
+// v2.2.2：URL 兼容多部署形态
+//   ① 官方托管  https://xxx.supabase.co
+//   ② 国内托管  https://xxx.supabase.opentrust.net（华为云 OpenTrust 等）
+//   ③ 自建/私有域名（只要是 Supabase 实例即可）
+// 常见手误一并兜底：漏 https://、结尾斜杠、把 /rest/v1 一起粘进来
 const normalizeCloudUrl = raw => {
   let u = String(raw || '').trim();
   if(!u) return '';
-  if(!/^https?:\/\//i.test(u)) u = 'https://' + u;   // 少打 https:// 也认
-  return u.replace(/\/+$/, '');                       // 结尾斜杠去掉
+  if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  u = u.replace(/\/rest\/v1\/?$/i, '');     // 粘多了 REST 路径也剥掉
+  return u.replace(/\/+$/, '');
 };
+const cloudUrlLooksOk = u => /^https:\/\/[^\s/?#]+\.[^\s/?#]+/i.test(String(u || ''));
+const cloudUrlLooksSupabase = u => /supabase/i.test(String(u || ''));
 // 从输入框读取并落盘：测试/同步时自动调用，免去「填了但忘保存」
 function saveCloudFromInputs(silent){
   const url = normalizeCloudUrl($('cloudUrl').value);
   const anonKey = String($('cloudKey').value || '').trim();
   const familyCode = String($('cloudCode').value || '').trim().toUpperCase();
-  if(url && !/^https:\/\/[^\s]+\.supabase\.co$/i.test(url)){ toast('URL 格式不对：应形如 https://xxxx.supabase.co', 'error'); return false; }
+  if(url && !cloudUrlLooksOk(url)){ toast('URL 需要是 https 开头的完整地址，如 https://xxx.supabase.co', 'error'); return false; }
   if(familyCode && !/^[A-Z0-9]{4,8}$/.test(familyCode)){ toast('家庭码是 4-8 位字母/数字（点 🎲 生成）', 'error'); return false; }
   saveCloudCfg({...cloudCfg(), url, anonKey, familyCode});
   renderCloudCard();
+  if(url && !cloudUrlLooksSupabase(url) && !silent) toast('已保存（域名不含 supabase，确认是 Supabase 实例地址即可）');
   if(!silent) toast('💾 云配置已保存（只存本机）', 'success');
   return true;
 }
@@ -3589,7 +3598,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.1 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.2 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -3617,6 +3626,7 @@ function runSelfTest(){
     assert('过期最低扣 1', ((bal) => { state.balance = 50; const a = pendingExpire() === 1; state.balance = 0; const b = pendingExpire() === 0; state.balance = 500; const c = pendingExpire() === 5; state.balance = bal; return a && b && c; })(state.balance)),
     assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
     assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
+    assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原

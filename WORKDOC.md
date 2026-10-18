@@ -97,6 +97,7 @@
 | 项    | 设计                                                                                       |
 | ---- | ---------------------------------------------------------------------------------------- |
 | 接入方式 | 零 SDK：fetch 直连 Supabase REST（`/rest/v1/family_state`），单文件保持零依赖                           |
+| URL 形态 | 官方 `.supabase.co` / 国内托管（如华为 OpenTrust `.supabase.opentrust.net`）/ 自建域名均支持；只校验 https + 主机名；自动补 https、剥 `/rest/v1`、trim |
 | 数据模型 | 一张表 `family_state(family_code PK, state jsonb, updated_at)`，一家一行整包存                      |
 | 身份   | **家庭码配对**（6 位，A 生成 B 输入）；无账号体系，孩子设备零门槛                                                   |
 | 冲突   | 整包 **last-write-wins**（比较 `state.updatedAt` 本地时钟）；本地不旧于云端才推送                             |
