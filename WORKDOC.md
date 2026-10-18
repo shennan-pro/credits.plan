@@ -1,7 +1,7 @@
 # Max's Credits Plan · 工作文档（WORKDOC）
 
 > 协作交接用。新人读本文件 + `changelog.md` 即可接手。  
-> 当前版本：v2.2.3（规则包 v1.2.3 + Supabase 云同步）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
+> 当前版本：v2.3.0（规则包 v1.2.3 + Supabase 云同步 + 数据表格批量录入）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
 
 ---
 
