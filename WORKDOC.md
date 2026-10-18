@@ -112,6 +112,21 @@
 
 ---
 
+## 五·五、数据表格（v2.3.0 · feature_SQL）
+
+| 项 | 设计 |
+|---|---|
+| 入口 | 后台「🎨 定制工坊 → 📊 数据表格 · 批量录入」卡（`wide` 占满整行） |
+| 存储 | `cfg.tables.exam.rows[]`，字段：`id, date, title, subject, type, score, full, reward, note, recId, locked` |
+| 双向锚定 | `addRecord` 返回带 `id` 的记录；行内 `recId` 互指 → 入账即出现在记录页并计入余额；改行后状态「⟳ 需重记」 |
+| 重记逻辑 | `dtPost()` 先 `revertRecord + splice` 旧记录再写新记录，**不重复加分**（撤销记录不动 doneToday） |
+| 阶梯 | `EXAM_LADDER`：`s` 90/95/98/100→20/50/80/100；`b` →50/80/120/200；`normType()` 归一 中文「大考」/ b / big；非百分制按百分比换算 |
+| 手改保护 | 编辑「积分」列 → `locked=true`，之后分数/满分/类型变化不再覆盖 |
+| 导入 | `parseCsv()`（含引号/转义）+ `DT_MAP` 表头映射；Excel 走 `loadXlsxLib()` 懒加载 SheetJS CDN，失败降级回 CSV |
+| 导出 | `dtToCsv()` + Blob 下载（带 BOM，Excel 不乱码） |
+| 关键函数 | dtTable / examReward / normType / dtStatus / dtPost / renderDataTable / parseCsv / dtImportRows / dtToCsv |
+| 已知限制 | 单表（成绩表）硬编码列；SVG 导入未做；表格行不参与月过期/撤销联动以外的其他统计 |
+
 ## 六、组件清单（CSS）
 
 | 组件  | 类名                                                | 备注                      |
@@ -157,7 +172,7 @@
 
 - 改功能走 `fix/_refactor/_feature` 分支，验收后合 main；**远端上传必须用户口令**
 - **2026-10-16 起：每次迭代收口后及时 push main**（用户授权长期有效，不用每次再问）；Pages 自动重建，多端即时可用
-- 线上地址：https://shennan-pro.github.io/creditsplan/ （仓库 `shennan-pro/creditsplan`，public；显示名 "Kid's Credits Plan"）
+- 线上地址：https://shennan-pro.github.io/credits.plan/ （仓库 `shennan-pro/credits.plan`，public；显示名 "Kid's Credits Plan"）
 - ⚠️ 对外 URL **不带孩子名**（曾用 max-credits-plan，已改；其他用户看到不会懵）
 - ⚠️ 历史地址全部 404（改名不重定向 Pages）：`shennanjaysn-cmyk.github.io/max-credits-plan/`、`shennan-pro.github.io/max-credits-plan/`、`shennan-pro.github.io/kids-credits-plan/`
 - 冻结面：卡通视觉、动效、Baloo 2、localStorage 键名与 schema —— 动前先问

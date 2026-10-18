@@ -3,7 +3,7 @@
 <head data-page-node-id="XFnbql1b7gXHPAwvCYHcKR">
 <meta charset="UTF-8" data-page-node-id="yDixHhLX3OyloPoZ1zs2XM">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" data-page-node-id="kf8M4ecAMF0LSfjAG83R2E">
-<title>Kid's Credits Plan · v2.2.3</title>
+<title>Kid's Credits Plan · v2.3.0</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -991,9 +991,31 @@ html[data-theme="funny"]{
 .rank-item .rk{width:16px;font-weight:900;color:var(--mc-red);}
 .rank-item .rn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .rank-item .rc{font-family:var(--pixel-font);color:var(--text-2);}
+
+
+/* ============================================================
+   v2.3.0 数据表格（家长后台批量录入 · 表格 ↔ 前端记录双向锚定）
+   ============================================================ */
+.dt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:var(--border-thin);border-radius:var(--radius-sm);background:var(--mc-cream-2);}
+.dt{border-collapse:collapse;width:100%;min-width:820px;font-size:13px;}
+.dt th,.dt td{border-bottom:1px solid rgba(58,46,31,.12);padding:6px 8px;text-align:left;white-space:nowrap;}
+.dt th{background:var(--mc-cream);font-size:11px;font-weight:900;letter-spacing:.06em;color:var(--text-2);position:sticky;top:0;}
+.dt tr:last-child td{border-bottom:none;}
+.dt td input,.dt td select{
+  border:1px solid transparent;background:transparent;border-radius:6px;
+  padding:5px 6px;font:inherit;color:inherit;min-width:52px;width:100%;
+}
+.dt td input:hover,.dt td select:hover{border-color:rgba(58,46,31,.2);background:var(--mc-cream);}
+.dt td input:focus,.dt td select:focus{outline:2px solid var(--mc-blue);outline-offset:-1px;background:#fff;}
+.dt td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:900;}
+.dt .st-ok{color:var(--mc-green);font-weight:900;}
+.dt .st-dirty{color:var(--mc-orange,#F08A00);font-weight:900;}
+.dt .st-none{color:var(--text-3);}
+.dt-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:12px 0;}
+.dt-actions .btn{padding:8px 12px;font-size:13px;}
+.dt-hint{font-size:11px;color:var(--text-3);margin-top:8px;line-height:1.6;}
 </style>
 </head>
-
 
 <div id="app" data-page-node-id="89JqF6YExcM9MEK1uWYyWl">
   <!-- 顶栏：品牌 + 顶部导航 + 视角切换 -->
@@ -1016,7 +1038,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max" data-page-node-id="T5AvraqfU6gJ3DRJbdA7iX">MAX</button>
         <button class="view-btn" data-view="parent" data-page-node-id="pHFaiaQCIi591AuoUsqSD9">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.2.3</span>
+      <span class="tag tag-red hide-sm" data-page-node-id="tIFM6HUS0HD9ZL5rNjvvN6">v2.3.0</span>
     </div>
   </header>
 
@@ -1335,6 +1357,41 @@ html[data-theme="funny"]{
         </div>
       </div>
 
+      <!-- 数据表格（v2.3.0 · 批量录入 ↔ 前端记录双向锚定） -->
+      <div class="card ag-custom wide" id="dataCard">
+        <div class="card-head">
+          <div class="card-title blue"><span class="dot"></span>数据表格 · 批量录入</div>
+          <div class="tag tag-yellow" id="dtCount">0 行</div>
+        </div>
+        <div class="card-body">
+          <div class="rule-col-head">📊 表格（可直接编辑；积分按 v1.2.3 阶梯自动算，可手改）</div>
+          <div class="dt-actions">
+            <button class="btn" id="dtAddRow"><span>＋ 加一行</span></button>
+            <button class="btn" id="dtImport"><span>📥 导入 CSV/Excel</span></button>
+            <button class="btn" id="dtExport"><span>📤 导出 CSV</span></button>
+            <button class="btn" id="dtPostAll" style="background:var(--mc-green);color:#fff"><span>⚡ 批量入账未记账行</span></button>
+            <button class="btn" id="dtClear" style="background:var(--mc-red);color:#fff"><span>🗑 清空表</span></button>
+          </div>
+          <div class="dt-wrap">
+            <table class="dt" id="dtTable">
+              <thead>
+                <tr>
+                  <th>日期</th><th>名称</th><th>科目</th><th>类型</th>
+                  <th>分数</th><th>满分</th><th>积分</th><th>状态</th><th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="dtBody"></tbody>
+            </table>
+          </div>
+          <div class="dt-hint">
+            · <b>入账</b>：该行积分会变成一条正式记录，出现在「记录」页并计入余额；行末状态变 ✅ 已入账<br>
+            · <b>改已入账的行</b>：状态变 <span class="st-dirty">⟳ 需重记</span>，点「重记」会自动撤销旧记录并按新值重新入账（不会重复加分）<br>
+            · <b>类型</b>：小考走 <code>t_test_s</code> 阶梯（90/95/98/100 → 20/50/80/100），大考走 <code>t_test_b</code>（→ 50/80/120/200）；非百分制卷会按百分比换算<br>
+            · 导入支持 <b>CSV</b> 与 <b>Excel(.xlsx/.xls)</b>，按表头名自动对应列：日期/名称/科目/类型/分数/满分/积分/备注
+          </div>
+        </div>
+      </div>
+
       <!-- 云同步（v2.2.0 · Supabase，家长后台配置） -->
       <div class="card ag-custom" id="cloudCard">
         <div class="card-head">
@@ -1479,7 +1536,7 @@ html[data-theme="funny"]{
       <span data-page-node-id="jLgveBkbXpmQlNkFKUaXbq">LOCAL SYNC</span>
     </div>
     <div class="right" data-page-node-id="Kve1JMg5f6lKwE7e5lfUIw">
-      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.2.3 · 2026-10-18</span>
+      <span data-page-node-id="4YXKQ6TyOum8cmD0P4hHU5">v2.3.0 · 2026-10-18</span>
     </div>
   </footer>
 </div>
@@ -1689,6 +1746,7 @@ const defaultState = () => ({
     customRewards: [],// 自定义奖励（工坊新增）
     taskOv: {},       // 任务覆盖：{taskId: {val?, off?}}
     rewardOv: {},     // 奖励覆盖：{rewardId: {cost?, off?}}
+    tables: {},       // v2.3.0：数据表格（如成绩批量录入），与 records 双向锚定
   },
   view: 'max',            // 'max' | 'parent'（parent 为会话态，不落盘）
   lastResetMonth: null,   // 'YYYY-MM'，防重复执行月过期
@@ -1973,7 +2031,9 @@ tone = function(freq, dur, type, vol, delay){
 // 唯一改余额入口：保证 balance / records / 月度累计三处同步落盘
 function addRecord(type, val, name, taskId){
   state.balance += val;
-  state.records.unshift({time: Date.now(), type, val, name, taskId});
+  // v2.3.0：记录带 id，数据表格靠它做「表格 ↔ 记录」双向锚定
+  const rec = {id: 'rc' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), time: Date.now(), type, val, name, taskId};
+  state.records.unshift(rec);
   if(type === 'in'){
     state.monthIn += val;
     state.totalIn += val;
@@ -1982,6 +2042,7 @@ function addRecord(type, val, name, taskId){
     state.totalOut += Math.abs(val);
   }
   saveState();
+  return rec;
 }
 
 // 跨月按比例回收上月余额。
@@ -2123,6 +2184,7 @@ function render(){
     renderAdminRules();
     renderAdminStats();
     renderCloudCard();
+    renderDataTable();
   }
 
   if(activeView) activeView.scrollTop = viewScroll;
@@ -2947,6 +3009,12 @@ function showModal({emoji, title, sub, actions = [], input, fields}){
           f.options.map(o => `<option value="${o.v}" ${o.v === f.value ? 'selected' : ''}>${o.l}</option>`).join('') +
           '</select></div>';
       }
+      if(f.type === 'file'){
+        // v2.3.0：文件选择（不写 value 属性，浏览器会忽略且行为不一致）
+        return `<div style="margin-bottom:8px"><input type="file" class="setting-input" id="${f.id}"` +
+          (f.accept ? ` accept="${f.accept}"` : '') +
+          ' style="width:100%;font-size:14px;padding:10px"></div>';
+      }
       return `<div style="margin-bottom:8px"><input type="${f.type || 'text'}" class="setting-input" id="${f.id}" value="${f.value ?? ''}" placeholder="${f.placeholder || ''}"` +
         (f.type === 'number' ? ` min="${f.min ?? 0}" max="${f.max ?? 9999}"` : '') +
         ' style="width:100%;font-size:16px;padding:12px;text-align:left"></div>';
@@ -2969,7 +3037,10 @@ function showModal({emoji, title, sub, actions = [], input, fields}){
         return;
       }
       const values = {};
-      flds.forEach(f => {const el2 = $(f.id); values[f.id] = el2 ? el2.value : null;});
+      flds.forEach(f => {
+        const el2 = $(f.id);
+        values[f.id] = el2 ? (f.type === 'file' ? (el2.files && el2.files[0] ? el2.files[0] : null) : el2.value) : null;
+      });
       action.onClick?.(legacy ? values.modalInput : values);
     });
   });
@@ -3333,7 +3404,298 @@ function scheduleCloudPush(){
   }, 2000);
 }
 
-// v2.2.3：建表 SQL 内置一份，手机上点一下就能复制到剪贴板
+/* ============================================================
+   v2.3.0 数据表格：表格 ↔ 前端记录 双向锚定
+   ------------------------------------------------------------
+   一行 = 一次考试/测验；入账后生成正式记录（recId 互为锚点）
+   改已入账的行 → 状态「需重记」→ 自动撤销旧记录再按新值入账
+   ============================================================ */
+const EXAM_LADDER = {
+  s: [[90, 20], [95, 50], [98, 80], [100, 100]],   // 小考
+  b: [[90, 50], [95, 80], [98, 120], [100, 200]],  // 大考
+};
+function dtTable(){
+  if(!state.cfg.tables) state.cfg.tables = {};
+  if(!state.cfg.tables.exam) state.cfg.tables.exam = {rows: []};
+  return state.cfg.tables.exam;
+}
+const dtRid = () => 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+// 类型归一：中文/英文都吃，"大考/big/b" → b，其余 → s
+const normType = v => {
+  const s = String(v ?? '').trim().toLowerCase();
+  return (s === 'b' || s === 'big' || s.includes('大')) ? 'b' : 's';
+};
+// 阶梯积分：非百分制卷按百分比换算（英语 120 满分同样适用）
+function examReward(type, score, full){
+  const sc = parseFloat(score);
+  if(isNaN(sc)) return 0;
+  const fl = parseFloat(full);
+  const pct = fl > 0 ? (sc / fl * 100) : sc;
+  let reward = 0;
+  (EXAM_LADDER[normType(type) === 'b' ? 'b' : 's']).forEach(([min, v]) => { if(pct >= min) reward = v; });
+  return reward;
+}
+function dtStatus(row){
+  if(!row.recId) return {cls: 'st-none', text: '—'};
+  const rec = state.records.find(r => r.id === row.recId);
+  if(!rec) return {cls: 'st-none', text: '记录已删'};
+  if(Math.abs(rec.val) !== Math.abs(Number(row.reward) || 0)) return {cls: 'st-dirty', text: '⟳ 需重记'};
+  return {cls: 'st-ok', text: '✅ 已入账'};
+}
+// 入账 / 重记：撤销旧记录 → 按新值写新记录（不会重复加分）
+function dtPost(row){
+  const reward = Math.abs(Number(row.reward) || 0);
+  if(reward <= 0){ toast('这一行积分是 0，不入账（分数 < 90 或手动填 0）', 'error'); return; }
+  if(row.recId){
+    const i = state.records.findIndex(r => r.id === row.recId);
+    if(i >= 0){ revertRecord(state.records[i]); state.records.splice(i, 1); }
+  }
+  const tid = normType(row.type) === 'b' ? 't_test_b' : 't_test_s';
+  const rec = addRecord('in', reward, `🏅 ${row.title || '考试'} ${row.subject || ''} ${row.score}分 +${reward}`, tid);
+  row.recId = rec.id;
+  saveState();
+}
+
+function renderDataTable(){
+  const rows = dtTable().rows;
+  $('dtCount').textContent = rows.length + ' 行';
+  if(!rows.length){
+    $('dtBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-3);padding:20px">还没有数据 —— 点「＋ 加一行」或「📥 导入 CSV/Excel」</td></tr>';
+    return;
+  }
+  $('dtBody').innerHTML = rows.map((r, i) => {
+    const st = dtStatus(r);
+    return `<tr data-i="${i}">
+      <td><input data-k="date"    value="${esc(r.date || '')}" placeholder="2026-10-18"></td>
+      <td><input data-k="title"   value="${esc(r.title || '')}" placeholder="单元测验"></td>
+      <td><input data-k="subject" value="${esc(r.subject || '')}" placeholder="数学"></td>
+      <td><select data-k="type">
+            <option value="s"${r.type !== 'b' ? ' selected' : ''}>小考</option>
+            <option value="b"${r.type === 'b' ? ' selected' : ''}>大考</option>
+          </select></td>
+      <td><input data-k="score" type="number" value="${esc(String(r.score ?? ''))}" style="width:70px"></td>
+      <td><input data-k="full"  type="number" value="${esc(String(r.full ?? '100'))}" style="width:70px"></td>
+      <td class="num"><input data-k="reward" type="number" value="${esc(String(r.reward ?? 0))}" style="width:70px"></td>
+      <td class="${st.cls}">${st.text}</td>
+      <td>
+        <button class="btn" data-act="post"  style="padding:5px 10px;font-size:12px"><span>${r.recId ? '重记' : '入账'}</span></button>
+        <button class="btn" data-act="undo"  style="padding:5px 10px;font-size:12px"><span>撤销</span></button>
+        <button class="btn" data-act="del"   style="padding:5px 10px;font-size:12px"><span>🗑</span></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// 单元格编辑：分数/满分/类型变化 → 自动重算阶梯积分（手改过积分的行加锁，不覆盖）
+$('dtBody').addEventListener('change', e => {
+  const k = e.target.dataset.k;
+  if(!k) return;
+  const tr = e.target.closest('tr');
+  const row = dtTable().rows[Number(tr.dataset.i)];
+  if(!row) return;
+  row[k] = e.target.value;
+  if(k === 'type') row.type = normType(row.type);
+  if(k === 'reward'){ row.locked = true; }
+  else if(k === 'score' || k === 'full' || k === 'type'){
+    if(!row.locked) row.reward = examReward(row.type, row.score, row.full);
+  }
+  saveState(); renderDataTable(); render();
+});
+// 行操作：入账/重记 · 撤销 · 删除
+$('dtBody').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if(!btn) return;
+  const row = dtTable().rows[Number(btn.closest('tr').dataset.i)];
+  if(!row) return;
+  const act = btn.dataset.act;
+  if(act === 'post'){
+    dtPost(row);
+    saveState(); render(); renderDataTable();
+    toast(row.recId ? `🏅 已入账 +${row.reward}${COIN}` : '👌 已入账', 'success');
+  }else if(act === 'undo'){
+    if(!row.recId){ toast('这一行还没入账', 'error'); return; }
+    const i = state.records.findIndex(r => r.id === row.recId);
+    if(i >= 0){ revertRecord(state.records[i]); state.records.splice(i, 1); }
+    row.recId = null;
+    saveState(); render(); renderDataTable();
+    toast('↩ 已撤销该行入账');
+  }else if(act === 'del'){
+    if(row.recId){
+      const i = state.records.findIndex(r => r.id === row.recId);
+      if(i >= 0){ revertRecord(state.records[i]); state.records.splice(i, 1); }
+    }
+    dtTable().rows.splice(Number(btn.closest('tr').dataset.i), 1);
+    saveState(); render(); renderDataTable();
+  }
+});
+$('dtAddRow').addEventListener('click', () => {
+  dtTable().rows.push({
+    id: dtRid(), date: dayStr(), title: '', subject: '', type: 's',
+    score: '', full: 100, reward: 0, note: '', recId: null, locked: false,
+  });
+  saveState(); renderDataTable();
+});
+
+// ---------- CSV 导出 / 导入 ----------
+const dtHeader = ['日期', '名称', '科目', '类型', '分数', '满分', '积分', '备注'];
+function dtToCsv(){
+  const rows = dtTable().rows.map(r => [
+    r.date || '', r.title || '', r.subject || '', r.type === 'b' ? '大考' : '小考',
+    r.score ?? '', r.full ?? 100, r.reward ?? 0, r.note || '',
+  ]);
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  return [dtHeader.join(','), ...rows.map(r => r.map(q).join(','))].join('\n');
+}
+$('dtExport').addEventListener('click', () => {
+  if(!dtTable().rows.length){ toast('表格是空的，没什么可导出', 'error'); return; }
+  const blob = new Blob(['﻿' + dtToCsv()], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `成绩表_${dayStr()}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('📤 已导出 CSV');
+});
+
+// CSV 解析（支持引号与转义双引号）
+function parseCsv(text){
+  const rows = [];
+  let cur = '', row = [], inQ = false;
+  const s = text.replace(/^﻿/, '');
+  for(let i = 0; i < s.length; i++){
+    const c = s[i];
+    if(inQ){
+      if(c === '"'){ if(s[i + 1] === '"'){ cur += '"'; i++; } else inQ = false; }
+      else cur += c;
+    }else if(c === '"') inQ = true;
+    else if(c === ','){ row.push(cur); cur = ''; }
+    else if(c === '\n'){ row.push(cur); rows.push(row); row = []; cur = ''; }
+    else if(c !== '\r') cur += c;
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+// 表头名 → 字段（中文/英文都认）
+const DT_MAP = {
+  日期: 'date', date: 'date', 时间: 'date',
+  名称: 'title', 考试: 'title', 测验: 'title', title: 'title', name: 'title',
+  科目: 'subject', subject: 'subject',
+  类型: 'type', type: 'type',
+  分数: 'score', 成绩: 'score', score: 'score',
+  满分: 'full', full: 'full', total: 'full',
+  积分: 'reward', reward: 'reward',
+  备注: 'note', note: 'note', remark: 'note',
+};
+function dtImportRows(matrix, label){
+  if(!matrix.length){ toast('没读到数据', 'error'); return; }
+  const head = matrix[0].map(h => DT_MAP[String(h).trim().toLowerCase()] || DT_MAP[String(h).trim()] || null);
+  const body = matrix.slice(1).filter(r => r.some(c => String(c).trim() !== ''));
+  let n = 0;
+  body.forEach(cells => {
+    const row = {id: dtRid(), date: dayStr(), title: '', subject: '', type: 's', score: '', full: 100, reward: 0, note: '', recId: null, locked: false};
+    head.forEach((k, i) => { if(k && cells[i] !== undefined) row[k] = String(cells[i]).trim(); });
+    row.type = normType(row.type);
+    if(!row.locked) row.reward = examReward(row.type, row.score, row.full);
+    dtTable().rows.push(row);
+    n++;
+  });
+  saveState(); renderDataTable(); render();
+  toast(`📥 ${label} 导入 ${n} 行`, 'success');
+}
+// Excel 懒加载（失败自动降级回 CSV，不影响主流程）
+let _xlsxLoading = false;
+function loadXlsxLib(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  if(_xlsxLoading) return Promise.reject(new Error('加载中'));
+  _xlsxLoading = true;
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload  = () => resolve(window.XLSX);
+    s.onerror = () => reject(new Error('Excel 解析库加载失败，请改用 CSV'));
+    document.head.appendChild(s);
+  });
+}
+$('dtImport').addEventListener('click', () => {
+  showModal({
+    emoji:'📥',
+    title:'导入成绩数据',
+    sub:'① 直接粘贴（CSV 格式，含表头行）　② 或选 CSV / Excel 文件',
+    fields:[
+      {id:'dtPaste', type:'text', value:'', placeholder:'日期,名称,科目,类型,分数,满分\n2026-10-18,单元测验,数学,小考,96,100'},
+      {id:'dtFile',  type:'file', accept:'.csv,.xlsx,.xls'},
+    ],
+    actions:[
+      {label:'取消'},
+      {label:'导入粘贴内容', cls:'primary', onClick:async v => {
+        const text = String(v.dtPaste || '').trim();
+        if(!text){ toast('请先粘贴 CSV 内容，或改用文件导入', 'error'); return; }
+        closeModal();
+        dtImportRows(parseCsv(text), 'CSV');
+      }},
+      {label:'导入文件', onClick:async v => {
+        const f = v.dtFile;
+        if(!f){ toast('请先选择文件', 'error'); return; }
+        closeModal();
+        const name = (f.name || '').toLowerCase();
+        try{
+          if(name.endsWith('.csv')){
+            dtImportRows(parseCsv(await f.text()), 'CSV');
+          }else{
+            await loadXlsxLib();
+            const wb = window.XLSX.read(await f.arrayBuffer(), {type:'array'});
+            const sheet = wb.Sheets[wb.SheetNames[0]];
+            dtImportRows(window.XLSX.utils.sheet_to_json(sheet, {header:1, defval:''}), 'Excel');
+          }
+        }catch(e){ toast('导入失败：' + e.message, 'error'); }
+      }},
+    ],
+  });
+});
+$('dtPostAll').addEventListener('click', () => {
+  const rows = dtTable().rows;
+  const todo = rows.filter(r => !r.recId && Number(r.reward) > 0);
+  if(!todo.length){ toast('没有待入账的行（或积分都是 0）', 'error'); return; }
+  showModal({
+    emoji:'⚡',
+    title:`批量入账 ${todo.length} 行？`,
+    sub:`合计 <b>${todo.reduce((s, r) => s + Number(r.reward || 0), 0)} ${COIN}</b>，会生成 ${todo.length} 条正式记录。`,
+    actions:[
+      {label:'取消'},
+      {label:'确认入账', cls:'primary', onClick:() => {
+        todo.forEach(dtPost);
+        saveState(); render(); renderDataTable();
+        closeModal();
+        toast(`⚡ 已入账 ${todo.length} 行`, 'success');
+      }},
+    ],
+  });
+});
+$('dtClear').addEventListener('click', () => {
+  const rows = dtTable().rows;
+  const posted = rows.filter(r => r.recId).length;
+  showModal({
+    emoji:'⚠️',
+    title:'清空整张表？',
+    sub:`将删除 ${rows.length} 行${posted ? `，并撤销其中 ${posted} 条已入账记录（余额会退回）` : ''}。建议先「📤 导出 CSV」备份。`,
+    actions:[
+      {label:'取消'},
+      {label:'确认清空', cls:'danger', onClick:() => {
+        rows.forEach(r => {
+          if(!r.recId) return;
+          const i = state.records.findIndex(x => x.id === r.recId);
+          if(i >= 0){ revertRecord(state.records[i]); state.records.splice(i, 1); }
+        });
+        dtTable().rows = [];
+        saveState(); render(); renderDataTable(); closeModal();
+        toast('🗑 表格已清空');
+      }},
+    ],
+  });
+});
+
+// v2.3.0：建表 SQL 内置一份，手机上点一下就能复制到剪贴板
 const SUPABASE_SQL = [
   "-- Max's Credits Plan · Supabase 建表脚本（v2.2.x）",
   "-- 用法：Supabase 控制台 → SQL Editor → New query → 粘贴 → Run",
@@ -3604,7 +3966,6 @@ $('btnSecWizard').addEventListener('click', () => wizShow());
   document.body.dataset.amode = 'ops';
 })();
 
-
 // 顶栏「爸妈」按钮：已设置账号时高亮+锁图标
 document.querySelectorAll('#viewToggle .view-btn[data-view="parent"]').forEach(b => {
   b.classList.toggle('secured', !!(state.cfg.admin && state.cfg.admin.email));
@@ -3650,7 +4011,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.2.3 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.3.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -3679,6 +4040,8 @@ function runSelfTest(){
     assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
     assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
     assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),
+    assert('阶梯积分换算', examReward('s', 96, 100) === 50 && examReward('b', 100, 100) === 200 && examReward('大考', 100, 100) === 200 && examReward('s', 116, 120) === 50 && examReward('s', 88, 100) === 0),
+    assert('CSV 解析（含引号）', parseCsv('a,b\n"x,1",2').length === 2 && parseCsv('a,b\n"x,1",2')[1][0] === 'x,1'),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原
