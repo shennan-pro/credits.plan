@@ -155,8 +155,8 @@
 
 - 改功能走 `fix/_refactor/_feature` 分支，验收后合 main；**远端上传必须用户口令**
 - **2026-10-16 起：每次迭代收口后及时 push main**（用户授权长期有效，不用每次再问）；Pages 自动重建，多端即时可用
-- 线上地址：https://shennan-pro.github.io/max-credits-plan/ （仓库 `shennan-pro/max-credits-plan`，public；显示名 "Kid's Credits Plan"）
-- ⚠️ 旧地址 `shennanjaysn-cmyk.github.io/...` 已 404（改用户名不重定向 Pages），对外一律用新地址
+- 线上地址：https://shennan-pro.github.io/kids-credits-plan/ （仓库 `shennan-pro/kids-credits-plan`，public；显示名 "Kid's Credits Plan"）
+- ⚠️ 历史地址均已 404（改名不会重定向 Pages）：`shennanjaysn-cmyk.github.io/max-credits-plan/`、`shennan-pro.github.io/max-credits-plan/` —— 对外一律用上面那条
 - 冻结面：卡通视觉、动效、Baloo 2、localStorage 键名与 schema —— 动前先问
 - 每版必更：版本号（title/tag/footer/console）+ changelog + README
 
