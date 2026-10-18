@@ -125,7 +125,7 @@
 | 导入 | `parseCsv()`（含引号/转义）+ `DT_MAP` 表头映射；Excel 走 `loadXlsxLib()` 懒加载 SheetJS CDN，失败降级回 CSV |
 | 导出 | `dtToCsv()` + Blob 下载（带 BOM，Excel 不乱码） |
 | 关键函数 | dtTable / examReward / normType / dtStatus / dtPost / renderDataTable / parseCsv / dtImportRows / dtToCsv |
-| 已知限制 | 单表（成绩表）硬编码列；SVG 导入未做；表格行不参与月过期/撤销联动以外的其他统计 |
+| 已知限制 | 单表（成绩表）硬编码列；表格行不参与月过期/撤销联动以外的其他统计 |
 
 ## 六、组件清单（CSS）
 
