@@ -1,7 +1,7 @@
 # Max's Credits Plan · 工作文档（WORKDOC）
 
 > 协作交接用。新人读本文件 + `changelog.md` 即可接手。  
-> 当前版本：v2.3.0（规则包 v1.2.3 + Supabase 云同步 + 数据表格批量录入）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
+> 当前版本：v2.5.0（规则包 v1.2.3 + 云同步分行/表级权限 + 数据表格批量录入 + 评分规则可自定义）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
 
 ---
 
@@ -18,7 +18,7 @@
 - **存储**：localStorage，无后端
   - `max_credits_v12` —— 主存档（schema 见第五节）
   - `max_credits_accounts` —— 记住的家长邮箱列表（独立，导入/重置不丢）
-  - `max_credits_cloud` —— 云同步凭证（URL/anon key/家庭码/开关，**不进导出**）
+  - `max_credits_cloud` —— 云同步凭证（URL/anon key/家庭码/访问密钥/开关，**不进导出**）
   - `max_credits_backup_<时间戳>` —— 拉取云端前的本地旧档备份
 - **字体**：Baloo 2 ExtraBold（latin 子集 base64 内嵌，SIL OFL 1.1）；正文走系统字体
 - **版本规则**：`vX.Y.Z_YYMMDD`；历史版本全保留在 `versions/`
@@ -92,22 +92,39 @@
 - 任务 7 类：作息与家庭 / 学习习惯 / 体能训练 / 个人荣誉与进步 / 挑战成就 / 课堂表现 / 行为规范
 - 积分银行：余额不足禁购（不可透支）；家长后台 = 积分银行管理员
 
-### 云同步（v2.2.0 · Supabase）
+### 云同步（v2.5.0 · Supabase · 分行 + 表级权限）
+
+> v2.2.0 起可用；**v2.5.0 把读写从「直连表」改为「走 RPC 函数 + 密钥校验」**，见下方「表级权限」。
 
 | 项    | 设计                                                                                       |
 | ---- | ---------------------------------------------------------------------------------------- |
-| 接入方式 | 零 SDK：fetch 直连 Supabase REST（`/rest/v1/family_state`），单文件保持零依赖                           |
+| 接入方式 | 零 SDK：fetch 直连 Supabase REST **RPC 端点**（`/rest/v1/rpc/family_pull`、`/rest/v1/rpc/family_push`），单文件保持零依赖 |
 | URL 形态 | 官方 `.supabase.co` / 国内托管（如华为 OpenTrust `.supabase.opentrust.net`）/ 自建域名均支持；只校验 https + 主机名；自动补 https、剥 `/rest/v1`、trim |
-| 数据模型 | 一张表 `family_state(family_code PK, state jsonb, updated_at)`，一家一行整包存                      |
-| 身份   | **家庭码配对**（6 位，A 生成 B 输入）；无账号体系，孩子设备零门槛                                                   |
+| 数据模型 | 一张表 `family_state(family_code PK, secret_hash, state jsonb, updated_at)`，**一家一行整包存**（v2.5.0 加 `secret_hash`） |
+| 身份   | **家庭码（地址）+ 访问密钥（钥匙）**双要素；孩子设备零门槛，无账号体系                                   |
 | 冲突   | 整包 **last-write-wins**（比较 `state.updatedAt` 本地时钟）；本地不旧于云端才推送                             |
 | 拉取保护 | 拉取前自动把本地旧档写入 `max_credits_backup_<时间戳>`                                                  |
-| 凭证   | 独立键 `max_credits_cloud`，只存本机；**不进导出 JSON**                                               |
-| 入口   | 后台「云同步 · Supabase」卡：保存/测试连接/立即同步/自动同步开关                                                  |
-| 建表   | `supabase-setup.sql`（含 RLS：anon 可读写——家庭码即凭证）                                             |
-| 错误翻译 |  把 HTTP 状态 + 服务端返回体翻成人话：缺表(PGRST205)/401 key/403 RLS/5xx |
-| 已知限制 | ① 家庭码 = 读写凭证，外传=数据外泄；② 设备时钟差过大时推送被跳过（防覆盖，fail-safe）；③ 整包 LWW 极端同刻双改会丢一笔——可接受，升级路径是记录级合并表 |
-| 关键函数 | cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard   |
+| 凭证   | 独立键 `max_credits_cloud`（url / anonKey / familyCode / **secret** / autoSync / lastSync），只存本机；**不进导出 JSON** |
+| 入口   | 后台「云同步 · Supabase」卡：保存/复制建表SQL/测试连接/立即同步/自动同步开关 + 🎲家庭码 + 🔑访问密钥      |
+| 建表   | `supabase-setup.sql`（v2.5.0：RLS 全禁 + REVOKE + 两个 SECURITY DEFINER 函数，见下）                   |
+| 错误翻译 |  BAD_SECRET / EMPTY_SECRET / EMPTY_CODE / 缺函数(PGRST202) / 缺表(PGRST205) / 401·403 / 5xx |
+| 已知限制 | ① 密钥外传=数据外泄（比 v2.2.0 的「家庭码即凭证」好，但本质仍是共享密钥）；② 设备时钟差过大时推送被跳过（fail-safe）；③ 整包 LWW 极端同刻双改会丢一笔——升级路径是记录级合并表 |
+
+#### v2.5.0 表级权限（关键改动）
+
+| 层 | 做法 |
+|---|---|
+| 分行 | `family_code` 为主键 → 一个家庭一行，A 家读写不触碰 B 家的行 |
+| 直连关闭 | `enable row level security` + 策略 `using(false) with check(false)` + `revoke all … from anon, authenticated` → **拿 anon key 也无法 select/insert/update 任何行** |
+| 校验出口 | 只保留两个 `SECURITY DEFINER` 函数（以表 owner 身份跑，不受 RLS 约束）：`family_pull(code,secret)` / `family_push(code,secret,state,updated_at)` |
+| 密钥存储 | `secret_hash` = `crypt(密钥, gen_salt('bf'))`（pgcrypto bcrypt），明文只在本机 localStorage |
+| 不可探测 | 密钥错与行不存在都返回 `null` / 同一码，外部无法区分「码不存在」还是「没权限」 |
+| 旧数据兼容 | 历史行 `secret_hash=''` → 允许用「家庭码」当密钥读写一次，并在首次推送时自动升级为正式 bcrypt 哈希；前端 `cloudSecret()` 也做同款兜底 |
+| 换设备 | 必须同时填 **家庭码 + 访问密钥**。⚠️ 密钥是在云端写入时定的哈希，**换密钥无法找回旧密钥**，只能用户自己记住 |
+| 双保险 | RLS 策略已全禁；即便日后有人误加 GRANT，`using(false)` 仍挡住 anon 直连 |
+| 不开 FORCE | 刻意**不**开 `force row level security`：开了之后 owner 也受策略约束，会误伤 SECURITY DEFINER 函数 |
+
+| 关键函数 | cloudRpcUrl / cloudSecret / genCloudSecret / cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard / saveCloudFromInputs |
 | 存档合并 | `hydrate(saved)` 统一深合并（localStorage/云端/导入三条路径共用，浅合并曾把 cfg 整体替换导致渲染崩）                     |
 
 ---
@@ -158,7 +175,8 @@
 ## 八、后续待办（Backlog）
 
 - [x] ~~云同步（多端）~~ v2.2.0 已交付 Supabase 版（家庭码 + 整包 LWW）
-- [ ] 云同步加固：配对密钥 / 记录级合并（同刻双改丢一笔的根治）
+- [x] ~~云同步加固：配对密钥~~ v2.5.0 已改为「家庭码 + 访问密钥」双要素，密钥 bcrypt 落云、表对 anon 直连全禁
+- [ ] 云同步加固：记录级合并（同刻双改丢一笔的根治）/ 真正的账号体系（邮箱登录，免共享密钥）
 - [ ] 商业化预研：多家庭隔离（familyId + 配对密钥）、规则包售卖、实物卡兑码核销
 - [ ] PWA：manifest + 离线缓存 + 添加到主屏幕
 - [ ] 过期机制阶梯化（<50C 免扣 / 50–200C 10% / >200C 20%）
