@@ -3964,6 +3964,8 @@ const SUPABASE_SQL = [
   "  state       jsonb       not null default '{}'::jsonb,",
   "  updated_at  timestamptz not null default now()",
   ");",
+  "-- 关键：表已存在时 CREATE 会被跳过，新列不会自动出现，必须显式补",
+  "alter table public.family_state add column if not exists secret_hash text not null default '';",
   "-- 表级权限：anon 直连全禁（RPC 函数以 owner 身份读写，不受此限）",
   "alter table public.family_state enable row level security;",
   "drop policy if exists \"family_state anon rw\" on public.family_state;",

@@ -24,6 +24,11 @@ create table if not exists public.family_state (
   updated_at  timestamptz not null default now()
 );
 
+-- ⚠️ 关键：表如果已存在（v2.2.x 建过），上面的 CREATE 会被整段跳过，
+--    新列不会自动出现。必须显式补列，否则下面的函数会因「列不存在」报错。
+alter table public.family_state
+  add column if not exists secret_hash text not null default '';
+
 -- ============================================================
 -- 表级权限：关掉 anon / authenticated 对表的直连权限
 -- （owner 与 service_role 不受影响，所以下面的 RPC 函数仍能读写）
