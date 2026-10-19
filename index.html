@@ -3955,8 +3955,6 @@ $('dtRulesReset').addEventListener('click', () => {
 
 // v2.3.0：建表 SQL 内置一份，手机上点一下就能复制到剪贴板
 const SUPABASE_SQL = [
-  "-- Kid's Credits Plan · Supabase 建表脚本（v2.5.0 · 分行 + 表级权限）",
-  "-- 用法：Supabase 控制台 → SQL Editor → New query → 粘贴 → Run",
   "create extension if not exists pgcrypto;",
   "create table if not exists public.family_state (",
   "  family_code text primary key,",
@@ -3964,16 +3962,13 @@ const SUPABASE_SQL = [
   "  state       jsonb       not null default '{}'::jsonb,",
   "  updated_at  timestamptz not null default now()",
   ");",
-  "-- 关键：表已存在时 CREATE 会被跳过，新列不会自动出现，必须显式补",
   "alter table public.family_state add column if not exists secret_hash text not null default '';",
-  "-- 表级权限：anon 直连全禁（RPC 函数以 owner 身份读写，不受此限）",
   "alter table public.family_state enable row level security;",
   "drop policy if exists \"family_state anon rw\" on public.family_state;",
   "drop policy if exists \"family_state direct access\" on public.family_state;",
   "create policy \"family_state direct access\" on public.family_state",
   "  for all to anon, authenticated using (false) with check (false);",
   "revoke all on public.family_state from anon, authenticated;",
-  "-- RPC ① 读取：家庭码 + 密钥匹配才返回，否则 null",
   "create or replace function public.family_pull(p_code text, p_secret text)",
   "returns jsonb language plpgsql security definer set search_path = public as $$",
   "declare v jsonb; begin",
@@ -3982,7 +3977,6 @@ const SUPABASE_SQL = [
   "     and (secret_hash = '' or secret_hash = crypt(coalesce(p_secret,''), secret_hash));",
   "  return v;",
   "end; $$;",
-  "-- RPC ② 写入：密钥校验通过才覆盖；旧空哈希行允许用家庭码通过一次并升级",
   "create or replace function public.family_push(p_code text, p_secret text, p_state jsonb, p_updated_at timestamptz default now())",
   "returns jsonb language plpgsql security definer set search_path = public as $$",
   "declare vc text := upper(btrim(coalesce(p_code,''))); vs text := coalesce(p_secret,''); ok boolean;",
@@ -4008,8 +4002,6 @@ const SUPABASE_SQL = [
   "revoke all on function public.family_push(text, text, jsonb, timestamptz) from public;",
   "grant execute on function public.family_pull(text, text) to anon, authenticated;",
   "grant execute on function public.family_push(text, text, jsonb, timestamptz) to anon, authenticated;",
-  "-- 验证：直连查询应返回 0 行",
-  "-- select * from public.family_state;",
 ].join('\n');
 
 async function copyCloudSql(){
