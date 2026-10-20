@@ -92,39 +92,59 @@
 - 任务 7 类：作息与家庭 / 学习习惯 / 体能训练 / 个人荣誉与进步 / 挑战成就 / 课堂表现 / 行为规范
 - 积分银行：余额不足禁购（不可透支）；家长后台 = 积分银行管理员
 
-### 云同步（v2.5.0 · Supabase · 分行 + 表级权限）
+### 云同步（v2.5.1 · Supabase · 分行 + 表级权限 · ADB PG 兼容）
 
-> v2.2.0 起可用；**v2.5.0 把读写从「直连表」改为「走 RPC 函数 + 密钥校验」**，见下方「表级权限」。
+> v2.2.0 起可用；**v2.5.1 是不提权版**（用户实例 = 阿里云 AnalyticDB for PostgreSQL，平台层禁用 SECURITY DEFINER）
 
 | 项    | 设计                                                                                       |
 | ---- | ---------------------------------------------------------------------------------------- |
-| 接入方式 | 零 SDK：fetch 直连 Supabase REST **RPC 端点**（`/rest/v1/rpc/family_pull`、`/rest/v1/rpc/family_push`），单文件保持零依赖 |
+| 接入方式 | 零 SDK：fetch 直连 Supabase REST **RPC 端点**（`/rest/v1/rpc/family_pull`、`family_push`），单文件保持零依赖 |
 | URL 形态 | 官方 `.supabase.co` / 国内托管（如华为 OpenTrust `.supabase.opentrust.net`）/ 自建域名均支持；只校验 https + 主机名；自动补 https、剥 `/rest/v1`、trim |
-| 数据模型 | 一张表 `family_state(family_code PK, secret_hash, state jsonb, updated_at)`，**一家一行整包存**（v2.5.0 加 `secret_hash`） |
+| 数据模型 | 一张表 `family_state(family_code PK, secret_hash, state jsonb, updated_at)`，**一家一行整包存** |
 | 身份   | **家庭码（地址）+ 访问密钥（钥匙）**双要素；孩子设备零门槛，无账号体系                                   |
+| 凭证   | 传给云端的是 `md5(家庭码:密钥)`（浏览器用纯 JS MD5 算，已对拍 Node crypto 16 组）。**密钥明文从不上云、不落库**；库内 `secret_hash` 就是这个 md5 |
 | 冲突   | 整包 **last-write-wins**（比较 `state.updatedAt` 本地时钟）；本地不旧于云端才推送                             |
 | 拉取保护 | 拉取前自动把本地旧档写入 `max_credits_backup_<时间戳>`                                                  |
-| 凭证   | 独立键 `max_credits_cloud`（url / anonKey / familyCode / **secret** / autoSync / lastSync），只存本机；**不进导出 JSON** |
-| 入口   | 后台「云同步 · Supabase」卡：保存/复制建表SQL/测试连接/立即同步/自动同步开关 + 🎲家庭码 + 🔑访问密钥      |
-| 建表   | `supabase-setup.sql`（v2.5.0：RLS 全禁 + REVOKE + 两个 SECURITY DEFINER 函数，见下）                   |
-| 错误翻译 |  BAD_SECRET / EMPTY_SECRET / EMPTY_CODE / 缺函数(PGRST202) / 缺表(PGRST205) / 401·403 / 5xx |
-| 已知限制 | ① 密钥外传=数据外泄（比 v2.2.0 的「家庭码即凭证」好，但本质仍是共享密钥）；② 设备时钟差过大时推送被跳过（fail-safe）；③ 整包 LWW 极端同刻双改会丢一笔——升级路径是记录级合并表 |
+| 凭证存储 | 独立键 `max_credits_cloud`（url / anonKey / familyCode / **secret** / autoSync / lastSync），只存本机；**不进导出 JSON** |
+| 入口   | 后台「云同步 · Supabase」卡：保存/复制建表SQL/测试连接/立即同步/**🩺 环境体检**/自动同步开关 + 🎲家庭码 + 🔑访问密钥 |
+| 建表   | `supabase-setup.sql`（带注释）/ `supabase-setup.paste.sql`（**纯 ASCII 无注释，推荐粘贴**） |
+| 错误翻译 |  BAD_SECRET / EMPTY_SECRET / EMPTY_CODE / 缺函数(PGRST202) / 缺表(PGRST205) / **ADB 禁用 DEFINER 专属提示** / 401·403 / 5xx |
 
-#### v2.5.0 表级权限（关键改动）
+#### v2.5.1 表级权限（关键改动：不提权也能校验）
 
 | 层 | 做法 |
 |---|---|
 | 分行 | `family_code` 为主键 → 一个家庭一行，A 家读写不触碰 B 家的行 |
-| 直连关闭 | `enable row level security` + 策略 `using(false) with check(false)` + `revoke all … from anon, authenticated` → **拿 anon key 也无法 select/insert/update 任何行** |
-| 校验出口 | 只保留两个 `SECURITY DEFINER` 函数（以表 owner 身份跑，不受 RLS 约束）：`family_pull(code,secret)` / `family_push(code,secret,state,updated_at)` |
-| 密钥存储 | `secret_hash` = `crypt(密钥, gen_salt('bf'))`（pgcrypto bcrypt），明文只在本机 localStorage |
-| 不可探测 | 密钥错与行不存在都返回 `null` / 同一码，外部无法区分「码不存在」还是「没权限」 |
-| 旧数据兼容 | 历史行 `secret_hash=''` → 允许用「家庭码」当密钥读写一次，并在首次推送时自动升级为正式 bcrypt 哈希；前端 `cloudSecret()` 也做同款兜底 |
-| 换设备 | 必须同时填 **家庭码 + 访问密钥**。⚠️ 密钥是在云端写入时定的哈希，**换密钥无法找回旧密钥**，只能用户自己记住 |
-| 双保险 | RLS 策略已全禁；即便日后有人误加 GRANT，`using(false)` 仍挡住 anon 直连 |
-| 不开 FORCE | 刻意**不**开 `force row level security`：开了之后 owner 也受策略约束，会误伤 SECURITY DEFINER 函数 |
+| 提权 | **完全不用 SECURITY DEFINER**（ADB PG 平台层禁止，报 `adbpg_enable_security_definer is disabled`）→ 普通函数（SECURITY INVOKER）以 anon 身份执行，RLS 照常生效 |
+| 凭证通道 A | 会话变量 `app.family_code` / `app.family_auth` / `app.family_new` ← 函数用 `set_config(..., true)` 写入 |
+| 凭证通道 B | 请求头 `x-family-code` / `x-family-auth` / `x-family-secret` ← 网关把头放进 `current_setting('request.headers')`；A 通道不生效时的备选 |
+| 策略 | `using` = 家庭码相等 **且**（凭证一致 **或** 该行是历史空哈希行）；`with check` = 家庭码相等 **且** 新凭证一致 |
+| 哈希 | **不放服务端算**：凭证在浏览器算成 md5，库里只做字符串比较 → 不依赖 pgcrypto / bcrypt / 任何扩展（也绕开 ADB 扩展可用性未知的问题） |
+| 不可探测 | 密钥错与行不存在都返回同一个结果，外部无法区分 |
+| 旧数据兼容 | `secret_hash = ''` 的历史行沿用 v2.2.x 语义（家庭码即凭证），首次推送即升级为正式 md5 |
+| 双保险 | RLS 策略 + `revoke` 表权限；直连表不带凭证 → 读到 0 行、写入被拒 |
 
-| 关键函数 | cloudRpcUrl / cloudSecret / genCloudSecret / cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard / saveCloudFromInputs |
+#### 平台差异对照（踩过的坑）
+
+| 平台 | SECURITY DEFINER | request.headers | 备注 |
+|---|---|---|---|
+| 官方 Supabase | ✅ 支持 | ✅ | 原始方案可用 |
+| 华为云 RDS Supabase | ✅ 支持 | ✅ | 原始方案可用 |
+| **阿里云 ADB PG** | ❌ **平台层禁用** | ⚠️ 需实测 | 只能用 v2.5.1 不提权版 |
+
+#### 诊断工具：🩺 环境体检
+
+后台云同步卡新增「🩺 环境体检」按钮，**一次跑完 5 项探测并给判定**（把反复猜平台变成可测量）：
+
+| 探测 | 期望 | 含义 |
+|---|---|---|
+| REST 根路径 | 401/200 | URL 对不对 |
+| family_state 表 | 200 | 表建了没 |
+| **直连读（不带凭证）** | **0 行** | **RLS 到底生效没有**（>0 行 = 别人能读全表） |
+| RPC family_pull | 200 | 函数建了没 |
+| 端到端 | 写入+读回 | 临时建行→读回→删除 |
+
+| 关键函数 | cloudRpcUrl / cloudSecret / genCloudSecret / **cloudDoctor** / cloudPull / cloudPush / cloudSyncNow / scheduleCloudPush / testCloud / renderCloudCard / saveCloudFromInputs / **md5hex** |
 | 存档合并 | `hydrate(saved)` 统一深合并（localStorage/云端/导入三条路径共用，浅合并曾把 cfg 整体替换导致渲染崩）                     |
 
 ---

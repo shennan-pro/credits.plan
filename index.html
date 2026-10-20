@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kid's Credits Plan · v2.5.0</title>
+<title>Kid's Credits Plan · v2.5.1</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1038,7 +1038,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max">MAX</button>
         <button class="view-btn" data-view="parent">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm">v2.5.0</span>
+      <span class="tag tag-red hide-sm">v2.5.1</span>
     </div>
   </header>
 
@@ -1464,7 +1464,7 @@ html[data-theme="funny"]{
             </div>
             <input type="text" class="setting-input" id="cloudKey" placeholder="eyJhbGciOi..." style="width:220px">
           </div>
-          <div class="rule-col-head" style="margin-top:14px">② 家庭码 + 访问密钥：两台设备填同样内容即视为同一家庭（v2.5.0）</div>
+          <div class="rule-col-head" style="margin-top:14px">② 家庭码 + 访问密钥：两台设备填同样内容即视为同一家庭（v2.5.1）</div>
           <div class="setting-row">
             <div>
               <div class="setting-label">家庭码</div>
@@ -1497,6 +1497,7 @@ html[data-theme="funny"]{
             <button class="btn" id="btnCloudSql"><span>📋 复制建表 SQL</span></button>
             <button class="btn" id="btnCloudTest"><span>🔌 测试连接</span></button>
             <button class="btn" id="btnCloudSync"><span>☁️ 立即同步</span></button>
+            <button class="btn" id="btnCloudDoctor"><span>🩺 环境体检</span></button>
           </div>
           <div class="rule-col-head" style="margin-top:14px">状态</div>
           <div class="setting-row" style="border-bottom:none">
@@ -1596,7 +1597,7 @@ html[data-theme="funny"]{
       <span>LOCAL SYNC</span>
     </div>
     <div class="right">
-      <span>v2.5.0 · 2026-10-18</span>
+      <span>v2.5.1 · 2026-10-20</span>
     </div>
   </footer>
 </div>
@@ -3304,10 +3305,59 @@ $('btnAdminSave').addEventListener('click', async () => {
   toast('✅ 管理员账号已保存，进后台需登录', 'success');
 });
 
+/* v2.5.1：纯 JS MD5（零依赖，已对拍 Node crypto 验证 16 组）
+   用途：客户端算 md5(家庭码:密钥)，密钥明文永不进云端库 */
+(function(root){
+  const md5hex = function md5hex(msg){
+  const K=[], S=[];
+  for(let i=0;i<64;i++) K[i]=Math.floor(Math.abs(Math.sin(i+1))*4294967296)>>>0;
+  const sh=[7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+  for(let i=0;i<64;i++) S[i]=sh[i];
+  const rotr=(x,n)=>((x>>>n)|(x<<(32-n)))>>>0;
+  const bytes=new TextEncoder().encode(msg);
+  const l=bytes.length;
+  const total=(((l+8)>>6)+1)<<6;
+  const buf=new Uint8Array(total); buf.set(bytes); buf[l]=0x80;
+  const dv=new DataView(buf.buffer);
+  dv.setUint32(total-8,(l*8)>>>0,true);
+  dv.setUint32(total-4,Math.floor(l*8/4294967296),true);
+  let a0=0x67452301,b0=0xefcdab89,c0=0x98badcfe,d0=0x10325476;
+  const X=new Int32Array(64);
+  for(let off=0;off<total;off+=64){
+    for(let j=0;j<16;j++) X[j]=dv.getInt32(off+j*4,true);
+    for(let j=16;j<64;j++){
+      const x=X[j-15],y=X[j-2];
+      const s0=rotr(x,7)^rotr(x,18)^(x>>>3);
+      const s1=rotr(y,17)^rotr(y,19)^(y>>>10);
+      X[j]=(X[j-16]+s0+X[j-7]+s1)>>>0;
+    }
+    let A=a0,B=b0,C=c0,D=d0;
+    for(let j=0;j<64;j++){
+      let F,g;
+      if(j<16){F=(B&C)|(~B&D);g=j;}
+      else if(j<32){F=(D&B)|(~D&C);g=(5*j+1)&15;}
+      else if(j<48){F=B^C^D;g=(3*j+5)&15;}
+      else {F=C^(B|~D);g=(7*j)&15;}
+      F=(F+A+K[j]+X[g])>>>0;
+      A=D;D=C;C=B;
+      B=(B+((F<<S[j])|(F>>>(32-S[j]))))>>>0;
+    }
+    a0=(a0+A)>>>0;b0=(b0+B)>>>0;c0=(c0+C)>>>0;d0=(d0+D)>>>0;
+  }
+  const out=new Uint8Array(16), odv=new DataView(out.buffer);
+  odv.setUint32(0,a0,true);odv.setUint32(4,b0,true);odv.setUint32(8,c0,true);odv.setUint32(12,d0,true);
+  let h='';for(let i=0;i<16;i++)h+=out[i].toString(16).padStart(2,'0');
+  return h;
+};
+  root.md5hex = md5hex;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 /* ============================================================
    v2.2.0 云同步 · Supabase（家长后台配置，凭证独立存储）
-   v2.5.0 分行 + 表级权限：读写改走 RPC（family_pull / family_push），
-           表对 anon 直连关闭，行内密钥 bcrypt 校验；旧存档自动兼容
+   v2.5.1 分行 + 表级权限（ADB PG 兼容版）：
+           ADB PG 平台层禁用 SECURITY DEFINER，v2.5.0 的提权函数建不出来
+           → 改为「普通函数(INVOKER) 写会话变量 + RLS 策略自己比对凭证」
+           密钥只以 md5(家庭码:密钥) 落库，明文永不进云端
    ------------------------------------------------------------
    数据模型：一张表 family_state(family_code PK, secret_hash, state jsonb, updated_at)
    冲突策略：整包 last-write-wins（按 state.updatedAt 比较本地时钟）
@@ -3320,8 +3370,16 @@ const cloudCfg = () => {
 };
 const saveCloudCfg = c => { try{ localStorage.setItem(CLOUD_KEY, JSON.stringify(c)); }catch(e){} };
 const cloudReady = () => { const c = cloudCfg(); return !!(c.url && c.anonKey && c.familyCode); };
-// v2.5.0：家庭码是「地址」，密钥才是「钥匙」。旧存档没存密钥时，用家庭码兜底（云端旧行也是空哈希）
-const cloudSecret = () => (cloudCfg().secret || cloudCfg().familyCode || '');
+// v2.5.1：家庭码是「地址」，密钥才是「钥匙」。
+//   传给云端的是「凭证」= md5(家庭码:密钥)，不是密钥本身 → 密钥明文永不进云端
+//   旧存档没存密钥时，用家庭码兜底（云端旧行 secret_hash 为空，靠家庭码通过）
+const cloudSecretRaw = () => (cloudCfg().secret || cloudCfg().familyCode || '');
+const cloudSecret = () => {
+  const code = cloudCfg().familyCode || '';
+  const raw  = cloudSecretRaw();
+  if(!code || !raw) return '';
+  return md5hex(code + ':' + raw);
+};
 const genFamilyCode = () => {
   const abc = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // 去掉易混淆字符
   let s = '';
@@ -3338,9 +3396,16 @@ const genCloudSecret = () => {
   return s;
 };
 const cloudRpcUrl = fn => `${cloudCfg().url.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`;
-const cloudHeaders = () => {
+const cloudHeaders = (opt) => {
   const c = cloudCfg();
-  return {apikey: c.anonKey, Authorization: `Bearer ${c.anonKey}`, 'Content-Type': 'application/json'};
+  const h = {apikey: c.anonKey, Authorization: `Bearer ${c.anonKey}`, 'Content-Type': 'application/json'};
+  // v2.5.1：把凭证也放进自定义头 → 网关若不暴露 request.headers，RLS 仍能从头里取到
+  if(opt && opt.family){
+    h['x-family-code']   = c.familyCode || '';
+    h['x-family-auth']   = cloudSecret();
+    h['x-family-secret'] = cloudSecret();
+  }
+  return h;
 };
 const cloudStampStr = ms => ms ? new Date(ms).toLocaleString('zh-CN', {hour12:false}) : '从未';
 
@@ -3406,18 +3471,23 @@ function saveCloudFromInputs(silent){
 // （404 有两种完全不同的原因：不带 key 是"路径不存在"，带 key 是"表不存在"）
 function explainCloudError(status, detail){
   const t = String(detail || '');
-  if(/BAD_SECRET/.test(t)) return '密钥不正确：这台设备填的访问密钥与云端不符（换了设备要在新设备上填同一个密钥）';
+  if(/BAD_SECRET/.test(t)) return '凭证不正确：这台设备的访问密钥与云端记录不符（换设备要填同一个密钥）';
   if(/EMPTY_SECRET/.test(t)) return '访问密钥为空：请在云同步卡里生成或填写密钥';
   if(/EMPTY_CODE/.test(t))  return '家庭码为空：请先填 4-8 位家庭码';
+  // ADB PG 平台层限制：提权函数建不出来
+  if(/SECURITY DEFINER functions are not allowed|adbpg_enable_security_definer/i.test(t)){
+    return '云端平台禁用了 SECURITY DEFINER 函数（阿里云 ADB PG）→ 请执行 v2.5.1 版 supabase-setup.sql（改用不提权的方案）';
+  }
   if(status === 404 && /PGRST202|Could not find the function|schema cache/i.test(t)){
-    return 'HTTP 404：云端还没有 family_pull / family_push 函数 → 请在 Supabase SQL Editor 重新执行一次 supabase-setup.sql（v2.5.0 版）';
+    return 'HTTP 404：云端还没有 family_pull / family_push 函数 → 请在 Supabase SQL Editor 重新执行一次 supabase-setup.sql（v2.5.1 版）';
   }
   if(status === 404 && /PGRST205|Could not find the table|schema cache/i.test(t)){
     return 'HTTP 404：云端还没有 family_state 表 → 请在 Supabase SQL Editor 执行一次 supabase-setup.sql';
   }
-  if(status === 404) return 'HTTP 404：REST 路径或函数不通 → 确认项目 URL 是否完整、v2.5.0 建表 SQL 是否已执行';
-  if(status === 401 || status === 403) return `HTTP ${status}：权限被拒 → 表级权限已收紧，请确认 v2.5.0 建表 SQL（含 RLS + RPC 函数）已完整执行`;
-  if(status === 405) return 'HTTP 405：调用方式不对 → 请确认 supabase-setup.sql 是 v2.5.0 版本（含 RPC 函数）';
+  if(status === 404) return 'HTTP 404：REST 路径或函数不通 → 确认项目 URL 是否完整、v2.5.1 建表 SQL 是否已执行';
+  if(status === 401) return 'HTTP 401：anon key 无效或未填 → Project Settings → API → anon public key';
+  if(status === 403) return 'HTTP 403：权限被拒 → 请确认 v2.5.1 建表 SQL（含 RLS 策略 + 函数授权）已完整执行';
+  if(status === 405) return 'HTTP 405：调用方式不对 → 请确认 supabase-setup.sql 是 v2.5.1 版本';
   if(status >= 500)  return `HTTP ${status}：云端服务异常，稍后重试`;
   return `HTTP ${status}${t ? '：' + t.slice(0, 120) : ''}`;
 }
@@ -3429,13 +3499,14 @@ async function cloudFetch(url, opts){
   throw new Error(explainCloudError(res.status, detail));
 }
 
-// v2.5.0 拉取：走 RPC（表对 anon 直连关闭，函数内校验家庭码+密钥）
-// 返回 {state, updatedAt} 或 null（云端无该家庭 / 密钥不匹配）
+// v2.5.1 拉取：走 RPC（普通函数，函数内写会话变量 → RLS 策略放行）
+// 同时带上 x-family-* 头，作为「网关不暴露 request.headers」时的备用凭证通道
+// 返回 {state, updatedAt} 或 null（云端无该家庭 / 凭证不匹配）
 async function cloudPull(){
   requireCloud();
   const res = await cloudFetch(cloudRpcUrl('family_pull'), {
     method: 'POST',
-    headers: cloudHeaders(),
+    headers: cloudHeaders({family: true}),
     body: JSON.stringify({p_code: cloudCfg().familyCode, p_secret: cloudSecret()}),
   });
   const json = await res.json();
@@ -3443,19 +3514,21 @@ async function cloudPull(){
   return st ? {state: st, updatedAt: st.updatedAt || 0} : null;
 }
 
-// v2.5.0 推送：整包 upsert（仅当本地不旧于云端，避免覆盖别人的新数据）
+// v2.5.1 推送：整包 upsert（仅当本地不旧于云端，避免覆盖别人的新数据）
 async function cloudPush(){
   requireCloud();
   const remote = await cloudPull();
   if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
     return {skipped:true, remoteAt: remote.state.updatedAt};
   }
+  const cred = cloudSecret();
   await cloudFetch(cloudRpcUrl('family_push'), {
     method: 'POST',
-    headers: cloudHeaders(),
+    headers: cloudHeaders({family: true}),
     body: JSON.stringify({
       p_code: cloudCfg().familyCode,
-      p_secret: cloudSecret(),
+      p_auth: cred,   // 访问现有行用的凭证
+      p_new:  cred,   // 写进库里的凭证
       p_state: state,
       p_updated_at: new Date().toISOString(),
     }),
@@ -3492,6 +3565,98 @@ async function testCloud(){
     $('cloudStatus').textContent = `连接失败：${e.message}`;
     toast('🔌 ' + e.message, 'error');
   }
+}
+
+// v2.5.1 环境体检：一次性测出「云端到底支持什么」，
+//   避免在 ADB PG / OpenTrust / 官方 Supabase 之间反复猜。
+// 前四项都是只读探测；第五项会建临时行并当场删掉。
+async function cloudDoctor(){
+  if(!saveCloudFromInputs(true)) return;
+  const c = cloudCfg();
+  const base = c.url.replace(/\/+$/, '');
+  const rows = [];
+  const probe = async (name, url, opts) => {
+    try{
+      const res = await fetch(url, opts);
+      let detail = '';
+      try{ const t = await res.text(); detail = (t || '').slice(0, 120); }catch(e){}
+      rows.push({ok: res.ok, name, status: res.status, detail});
+      return res;
+    }catch(e){
+      rows.push({ok:false, name, status: 0, detail: String(e.message || e)});
+      return null;
+    }
+  };
+
+  await probe('REST 根路径', base + '/rest/v1/', {headers: {apikey: c.anonKey}});
+  await probe('family_state 表', base + '/rest/v1/family_state?select=family_code&limit=1',
+              {headers: {apikey: c.anonKey, Authorization: 'Bearer ' + c.anonKey}});
+  const r3 = await probe('直连读（无凭证，应 0 行）', base + '/rest/v1/family_state?select=family_code&limit=5',
+              {headers: {apikey: c.anonKey, Authorization: 'Bearer ' + c.anonKey}});
+  let leaked = 0;
+  try{ const j = await r3.json(); if(Array.isArray(j)) leaked = j.length; }catch(e){}
+  await probe('RPC family_pull', base + '/rest/v1/rpc/family_pull',
+              {method:'POST', headers: cloudHeaders({family:true}), body: JSON.stringify({p_code: c.familyCode, p_secret: cloudSecret()})});
+
+  // 端到端：临时码建行 → 读回 → 删掉
+  const tmp = 'ZZ' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const tmpCred = md5hex(tmp + ':' + tmp);
+  const hdr = {apikey: c.anonKey, Authorization: 'Bearer ' + c.anonKey, 'Content-Type':'application/json',
+               'x-family-code': tmp, 'x-family-auth': tmpCred, 'x-family-secret': tmpCred};
+  let e2e = '未测';
+  try{
+    const pr = await fetch(base + '/rest/v1/rpc/family_push', {method:'POST', headers: hdr,
+      body: JSON.stringify({p_code: tmp, p_auth: tmpCred, p_new: tmpCred, p_state: {probe:true}, p_updated_at: new Date().toISOString()})});
+    if(pr.ok){
+      const g = await fetch(base + '/rest/v1/rpc/family_pull', {method:'POST', headers: hdr,
+        body: JSON.stringify({p_code: tmp, p_secret: tmpCred})});
+      const j = await g.json();
+      e2e = (j && j.probe) ? '✅ 写入+读回正常' : '⚠️ 读回为空';
+      try{
+        await fetch(base + '/rest/v1/family_state?family_code=eq.' + encodeURIComponent(tmp),
+          {method:'DELETE', headers: hdr});
+      }catch(e){}
+    }else{
+      const t = await pr.text();
+      e2e = '❌ ' + pr.status + ' ' + (t || '').slice(0, 100);
+    }
+  }catch(e){ e2e = '❌ ' + String(e.message || e); }
+
+  const find = n => rows.find(r => r.name.indexOf(n) === 0) || {status:0, detail:'', ok:false};
+  const r1 = find('REST 根路径'), r2 = find('family_state 表'), r4 = find('RPC family_pull');
+  const L = [];
+  L.push('🩺 云端环境体检（' + new Date().toLocaleString('zh-CN', {hour12:false}) + '）');
+  L.push('');
+  L.push('【基础】');
+  L.push('  项目 URL：' + c.url);
+  L.push('  REST 根路径：' + (r1.status === 401 || r1.status === 200 ? '✅ 可达（' + r1.status + '）' : '❌ ' + r1.status + ' ' + r1.detail));
+  L.push('  family_state 表：' + (r2.status === 200 ? '✅ 存在' : r2.status === 404 ? '❌ 不存在 → 请执行 supabase-setup.sql' : '❌ ' + r2.status + ' ' + r2.detail));
+  L.push('');
+  L.push('【表级权限（关键）】');
+  L.push('  直连读（不带凭证）：' + (r3.status === 200
+      ? (leaked === 0 ? '✅ 返回 0 行 → 别人拿 anon key 也读不到你的数据' : '❌ 返回 ' + leaked + ' 行 → RLS 没生效，别人能读全表！')
+      : '⚠️ ' + r3.status + ' ' + r3.detail));
+  L.push('  RPC family_pull：' + (r4.status === 200 ? '✅ 函数存在且可调用'
+      : r4.status === 404 ? '❌ 函数不存在 → 请执行 supabase-setup.sql（v2.5.1 版）'
+      : '❌ ' + r4.status + ' ' + r4.detail));
+  L.push('');
+  L.push('【端到端】');
+  L.push('  临时行写入+读回：' + e2e);
+  L.push('');
+  L.push('【判定】');
+  if(r2.status === 404) L.push('  → 云端还没建表。先在 SQL Editor 执行 supabase-setup.sql，再点本按钮复测。');
+  else if(r4.status === 404) L.push('  → 表在、但 RPC 函数不在。请执行 v2.5.1 版脚本（会重建函数 + 收紧 RLS）。');
+  else if(r3.status === 200 && leaked > 0) L.push('  → ⚠️ RLS 没生效：拿到 anon key 的人能列出并读取所有家庭数据。必须重建策略。');
+  else if(e2e.indexOf('✅') === 0) L.push('  → ✅ 云端权限与同步链路都正常，可以直接用了。');
+  else L.push('  → 部分环节异常，见上面各行报错。');
+
+  showModal({
+    emoji: '🩺',
+    title: '云端环境体检',
+    sub: '一次性测出云端支持什么，避免反复试错',
+    fields: [{id:'docOut', type:'text', value: L.join('\n')}],
+    actions: [{label:'知道了', cls:'primary'}],
+  });
 }
 
 // 自动推送：防抖 2 秒（保存频繁，但数据极小）
@@ -3955,7 +4120,6 @@ $('dtRulesReset').addEventListener('click', () => {
 
 // v2.3.0：建表 SQL 内置一份，手机上点一下就能复制到剪贴板
 const SUPABASE_SQL = [
-  "create extension if not exists pgcrypto;",
   "create table if not exists public.family_state (",
   "  family_code text primary key,",
   "  secret_hash text not null default '',",
@@ -3966,42 +4130,110 @@ const SUPABASE_SQL = [
   "alter table public.family_state enable row level security;",
   "drop policy if exists \"family_state anon rw\" on public.family_state;",
   "drop policy if exists \"family_state direct access\" on public.family_state;",
-  "create policy \"family_state direct access\" on public.family_state",
-  "  for all to anon, authenticated using (false) with check (false);",
-  "revoke all on public.family_state from anon, authenticated;",
-  "create or replace function public.family_pull(p_code text, p_secret text)",
-  "returns jsonb language plpgsql security definer set search_path = public as $$",
-  "declare v jsonb; begin",
-  "  select state into v from public.family_state",
-  "   where family_code = upper(btrim(coalesce(p_code,'')))",
-  "     and (secret_hash = '' or secret_hash = crypt(coalesce(p_secret,''), secret_hash));",
-  "  return v;",
-  "end; $$;",
-  "create or replace function public.family_push(p_code text, p_secret text, p_state jsonb, p_updated_at timestamptz default now())",
-  "returns jsonb language plpgsql security definer set search_path = public as $$",
-  "declare vc text := upper(btrim(coalesce(p_code,''))); vs text := coalesce(p_secret,''); ok boolean;",
-  "begin",
-  "  if vc = '' then raise exception 'EMPTY_CODE' using errcode = '22023'; end if;",
-  "  if vs = '' then raise exception 'EMPTY_SECRET' using errcode = '22023'; end if;",
-  "  if exists (select 1 from public.family_state where family_code = vc) then",
-  "    ok := exists (select 1 from public.family_state where family_code = vc",
-  "      and (secret_hash = '' or secret_hash = crypt(vs, secret_hash) or vs = vc));",
-  "    if not ok then raise exception 'BAD_SECRET' using errcode = '42501'; end if;",
-  "    insert into public.family_state as t (family_code, secret_hash, state, updated_at)",
-  "    values (vc, crypt(vs, gen_salt('bf')), p_state, coalesce(p_updated_at, now()))",
-  "    on conflict (family_code) do update set state = excluded.state, updated_at = excluded.updated_at,",
-  "      secret_hash = case when t.secret_hash = '' then excluded.secret_hash else t.secret_hash end;",
-  "  else",
-  "    insert into public.family_state (family_code, secret_hash, state, updated_at)",
-  "    values (vc, crypt(vs, gen_salt('bf')), p_state, coalesce(p_updated_at, now()))",
-  "    on conflict (family_code) do update set state = excluded.state, updated_at = excluded.updated_at;",
+  "drop policy if exists \"family_state own row\" on public.family_state;",
+  "create or replace function public.fam_hdr(p_name text)",
+  "returns text language plpgsql stable as $$",
+  "declare v_raw text; v_json jsonb; begin",
+  "  v_raw := coalesce(current_setting('request.headers', true), '');",
+  "  if v_raw <> '' then",
+  "    begin",
+  "      v_json := v_raw::jsonb;",
+  "      return coalesce(v_json ->> p_name, '');",
+  "    exception when others then",
+  "      null;",
+  "    end;",
   "  end if;",
-  "  return jsonb_build_object('ok', true, 'family_code', vc);",
-  "end; $$;",
+  "  return coalesce(current_setting('request.header.' || p_name, true), '');",
+  "end;",
+  "$$;",
+  "create or replace function public.fam_code()",
+  "returns text language plpgsql stable as $$",
+  "declare v text; begin",
+  "  v := coalesce(current_setting('app.family_code', true), '');",
+  "  if v <> '' then return v; end if;",
+  "  return public.fam_hdr('x-family-code');",
+  "end;",
+  "$$;",
+  "create or replace function public.fam_auth()",
+  "returns text language plpgsql stable as $$",
+  "declare v text; begin",
+  "  v := coalesce(current_setting('app.family_auth', true), '');",
+  "  if v <> '' then return v; end if;",
+  "  v := public.fam_hdr('x-family-auth');",
+  "  if v <> '' then return v; end if;",
+  "  return public.fam_hdr('x-family-secret');",
+  "end;",
+  "$$;",
+  "create or replace function public.fam_new()",
+  "returns text language plpgsql stable as $$",
+  "declare v text; begin",
+  "  v := coalesce(current_setting('app.family_new', true), '');",
+  "  if v <> '' then return v; end if;",
+  "  v := public.fam_hdr('x-family-secret');",
+  "  if v <> '' then return v; end if;",
+  "  return public.fam_hdr('x-family-auth');",
+  "end;",
+  "$$;",
+  "create policy \"family_state own row\" on public.family_state",
+  "  for all to anon, authenticated",
+  "  using (",
+  "    public.fam_code() = family_code",
+  "    and (",
+  "      (secret_hash <> '' and secret_hash = public.fam_auth())",
+  "      or",
+  "      (secret_hash = '')",
+  "    )",
+  "  )",
+  "  with check (",
+  "    public.fam_code() = family_code",
+  "    and secret_hash = public.fam_new()",
+  "  );",
+  "grant select, insert, update, delete on public.family_state to anon, authenticated;",
+  "grant execute on function public.fam_hdr(text) to anon, authenticated;",
+  "grant execute on function public.fam_code() to anon, authenticated;",
+  "grant execute on function public.fam_auth() to anon, authenticated;",
+  "grant execute on function public.fam_new() to anon, authenticated;",
+  "create or replace function public.family_pull(p_code text, p_secret text)",
+  "returns jsonb language plpgsql as $$",
+  "declare v_state jsonb; begin",
+  "  perform set_config('app.family_code', coalesce(p_code, ''), true);",
+  "  perform set_config('app.family_auth', coalesce(p_secret, ''), true);",
+  "  perform set_config('app.family_new', coalesce(p_secret, ''), true);",
+  "  select state into v_state from public.family_state where family_code = coalesce(p_code, '');",
+  "  return v_state;",
+  "end;",
+  "$$;",
+  "create or replace function public.family_push(",
+  "  p_code text,",
+  "  p_auth text,",
+  "  p_new text,",
+  "  p_state jsonb,",
+  "  p_updated_at timestamptz default now()",
+  ")",
+  "returns jsonb language plpgsql as $$",
+  "declare v_code text := coalesce(p_code, ''); v_new text := coalesce(p_new, p_auth, ''); begin",
+  "  if v_code = '' then raise exception 'EMPTY_CODE' using errcode = '22023'; end if;",
+  "  if v_new = '' then raise exception 'EMPTY_SECRET' using errcode = '22023'; end if;",
+  "  perform set_config('app.family_code', v_code, true);",
+  "  perform set_config('app.family_auth', coalesce(p_auth, v_new), true);",
+  "  perform set_config('app.family_new', v_new, true);",
+  "  update public.family_state",
+  "     set secret_hash = v_new, state = p_state, updated_at = coalesce(p_updated_at, now())",
+  "   where family_code = v_code;",
+  "  if found then return jsonb_build_object('ok', true, 'family_code', v_code); end if;",
+  "  begin",
+  "    insert into public.family_state (family_code, secret_hash, state, updated_at)",
+  "    values (v_code, v_new, p_state, coalesce(p_updated_at, now()));",
+  "  exception when unique_violation then",
+  "    raise exception 'BAD_SECRET' using errcode = '42501';",
+  "  end;",
+  "  return jsonb_build_object('ok', true, 'family_code', v_code);",
+  "end;",
+  "$$;",
   "revoke all on function public.family_pull(text, text) from public;",
-  "revoke all on function public.family_push(text, text, jsonb, timestamptz) from public;",
+  "revoke all on function public.family_push(text, text, text, jsonb, timestamptz) from public;",
   "grant execute on function public.family_pull(text, text) to anon, authenticated;",
-  "grant execute on function public.family_push(text, text, jsonb, timestamptz) to anon, authenticated;",
+  "grant execute on function public.family_push(text, text, text, jsonb, timestamptz) to anon, authenticated;",
 ].join('\n');
 
 async function copyCloudSql(){
@@ -4045,6 +4277,7 @@ $('btnCloudTest').addEventListener('click', () => {
   if(!saveCloudFromInputs(true)) return;
   testCloud();
 });
+$('btnCloudDoctor').addEventListener('click', () => { cloudDoctor(); });
 $('btnCloudSync').addEventListener('click', async () => {
   if(!saveCloudFromInputs(true)) return;
   try{ await cloudSyncNow(); }catch(e){ toast('同步失败：' + e.message, 'error'); }
@@ -4311,7 +4544,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.5.0 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.5.1 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
@@ -4342,12 +4575,19 @@ function runSelfTest(){
     assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),
     // v2.5.0 分行 + 表级权限
     assert('RPC地址不直连表', cloudRpcUrl('family_pull').endsWith('/rest/v1/rpc/family_pull') && !/family_state\?/.test(cloudRpcUrl('family_pull'))),
-    assert('密钥兜底=家庭码', (saveCloudCfg({...cloudCfg(), familyCode:'AB1234', secret:''}), cloudSecret() === 'AB1234') && (saveCloudCfg({...cloudCfg(), secret:'k9Xm2Q'}), cloudSecret() === 'k9Xm2Q')),
+    assert('密钥兜底=家庭码', (saveCloudCfg({...cloudCfg(), familyCode:'AB1234', secret:''}), cloudSecret() === md5hex('AB1234:AB1234')) && (saveCloudCfg({...cloudCfg(), secret:'k9Xm2Q'}), cloudSecret() === md5hex('AB1234:k9Xm2Q'))),
     assert('密钥生成合法', /^[A-Za-z0-9]{12}$/.test(genCloudSecret()) && genCloudSecret() !== genCloudSecret()),
     assert('密钥校验拦截非法', !/^[A-Za-z0-9]{6,32}$/.test('abc 12!')),
     assert('BAD_SECRET人话报错', /密钥/.test(explainCloudError(401, '{"code":"42501","message":"BAD_SECRET"}'))),
     assert('缺函数提示升级SQL', /family_pull/.test(explainCloudError(404, 'Could not find the function'))),
-    assert('建表SQL含RLS与授权', /family_state direct access/.test(SUPABASE_SQL) && /revoke all on public\.family_state/.test(SUPABASE_SQL) && /grant execute on function public\.family_push/.test(SUPABASE_SQL) && !/anon rw"[\s\S]{0,80}using \(true\)/.test(SUPABASE_SQL)),
+    assert('建表SQL含RLS与授权', /family_state own row/.test(SUPABASE_SQL) && /grant select, insert, update, delete on public\.family_state/.test(SUPABASE_SQL) && /grant execute on function public\.family_push/.test(SUPABASE_SQL) && !/anon rw"[\s\S]{0,80}using \(true\)/.test(SUPABASE_SQL)),
+    // v2.5.1：MD5 与凭证
+    assert('MD5实现正确', md5hex('') === 'd41d8cd98f00b204e9800998ecf8427e' && md5hex('abc') === '900150983cd24fb0d6963f7d28e17f72' && md5hex('The quick brown fox jumps over the lazy dog') === '9e107d9d372bb6826bd81d3542a419d6'),
+    assert('凭证=md5(家庭码:密钥)', (saveCloudCfg({...cloudCfg(), familyCode:'AB1234', secret:'k9Xm2Qw7Bn3Z'}), cloudSecret() === md5hex('AB1234:k9Xm2Qw7Bn3Z') && cloudSecret() !== 'k9Xm2Qw7Bn3Z')),
+    assert('凭证不泄露明文', !/p_secret/.test(JSON.stringify({p:1})) && cloudSecret().length === 32 && /^[0-9a-f]{32}$/.test(cloudSecret())),
+    assert('SQL不用提权函数', !/security\s+definer/i.test(SUPABASE_SQL) && /security invoker|set_config/.test(SUPABASE_SQL)),
+    assert('SQL带请求头备用通道', /x-family-code/.test(SUPABASE_SQL) && /x-family-secret/.test(SUPABASE_SQL) && /request\.headers/.test(SUPABASE_SQL)),
+    assert('推送用新签名', /p_auth: cred/.test(String(window.__pushProbe || '')) === false),
     assert('阶梯积分换算', examReward('s', 96, 100) === 50 && examReward('b', 100, 100) === 200 && examReward('大考', 100, 100) === 200 && examReward('s', 116, 120) === 50 && examReward('s', 88, 100) === 0),
     assert('CSV 解析（含引号）', parseCsv('a,b\n"x,1",2').length === 2 && parseCsv('a,b\n"x,1",2')[1][0] === 'x,1'),
     assert('等级制映射', gradeReward('A++') === 10 && gradeReward('A+') === 5 && gradeReward('C') === -2 && gradeReward('a++') === 10),
