@@ -1468,7 +1468,7 @@ html[data-theme="funny"]{
           <div class="setting-row">
             <div>
               <div class="setting-label">家庭码</div>
-              <div class="setting-desc">在 A 设备生成，B 设备手动输入绑定；这是「哪一家」的编号</div>
+              <div class="setting-desc">这是「哪一家」的编号，本身不含数据权限 —— 真正的权限由下面的访问密钥决定</div>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
               <input type="text" class="setting-input" id="cloudCode" placeholder="6 位家庭码" maxlength="8" style="width:110px;text-align:center">
@@ -1478,7 +1478,7 @@ html[data-theme="funny"]{
           <div class="setting-row">
             <div>
               <div class="setting-label">访问密钥（表级权限）</div>
-              <div class="setting-desc">真正的钥匙。密钥在云端以 bcrypt 哈希存储，填错就无法读写该行数据 —— 即使别人拿到了 anon key。</div>
+              <div class="setting-desc">真正的钥匙。页面会算一个凭证指纹（md5）传给云端，<b>密钥本身永远不会离开这台设备</b>，云端数据库里也只有指纹。填错就读不到、也写不进该行数据 —— 即使别人拿到了 anon key。</div>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
               <input type="text" class="setting-input" id="cloudSecret" placeholder="12 位访问密钥" maxlength="32" style="width:160px;text-align:center">
@@ -3106,6 +3106,12 @@ function showModal({emoji, title, sub, actions = [], input, fields}){
           (f.accept ? ` accept="${f.accept}"` : '') +
           ' style="width:100%;font-size:14px;padding:10px"></div>';
       }
+      if(f.type === 'textarea'){
+        // v2.5.2：多行只读报告（体检结果、SQL 预览等），input 装不下长文本
+        return `<div style="margin-bottom:8px"><textarea class="setting-input" id="${f.id}" rows="${f.rows || 14}"` +
+          ` style="width:100%;font-size:13px;line-height:1.65;padding:12px;text-align:left;white-space:pre;overflow:auto;min-height:180px"` +
+          ` spellcheck="false" readonly>${String(f.value ?? '').replace(/[<>&]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]))}</textarea></div>`;
+      }
       return `<div style="margin-bottom:8px"><input type="${f.type || 'text'}" class="setting-input" id="${f.id}" value="${f.value ?? ''}" placeholder="${f.placeholder || ''}"` +
         (f.type === 'number' ? ` min="${f.min ?? 0}" max="${f.max ?? 9999}"` : '') +
         ' style="width:100%;font-size:16px;padding:12px;text-align:left"></div>';
@@ -3674,7 +3680,7 @@ async function cloudDoctor(){
     emoji: '🩺',
     title: '云端环境体检',
     sub: '一次性测出云端支持什么，避免反复试错',
-    fields: [{id:'docOut', type:'text', value: L.join('\n')}],
+    fields: [{id:'docOut', type:'textarea', rows: 18, value: L.join('\n')}],
     actions: [{label:'知道了', cls:'primary'}],
   });
 }
@@ -4265,7 +4271,7 @@ async function copyCloudSql(){
       emoji:'📋',
       title:'建表 SQL（长按复制）',
       sub:'粘贴到 Supabase → SQL Editor → New query → Run',
-      fields:[{id:'sqlOut', type:'text', value:SUPABASE_SQL}],
+      fields:[{id:'sqlOut', type:'textarea', rows: 16, value:SUPABASE_SQL}],
       actions:[{label:'关闭', cls:'primary'}],
     });
   }
