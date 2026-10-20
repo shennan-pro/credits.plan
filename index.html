@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kid's Credits Plan · v2.5.1</title>
+<title>Kid's Credits Plan</title>
 <style>
 /* ============================================================
    圆润展示字体 Baloo 2 ExtraBold（latin 子集，33KB）
@@ -1038,7 +1038,7 @@ html[data-theme="funny"]{
         <button class="view-btn active" data-view="max">MAX</button>
         <button class="view-btn" data-view="parent">爸妈</button>
       </div>
-      <span class="tag tag-red hide-sm">v2.5.1</span>
+      <span class="tag tag-red hide-sm" data-app-ver>…</span>
     </div>
   </header>
 
@@ -1497,13 +1497,13 @@ html[data-theme="funny"]{
             <button class="btn" id="btnCloudSql"><span>📋 复制建表 SQL</span></button>
             <button class="btn" id="btnCloudTest"><span>🔌 测试连接</span></button>
             <button class="btn" id="btnCloudSync"><span>☁️ 立即同步</span></button>
-            <button class="btn" id="btnCloudDoctor"><span>🩺 环境体检</span></button>
+            <button class="btn" id="btnCloudDoctor"><span>🩺 环境体检 v2.5.1+</span></button>
           </div>
           <div class="rule-col-head" style="margin-top:14px">状态</div>
           <div class="setting-row" style="border-bottom:none">
             <div>
               <div class="setting-label" id="cloudStatus">尚未配置</div>
-              <div class="setting-desc">首次使用需先在 Supabase 执行建表 SQL（见 supabase-setup.sql）</div>
+              <div class="setting-desc">首次使用需先在 Supabase 执行建表 SQL（见 supabase-setup.sql）｜当前页面版本 <b data-app-ver>…</b>（若显示 … 请强制刷新浏览器）</div>
             </div>
           </div>
         </div>
@@ -1597,7 +1597,7 @@ html[data-theme="funny"]{
       <span>LOCAL SYNC</span>
     </div>
     <div class="right">
-      <span>v2.5.1 · 2026-10-20</span>
+      <span><span data-app-ver>…</span> · <span data-app-date>…</span></span>
     </div>
   </footer>
 </div>
@@ -1665,6 +1665,26 @@ html[data-theme="funny"]{
 <input type="file" id="fileInput" accept=".json" style="display:none;">
 
 <script>
+
+/* ============================================================
+   单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
+   —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
+   ============================================================ */
+const APP_VER = 'v2.5.1';
+const APP_DATE = '2026-10-20';
+window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
+(function(){
+  document.addEventListener('DOMContentLoaded', () => {
+    const d = document.title;
+    if(d.indexOf('v2') < 0) document.title = document.title + ' · ' + APP_VER;
+    document.querySelectorAll('[data-app-ver]').forEach(el => { el.textContent = APP_VER; });
+    document.querySelectorAll('[data-app-date]').forEach(el => { el.textContent = APP_DATE; });
+    // 页脚第二行（版本 · 日期）
+    const f = document.querySelector('.foot-ver') || document.getElementById('footVer');
+    if(f) f.textContent = APP_VER + ' · ' + APP_DATE;
+  });
+})();
+
 /* ============================================================
    MAX's CREDITS  ·  v1.3.0  ·  数据 + 逻辑
    ------------------------------------------------------------
@@ -1961,7 +1981,7 @@ function renderBrand(){
   if(uc) uc.textContent = childInitial();
   const mc = $('miniCoin');
   if(mc) mc.textContent = childInitial();
-  document.title = `${n}'s Credits Plan · v1.6.0`;
+  document.title = n + 's Credits Plan · ' + APP_VER;
 }
 
 // ---------- 初始向导：孩子档案 + 家长账号 ----------
@@ -3625,7 +3645,7 @@ async function cloudDoctor(){
   const find = n => rows.find(r => r.name.indexOf(n) === 0) || {status:0, detail:'', ok:false};
   const r1 = find('REST 根路径'), r2 = find('family_state 表'), r4 = find('RPC family_pull');
   const L = [];
-  L.push('🩺 云端环境体检（' + new Date().toLocaleString('zh-CN', {hour12:false}) + '）');
+  L.push('🩺 云端环境体检 · ' + APP_VER + '（' + new Date().toLocaleString('zh-CN', {hour12:false}) + '）');
   L.push('');
   L.push('【基础】');
   L.push('  项目 URL：' + c.url);
@@ -3634,7 +3654,7 @@ async function cloudDoctor(){
   L.push('');
   L.push('【表级权限（关键）】');
   L.push('  直连读（不带凭证）：' + (r3.status === 200
-      ? (leaked === 0 ? '✅ 返回 0 行 → 别人拿 anon key 也读不到你的数据' : '❌ 返回 ' + leaked + ' 行 → RLS 没生效，别人能读全表！')
+      ? (leaked === 0 ? '✅ 返回 0 行 → 表级权限生效：别人拿 anon key 也读不到你的数据' : '❌ 返回 ' + leaked + ' 行 → RLS 没生效，别人能列出并读取所有家庭数据！')
       : '⚠️ ' + r3.status + ' ' + r3.detail));
   L.push('  RPC family_pull：' + (r4.status === 200 ? '✅ 函数存在且可调用'
       : r4.status === 404 ? '❌ 函数不存在 → 请执行 supabase-setup.sql（v2.5.1 版）'
@@ -4544,7 +4564,7 @@ window.MAX = {
   reset(){state = Object.assign(defaultState(), {balance: state.cfg.initBal}); saveState(); render();},
 };
 
-console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN v2.5.1 ", 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
+console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN " + APP_VER + ' ', 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
 console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
