@@ -3,3 +3,4 @@ _chrome_profile*/
 _diag*/
 *.tmp
 .DS_Store
+_chk*.js
