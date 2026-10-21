@@ -1300,8 +1300,8 @@ html[data-theme="funny"]{
           </div>
           <div class="setting-row">
             <div>
-              <div class="setting-label">起步余额</div>
-              <div class="setting-desc">重置时的初始 Credits</div>
+              <div class="setting-label">起始分（线下已领 Credits 结转）</div>
+              <div class="setting-desc">纸质版计划已领过的 Credits，结转到在线版（改完立即生效，当前余额 = 起始分 + 记录净和）</div>
             </div>
             <input type="number" class="setting-input" id="cfgInit" value="0" min="0">
           </div>
@@ -1386,8 +1386,8 @@ html[data-theme="funny"]{
           </div>
           <div class="dt-hint">
             · <b>分数制</b>：填「分数 + 满分」；满分 100 / 120 / 80 都行（按<b>百分比</b>落阶梯，权重在下方规则卡可切）<br>
-            · <b>等级制</b>：方式选「等级制」→ 类型列变等级下拉（A++/A+/A/B/C/D/E/缺考），积分按等级映射表自动算<br>
-            · <b>堂听·语文 / 英语</b>换算口径（2026-10-20 积分表）：A++=120分 · A+=110 · A=100 · B=90 · C=80 · D=70 · E=不及格 · <b>缺考不记分</b>；等级按折算分数走同一套积分兑换阶梯<br>
+            · <b>等级制</b>：方式选「等级制」→ 类型列变等级下拉（A++/A+/A/B/C/D/E/缺考），Credits 按等级映射表自动算<br>
+            · <b>堂听·语文 / 英语</b>属<b>课堂表现类</b>：等级代号 A++=120分 · A+=110 · A=100 · B=90 · C=80 · D=70 · E=不及格 · <b>缺考不记分</b>（120/110 只是代号）；实际入账 Credits = <b>A++ +10 / A+ +5 / A·B 0 / C −2 / D −5 / E·缺考 不记分</b><br>
             · <b>入账</b>：该行积分会变成一条正式记录，出现在「记录」页并计入余额；状态变 ✅ 已入账<br>
             · <b>改已入账的行</b>：状态变 <span class="st-dirty">⟳ 需重记</span>，点「重记」自动撤销旧记录再按新值入账（不会重复加分）<br>
             · 没有现成表格？先点「📄 下载 CSV 模板」，Excel 打开填好再从「📥 导入」传回来
@@ -1428,20 +1428,19 @@ html[data-theme="funny"]{
           <div class="dt-actions" style="margin-top:10px">
             <button class="btn" id="srAddBand"><span>＋ 加一档</span></button>
           </div>
-          <div class="rule-col-head" style="margin-top:16px">③ 等级映射表（等级制用 · 堂听·语文 / 堂听·英语）</div>
+          <div class="rule-col-head" style="margin-top:16px">③ 等级映射表（堂听·语文 / 堂听·英语 · 课堂表现）</div>
           <div class="dt-wrap"><table class="dt" id="srGradesTable" style="min-width:320px">
-            <thead><tr><th>等级</th><th>折算分数</th><th>积分（可为负）</th><th></th></tr></thead>
+            <thead><tr><th>等级</th><th>折算分数</th><th>Credits（可为负）</th><th></th></tr></thead>
             <tbody id="srGradesBody"></tbody>
           </table></div>
           <div class="dt-actions" style="margin-top:10px">
             <button class="btn" id="srAddGrade"><span>＋ 加一档</span></button>
           </div>
           <div class="dt-hint">
-            · <b>堂听（听写）· 语文 / 英语</b>口径（2026-10-20 积分表）：<b>A++ = 120分 · A+ = 110分 · A = 100分 · B = 90分 · C = 80分 · D = 70分 · E = 不及格</b><br>
-            · <b>E（不及格）与「缺考」不记分</b>：积分恒为 0，点入账也不会加/扣分（只在表格留痕）<br>
-            · 等级先按左侧「折算分数」换算成分数，再<b>走同一套积分兑换阶梯</b>（与分数制完全一致：小考 90→20 / 95→50 / 98→80 / 100→100）<br>
-            · 改动<b>立即生效</b>：表格里所有未锁定（未手改积分）的行会按新规则重算<br>
-            · 例：小考 90→20 / 95→50 / 98→80 / 100→100；大考 90→50 / 95→80 / 98→120 / 100→200（v1.2.3 计划默认）
+            · <b>堂听（听写）· 语文 / 英语</b>属于<b>课堂表现类</b>，不是考试！等级代号 <b>A++ = 120分 · A+ = 110 · A = 100 · B = 90 · C = 80 · D = 70 · E = 不及格</b>（120/110 只是代号，<b>不是 120 Credits</b>）<br>
+            · 真正入账的是 <b>Credits</b> 列（对齐 v1.2.3 课堂表现任务）：<b>A++ = +10 · A+ = +5 · A / B = 0 · C = −2 · D = −5 · E / 缺考 = 不记分</b><br>
+            · <b>E（不及格）与「缺考」不记分</b>：Credits 恒为 0，点入账也不会加/扣（只在表格留痕）<br>
+            · 改动<b>立即生效</b>：表格里所有未锁定（未手改 Credits）的行会按新规则重算
           </div>
         </div>
       </div>
@@ -1674,7 +1673,7 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.5.3';
+const APP_VER = 'v2.5.4';
 const APP_DATE = '2026-10-21';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
@@ -1838,10 +1837,12 @@ const defaultState = () => ({
       standard: 100,          // raw 模式的标准分（默认 100）
       bands:    [{min:90, reward:20}, {min:95, reward:50}, {min:98, reward:80}, {min:100, reward:100}],   // 小考
       bandsBig: [{min:90, reward:50}, {min:95, reward:80}, {min:98, reward:120}, {min:100, reward:200}],  // 大考
+      // v2.5.4：堂听·语文/英语 —— 「折算分数」只是等级代号（120/110/…），真正入账的是「Credits」列
+      // Credits 对齐 v1.2.3 课堂表现任务：A++=+10 / A+=+5 / B·A=0 / C=-2 / D=-5 / E·缺考=0（不记分）
       grades:   [
-        {g:'A++', score:120, reward:120}, {g:'A+', score:110, reward:110}, {g:'A', score:100, reward:100},
-        {g:'B',   score:90,  reward:90},  {g:'C',  score:80,  reward:80},  {g:'D', score:70, reward:70},
-        {g:'E',   score:0,   reward:0},   {g:'缺考', score:0, reward:0},   // E=不及格 / 缺考 不记分
+        {g:'A++', score:120, reward:10},  {g:'A+', score:110, reward:5},  {g:'A', score:100, reward:0},
+        {g:'B',   score:90,  reward:0},   {g:'C',  score:80,  reward:-2}, {g:'D', score:70, reward:-5},
+        {g:'E',   score:0,   reward:0},   {g:'缺考', score:0, reward:0},  // E=不及格 / 缺考 不记分
       ],
     },
   },
@@ -1868,8 +1869,16 @@ function loadState(){
 // ---- v2.5.0：完整存档深合并 ----
 function hydrate(saved){
   const base = defaultState();
+  const savedCfg = (saved && saved.cfg) || {};
+  const cfg = Object.assign({}, base.cfg, savedCfg);
+  // v2.5.4：一次性迁移补丁 —— 等级制 Credits 对齐 v1.2.3 课堂表现任务（A++=+10 / A+=+5 / C=-2 / D=-5）
+  // 用 _lvFix 标记一次性执行，之后用户改映射表不再被覆盖
+  if(!savedCfg._lvFix){
+    cfg.scoreRules = JSON.parse(JSON.stringify(base.cfg.scoreRules));
+    cfg._lvFix = true;
+  }
   return Object.assign(base, saved, {
-    cfg: Object.assign(base.cfg, saved.cfg || {}),
+    cfg,
     records: Array.isArray(saved.records) ? saved.records : base.records,
     doneToday: (saved.doneToday && typeof saved.doneToday === 'object') ? saved.doneToday : {},
   });
@@ -2745,6 +2754,15 @@ function revertRecord(r){
   }
 }
 
+// v2.5.4：起始分（线下已领 Credits 结转）
+// 余额 = 起始分 + 所有记录净和；改起始分时用它重算，不动任何历史记录
+function recordsNet(){
+  return state.records.reduce((s, r) => s + (Number(r.val) || 0), 0);
+}
+function rebalanceFromInit(){
+  state.balance = (Number(state.cfg.initBal) || 0) + recordsNet();
+}
+
 function undoLast(){
   const r = state.records[0];
   if(!r){
@@ -3163,7 +3181,9 @@ $('cfgExpire').addEventListener('change', e => {
 
 $('cfgInit').addEventListener('change', e => {
   state.cfg.initBal = Math.max(0, parseInt(e.target.value, 10) || 0);
-  saveState();
+  rebalanceFromInit();
+  saveState(); render();
+  toast(`起始分已设为 ${state.cfg.initBal}，当前余额 ${state.balance}`);
 });
 
 $('cfgExpireOn').addEventListener('click', () => {
@@ -3746,10 +3766,30 @@ function gradeHit(grade){
     .filter(x => String(x.g).trim().toUpperCase() === g)
     .sort((a, b) => String(b.g).length - String(a.g).length)[0] || null;
 }
+// v2.5.4：等级名 → 课堂表现任务 ID（堂听·语文/英语 走这条路，不进考试阶梯）
+// 映射规则：A++ → t_class_app(+10) · A+ → t_class_ap(+5) · B → null(0) · C/D/E → t_class_c/d/e(扣分)
+const GRADE_TASK = {
+  'A++': 't_class_app',
+  'A+':  't_class_ap',
+  'C':   't_class_c',
+  'D':   't_class_d',
+  'E':   't_class_e',
+};
+function gradeTaskId(grade){
+  const g = String(grade ?? '').trim().toUpperCase();
+  return GRADE_TASK[g] || null;   // A / B / 缺考 无对应任务 → 记 0
+}
 function gradeReward(grade){
   if(isNoScoreGrade(grade)) return 0;
   const hit = gradeHit(grade);
-  return hit ? (Number(hit.reward) || 0) : 0;
+  if(!hit) return 0;
+  // v2.5.4：等级优先走「课堂表现」Credits（与 v1.2.3 任务包同源，绝对值不进考试阶梯）
+  const tid = gradeTaskId(grade);
+  if(tid){
+    const t = mergedTasks().find(x => x.id === tid);
+    if(t) return taskVal(t);   // A++=+10 / A+=+5 / C=-2 / D=-5 / E=-10
+  }
+  return (Number(hit.reward) || 0);   // 无任务映射（A/B/自定义等级）→ 回退映射表「积分」列
 }
 // v2.5.3：等级 → 折算分数（堂听口径：A++=120 / A+=110 / A=100 / B=90 / C=80 / D=70 / E·缺考=0）
 function gradeToScore(grade){
@@ -3779,13 +3819,9 @@ function bandReward(row){
 function scoreReward(row){
   if(row.mode === 'grade'){
     if(isNoScoreGrade(row.grade)) return 0;
-    const hit = gradeHit(row.grade);
-    if(!hit) return 0;
-    // v2.5.3：填了「折算分数」→ 等级也走同一套积分兑换阶梯（与分数制完全一致）
-    if(hit.score !== undefined && hit.score !== '' && !isNaN(Number(hit.score))){
-      return bandReward({mode:'score', type: row.type || 's', score: Number(hit.score), full: scoreRules().standard});
-    }
-    return gradeReward(row.grade);   // 没填折算分数 → 回退「积分」列直接给分
+    // v2.5.4：等级一律走「课堂表现」Credits（A++=+10 / A+=+5 / B·A=0 / C=-2 / D=-5 / E=-10）
+    // 不再折算成 120/110/100 分去落考试阶梯 —— 120 分只是等级代号，不是 120 Credits
+    return gradeReward(row.grade);
   }
   return bandReward(row);
 }
@@ -3812,10 +3848,10 @@ function dtPost(row){
     if(i >= 0){ revertRecord(state.records[i]); state.records.splice(i, 1); }
   }
   // v2.5.0：等级制映射到课堂表现任务，分数制映射到小考/大考
+  // v2.5.4：等级走 GRADE_TASK（A++→t_class_app / A+→t_class_ap / C·D·E→扣分任务）；A/B/缺考 无对应任务
   let tid;
   if(row.mode === 'grade'){
-    const g = String(row.grade || '').trim().toUpperCase();
-    tid = ({'A++': 't_class_app', 'A+': 't_class_ap', 'C': 't_class_c', 'D': 't_class_d', 'E': 't_class_e'})[g] || 't_class_ap';
+    tid = gradeTaskId(row.grade) || 't_class_ap';
   }else{
     tid = normType(row.type) === 'b' ? 't_test_b' : 't_test_s';
   }
@@ -4665,10 +4701,22 @@ function runSelfTest(){
     assert('推送用新签名', /p_auth: cred/.test(String(window.__pushProbe || '')) === false),
     assert('阶梯积分换算', examReward('s', 96, 100) === 50 && examReward('b', 100, 100) === 200 && examReward('大考', 100, 100) === 200 && examReward('s', 116, 120) === 50 && examReward('s', 88, 100) === 0),
     assert('CSV 解析（含引号）', parseCsv('a,b\n"x,1",2').length === 2 && parseCsv('a,b\n"x,1",2')[1][0] === 'x,1'),
-    assert('等级制映射', gradeReward('A++') === 120 && gradeReward('A+') === 110 && gradeReward('A') === 100 && gradeReward('B') === 90 && gradeReward('C') === 80 && gradeReward('D') === 70 && gradeReward('a++') === 120),
-    assert('堂听等级换算', gradeToScore('A++') === 120 && gradeToScore('A+') === 110 && gradeToScore('A') === 100 && gradeToScore('B') === 90 && gradeToScore('C') === 80 && gradeToScore('D') === 70),
+    assert('等级制映射(课堂表现Credits)', gradeReward('A++') === 10 && gradeReward('A+') === 5 && gradeReward('A') === 0 && gradeReward('B') === 0 && gradeReward('C') === -2 && gradeReward('D') === -5 && gradeReward('a++') === 10),
+    assert('堂听等级代号=折算分数', gradeToScore('A++') === 120 && gradeToScore('A+') === 110 && gradeToScore('A') === 100 && gradeToScore('B') === 90 && gradeToScore('C') === 80 && gradeToScore('D') === 70),
     assert('E/缺考不记分', gradeReward('E') === 0 && gradeReward('缺考') === 0 && isNoScoreGrade('E') && isNoScoreGrade('缺考') && isNoScoreGrade('不及格') && !isNoScoreGrade('A')),
-    assert('等级走同一兑换阶梯', scoreReward({mode:'grade', grade:'A++', type:'s'}) === 100 && scoreReward({mode:'grade', grade:'A', type:'s'}) === 100 && scoreReward({mode:'grade', grade:'B', type:'s'}) === 20 && scoreReward({mode:'grade', grade:'D', type:'s'}) === 0 && scoreReward({mode:'grade', grade:'E', type:'s'}) === 0 && scoreReward({mode:'grade', grade:'缺考', type:'s'}) === 0),
+    assert('等级走课堂表现Credits', scoreReward({mode:'grade', grade:'A++'}) === 10 && scoreReward({mode:'grade', grade:'A+'}) === 5 && scoreReward({mode:'grade', grade:'A'}) === 0 && scoreReward({mode:'grade', grade:'B'}) === 0 && scoreReward({mode:'grade', grade:'C'}) === -2 && scoreReward({mode:'grade', grade:'D'}) === -5 && scoreReward({mode:'grade', grade:'E'}) === 0 && scoreReward({mode:'grade', grade:'缺考'}) === 0),
+    assert('等级映射到课堂任务', gradeTaskId('A++') === 't_class_app' && gradeTaskId('A+') === 't_class_ap' && gradeTaskId('C') === 't_class_c' && gradeTaskId('D') === 't_class_d' && gradeTaskId('E') === 't_class_e' && gradeTaskId('B') === null && gradeTaskId('缺考') === null),
+    assert('起始分结转', ((oldBal, oldInit) => {
+      state.cfg.initBal = 1294;
+      rebalanceFromInit();
+      const a = state.balance === 1294 + recordsNet();
+      addRecord('in', 10, '自检临时');
+      const b = state.balance === 1294 + recordsNet();
+      state.cfg.initBal = oldInit;
+      rebalanceFromInit();
+      const c = state.balance === oldInit + recordsNet();
+      return a && b && c;
+    })(state.balance, state.cfg.initBal)),
     assert('权重模式可切', (state.cfg.scoreRules.mode = 'raw', state.cfg.scoreRules.standard = 120, scoreReward({mode:'score', type:'s', score:114, full:120}) === 50) && (state.cfg.scoreRules.mode = 'percent', state.cfg.scoreRules.standard = 100, true)),
     assert('CSV 模板 9 列', dtHeader.length === 9 && dtHeader.join(',') === '日期,名称,科目,方式,类型/等级,分数,满分,积分,备注'),
   ];
