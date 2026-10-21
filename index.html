@@ -1386,7 +1386,8 @@ html[data-theme="funny"]{
           </div>
           <div class="dt-hint">
             · <b>分数制</b>：填「分数 + 满分」；满分 100 / 120 / 80 都行（按<b>百分比</b>落阶梯，权重在下方规则卡可切）<br>
-            · <b>等级制</b>：方式选「等级制」→ 类型列变等级下拉（A++/A+/B/C/D/E），积分按等级映射表自动算<br>
+            · <b>等级制</b>：方式选「等级制」→ 类型列变等级下拉（A++/A+/A/B/C/D/E/缺考），积分按等级映射表自动算<br>
+            · <b>堂听·语文 / 英语</b>换算口径（2026-10-20 积分表）：A++=120分 · A+=110 · A=100 · B=90 · C=80 · D=70 · E=不及格 · <b>缺考不记分</b>；等级按折算分数走同一套积分兑换阶梯<br>
             · <b>入账</b>：该行积分会变成一条正式记录，出现在「记录」页并计入余额；状态变 ✅ 已入账<br>
             · <b>改已入账的行</b>：状态变 <span class="st-dirty">⟳ 需重记</span>，点「重记」自动撤销旧记录再按新值入账（不会重复加分）<br>
             · 没有现成表格？先点「📄 下载 CSV 模板」，Excel 打开填好再从「📥 导入」传回来
@@ -1427,15 +1428,18 @@ html[data-theme="funny"]{
           <div class="dt-actions" style="margin-top:10px">
             <button class="btn" id="srAddBand"><span>＋ 加一档</span></button>
           </div>
-          <div class="rule-col-head" style="margin-top:16px">③ 等级映射表（等级制用）</div>
+          <div class="rule-col-head" style="margin-top:16px">③ 等级映射表（等级制用 · 堂听·语文 / 堂听·英语）</div>
           <div class="dt-wrap"><table class="dt" id="srGradesTable" style="min-width:320px">
-            <thead><tr><th>等级</th><th>积分（可为负）</th><th></th></tr></thead>
+            <thead><tr><th>等级</th><th>折算分数</th><th>积分（可为负）</th><th></th></tr></thead>
             <tbody id="srGradesBody"></tbody>
           </table></div>
           <div class="dt-actions" style="margin-top:10px">
             <button class="btn" id="srAddGrade"><span>＋ 加一档</span></button>
           </div>
           <div class="dt-hint">
+            · <b>堂听（听写）· 语文 / 英语</b>口径（2026-10-20 积分表）：<b>A++ = 120分 · A+ = 110分 · A = 100分 · B = 90分 · C = 80分 · D = 70分 · E = 不及格</b><br>
+            · <b>E（不及格）与「缺考」不记分</b>：积分恒为 0，点入账也不会加/扣分（只在表格留痕）<br>
+            · 等级先按左侧「折算分数」换算成分数，再<b>走同一套积分兑换阶梯</b>（与分数制完全一致：小考 90→20 / 95→50 / 98→80 / 100→100）<br>
             · 改动<b>立即生效</b>：表格里所有未锁定（未手改积分）的行会按新规则重算<br>
             · 例：小考 90→20 / 95→50 / 98→80 / 100→100；大考 90→50 / 95→80 / 98→120 / 100→200（v1.2.3 计划默认）
           </div>
@@ -1670,8 +1674,8 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.5.2';
-const APP_DATE = '2026-10-20';
+const APP_VER = 'v2.5.3';
+const APP_DATE = '2026-10-21';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
   document.addEventListener('DOMContentLoaded', () => {
@@ -1834,7 +1838,11 @@ const defaultState = () => ({
       standard: 100,          // raw 模式的标准分（默认 100）
       bands:    [{min:90, reward:20}, {min:95, reward:50}, {min:98, reward:80}, {min:100, reward:100}],   // 小考
       bandsBig: [{min:90, reward:50}, {min:95, reward:80}, {min:98, reward:120}, {min:100, reward:200}],  // 大考
-      grades:   [{g:'A++', reward:10}, {g:'A+', reward:5}, {g:'B', reward:0}, {g:'C', reward:-2}, {g:'D', reward:-5}, {g:'E', reward:-10}],
+      grades:   [
+        {g:'A++', score:120, reward:120}, {g:'A+', score:110, reward:110}, {g:'A', score:100, reward:100},
+        {g:'B',   score:90,  reward:90},  {g:'C',  score:80,  reward:80},  {g:'D', score:70, reward:70},
+        {g:'E',   score:0,   reward:0},   {g:'缺考', score:0, reward:0},   // E=不及格 / 缺考 不记分
+      ],
     },
   },
   view: 'max',            // 'max' | 'parent'（parent 为会话态，不落盘）
@@ -3723,14 +3731,31 @@ function scoreRules(){
     grades:   Array.isArray(R.grades)   && R.grades.length   ? R.grades   : d.grades,
   });
 }
+// 等级下拉（含「缺考」）；等级行渲染时从映射表动态取，映射表改名后仍能对上
+const GRADE_OPTIONS = ['', 'A++', 'A+', 'A', 'B', 'C', 'D', 'E', '缺考'];
+// v2.5.3：E（不及格）/ 缺考 = 不记分 → 积分恒 0，不入账
+const isNoScoreGrade = g => {
+  const s = String(g ?? '').trim().toUpperCase();
+  return (s === '缺考' || s === 'E' || s === 'ABSENT' || s.includes('不及格'));
+};
 // 等级制：优先匹配「更长的等级名」（A++ 必须先于 A+ 命中）
-function gradeReward(grade){
+function gradeHit(grade){
   const g = String(grade ?? '').trim().toUpperCase();
-  if(!g) return 0;
-  const hit = scoreRules().grades
+  if(!g) return null;
+  return scoreRules().grades
     .filter(x => String(x.g).trim().toUpperCase() === g)
-    .sort((a, b) => String(b.g).length - String(a.g).length)[0];
+    .sort((a, b) => String(b.g).length - String(a.g).length)[0] || null;
+}
+function gradeReward(grade){
+  if(isNoScoreGrade(grade)) return 0;
+  const hit = gradeHit(grade);
   return hit ? (Number(hit.reward) || 0) : 0;
+}
+// v2.5.3：等级 → 折算分数（堂听口径：A++=120 / A+=110 / A=100 / B=90 / C=80 / D=70 / E·缺考=0）
+function gradeToScore(grade){
+  if(isNoScoreGrade(grade)) return 0;
+  const hit = gradeHit(grade);
+  return hit && hit.score !== undefined && hit.score !== '' ? (Number(hit.score) || 0) : 0;
 }
 // 分数制：按「百分比」或「绝对分」换算，再落阶梯
 function bandReward(row){
@@ -3752,7 +3777,17 @@ function bandReward(row){
 }
 // 统一入口：等级制 / 分数制
 function scoreReward(row){
-  return (row.mode === 'grade') ? gradeReward(row.grade) : bandReward(row);
+  if(row.mode === 'grade'){
+    if(isNoScoreGrade(row.grade)) return 0;
+    const hit = gradeHit(row.grade);
+    if(!hit) return 0;
+    // v2.5.3：填了「折算分数」→ 等级也走同一套积分兑换阶梯（与分数制完全一致）
+    if(hit.score !== undefined && hit.score !== '' && !isNaN(Number(hit.score))){
+      return bandReward({mode:'score', type: row.type || 's', score: Number(hit.score), full: scoreRules().standard});
+    }
+    return gradeReward(row.grade);   // 没填折算分数 → 回退「积分」列直接给分
+  }
+  return bandReward(row);
 }
 // 兼容旧调用（自检用）
 const examReward = (type, score, full) => bandReward({type, score, full, mode: 'score'});
@@ -3766,6 +3801,11 @@ function dtStatus(row){
 // 入账 / 重记：撤销旧记录 → 按新值写新记录（不会重复加分）
 function dtPost(row){
   const reward = Number(row.reward) || 0;
+  // v2.5.3：E（不及格）/ 缺考 不记分 —— 不入账，也不加不扣
+  if(row.mode === 'grade' && isNoScoreGrade(row.grade)){
+    toast(`${row.grade || '该等级'}不记分，这一行只留痕不入账`, 'error');
+    return;
+  }
   if(reward === 0){ toast('这一行积分是 0，不入账（分数/等级未达奖励线）', 'error'); return; }
   if(row.recId){
     const i = state.records.findIndex(r => r.id === row.recId);
@@ -3804,12 +3844,17 @@ function renderDataTable(){
             <option value="grade"${isGrade ? ' selected' : ''}>等级制</option>
           </select></td>
       <td>${isGrade
-            ? `<select data-k="grade">${['', 'A++', 'A+', 'B', 'C', 'D', 'E'].map(g => `<option value="${g}"${String(r.grade || '').toUpperCase() === g ? ' selected' : ''}>${g || '—'}</option>`).join('')}</select>`
+            ? (() => {
+                const cur = String(r.grade || '').trim().toUpperCase();
+                const opts = [...GRADE_OPTIONS, ...scoreRules().grades.map(x => String(x.g || '').trim().toUpperCase())]
+                  .filter((g, i, a) => g !== undefined && a.indexOf(g) === i);
+                return `<select data-k="grade">${opts.map(g => `<option value="${g}"${cur === g ? ' selected' : ''}>${g || '—'}</option>`).join('')}</select>`;
+              })()
             : `<select data-k="type">
                  <option value="s"${normType(r.type) !== 'b' ? ' selected' : ''}>小考</option>
                  <option value="b"${normType(r.type) === 'b' ? ' selected' : ''}>大考</option>
                </select>`}</td>
-      <td class="num"><input data-k="score" type="number" value="${isGrade ? '' : esc(String(r.score ?? ''))}" placeholder="${isGrade ? '—' : '96'}" style="width:74px" ${isGrade ? 'disabled' : ''}></td>
+      <td class="num"><input data-k="score" type="number" value="${isGrade ? '' : esc(String(r.score ?? ''))}" placeholder="${isGrade ? (gradeToScore(r.grade) ? gradeToScore(r.grade) + '·折算' : '—') : '96'}" style="width:74px" ${isGrade ? 'disabled' : ''}></td>
       <td class="num"><input data-k="full" type="number" value="${esc(String(r.full ?? scoreRules().standard))}" style="width:74px" ${isGrade ? 'disabled' : ''}></td>
       <td class="num"><input data-k="reward" type="number" value="${esc(String(r.reward ?? 0))}" style="width:74px"></td>
       <td class="${st.cls}">${st.text}</td>
@@ -4082,6 +4127,7 @@ function renderScoreRules(){
   }).join('');
   $('srGradesBody').innerHTML = R.grades.map((g, i) => `<tr data-i="${i}">
       <td><input data-g="g" data-k="g"      value="${esc(String(g.g))}" style="width:90px"></td>
+      <td><input data-g="g" data-k="score"  type="number" value="${g.score === undefined || g.score === '' ? '' : esc(String(g.score))}" placeholder="如 120" style="width:86px"></td>
       <td><input data-g="g" data-k="reward" type="number" value="${esc(String(g.reward))}" style="width:86px"></td>
       <td><button class="btn" data-act="delGrade" style="padding:4px 8px;font-size:12px"><span>🗑</span></button></td>
     </tr>`).join('');
@@ -4115,7 +4161,10 @@ $('srGradesBody').addEventListener('change', e => {
   const k = e.target.dataset.k;
   if(!k) return;
   const i = Number(e.target.closest('tr').dataset.i);
-  state.cfg.scoreRules.grades[i][k] = (k === 'g') ? e.target.value : (Number(e.target.value) || 0);
+  const R = state.cfg.scoreRules;
+  if(!R.grades[i]) return;
+  if(k === 'g') R.grades[i].g = e.target.value;
+  else R.grades[i][k] = (e.target.value === '') ? '' : (Number(e.target.value) || 0);
   rulesChanged();
 });
 $('srGradesBody').addEventListener('click', e => {
@@ -4616,7 +4665,10 @@ function runSelfTest(){
     assert('推送用新签名', /p_auth: cred/.test(String(window.__pushProbe || '')) === false),
     assert('阶梯积分换算', examReward('s', 96, 100) === 50 && examReward('b', 100, 100) === 200 && examReward('大考', 100, 100) === 200 && examReward('s', 116, 120) === 50 && examReward('s', 88, 100) === 0),
     assert('CSV 解析（含引号）', parseCsv('a,b\n"x,1",2').length === 2 && parseCsv('a,b\n"x,1",2')[1][0] === 'x,1'),
-    assert('等级制映射', gradeReward('A++') === 10 && gradeReward('A+') === 5 && gradeReward('C') === -2 && gradeReward('a++') === 10),
+    assert('等级制映射', gradeReward('A++') === 120 && gradeReward('A+') === 110 && gradeReward('A') === 100 && gradeReward('B') === 90 && gradeReward('C') === 80 && gradeReward('D') === 70 && gradeReward('a++') === 120),
+    assert('堂听等级换算', gradeToScore('A++') === 120 && gradeToScore('A+') === 110 && gradeToScore('A') === 100 && gradeToScore('B') === 90 && gradeToScore('C') === 80 && gradeToScore('D') === 70),
+    assert('E/缺考不记分', gradeReward('E') === 0 && gradeReward('缺考') === 0 && isNoScoreGrade('E') && isNoScoreGrade('缺考') && isNoScoreGrade('不及格') && !isNoScoreGrade('A')),
+    assert('等级走同一兑换阶梯', scoreReward({mode:'grade', grade:'A++', type:'s'}) === 100 && scoreReward({mode:'grade', grade:'A', type:'s'}) === 100 && scoreReward({mode:'grade', grade:'B', type:'s'}) === 20 && scoreReward({mode:'grade', grade:'D', type:'s'}) === 0 && scoreReward({mode:'grade', grade:'E', type:'s'}) === 0 && scoreReward({mode:'grade', grade:'缺考', type:'s'}) === 0),
     assert('权重模式可切', (state.cfg.scoreRules.mode = 'raw', state.cfg.scoreRules.standard = 120, scoreReward({mode:'score', type:'s', score:114, full:120}) === 50) && (state.cfg.scoreRules.mode = 'percent', state.cfg.scoreRules.standard = 100, true)),
     assert('CSV 模板 9 列', dtHeader.length === 9 && dtHeader.join(',') === '日期,名称,科目,方式,类型/等级,分数,满分,积分,备注'),
   ];
