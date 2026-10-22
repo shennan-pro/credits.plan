@@ -951,36 +951,6 @@ html[data-theme="funny"]{
 .toggle.sm::after{width:16px;height:16px;top:1px;left:2px;}
 .toggle.sm.on::after{left:20px;}
 
-/* v2.5.6 起始分快捷入口（首页余额卡下） */
-.init-quick{
-  display:flex; align-items:center; gap:8px;
-  margin-top:10px; padding:8px 12px;
-  background:rgba(255,255,255,.55);
-  border:2px dashed rgba(180,140,80,.45);
-  border-radius:12px;
-  font-size:13px;
-  flex-wrap:wrap;
-}
-.init-quick .init-label{
-  font-weight:800; color:#8a6a3a; letter-spacing:.5px;
-}
-.init-quick .init-input{
-  width:90px; padding:6px 10px; font-size:14px; font-weight:700;
-  border:2px solid rgba(180,140,80,.5); border-radius:8px;
-  background:#fff; color:#3a2a10; text-align:center;
-}
-.init-quick .init-btn{
-  padding:6px 12px; font-size:12px; border-radius:8px;
-}
-.init-quick .init-btn.ghost{
-  background:transparent; border-color:rgba(180,140,80,.45); color:#8a6a3a;
-}
-@media (max-width:640px){
-  .init-quick{ font-size:12px; padding:6px 8px; gap:6px; }
-  .init-quick .init-input{ width:76px; padding:5px 8px; font-size:13px; }
-  .init-quick .init-btn{ padding:5px 9px; font-size:11px; }
-}
-
 /* 快捷调整按钮组 */
 .quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .quick-grid .qbtn{
@@ -1082,13 +1052,6 @@ html[data-theme="funny"]{
           <div class="balance-num">
             <span class="num" id="balNum">0</span>
             <span class="unit"><span class="coin coin-lg" id="unitCoin">M</span></span>
-          </div>
-          <!-- v2.5.6：起始分快捷入口（首页就能结转，不用钻后台） -->
-          <div class="init-quick" id="initQuick">
-            <span class="init-label">起始分</span>
-            <input type="number" class="init-input" id="initQuickInput" value="0" min="0" placeholder="线下已领">
-            <button class="btn init-btn" id="initQuickSet"><span>✓ 结转</span></button>
-            <button class="btn init-btn ghost" id="initQuickFill"><span>填 1294</span></button>
           </div>
         </div>
         <div class="balance-stats">
@@ -1337,8 +1300,8 @@ html[data-theme="funny"]{
           </div>
           <div class="setting-row">
             <div>
-              <div class="setting-label">起始分（线下已领 Credits 结转）</div>
-              <div class="setting-desc">纸质版计划已领过的 Credits，结转到在线版（改完立即生效，当前余额 = 起始分 + 记录净和）</div>
+              <div class="setting-label">起始分（历史 Credits 结转）</div>
+              <div class="setting-desc">换用本系统前孩子已攒下的 Credits 填这里（如纸质版记到 1294 就填 1294）。填一次即可，之后的加减都记在「记录」里</div>
             </div>
             <input type="number" class="setting-input" id="cfgInit" value="0" min="0">
           </div>
@@ -1712,7 +1675,7 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.5.6';
+const APP_VER = 'v2.5.7';
 const APP_DATE = '2026-10-22';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
@@ -2348,9 +2311,6 @@ function renderBalance(){
   }
   numEl.textContent = state.balance;
   $('miniBalNum').textContent = state.balance;
-  // v2.5.6：首页起始分快捷输入框与 state 同步
-  const iq = $('initQuickInput');
-  if(iq && document.activeElement !== iq) iq.value = state.cfg.initBal || 0;
 
   $('monthIn').textContent  = '+' + state.monthIn;
   $('monthOut').textContent = '-' + state.monthOut;
@@ -3229,19 +3189,8 @@ $('cfgInit').addEventListener('change', e => {
   saveState(); render();
   toast(`起始分已设为 ${state.cfg.initBal}，当前余额 ${state.balance}`);
 });
-
-// v2.5.6：首页「起始分」快捷入口（不用钻后台）
-$('initQuickSet').addEventListener('click', () => {
-  const v = Math.max(0, parseInt($('initQuickInput').value, 10) || 0);
-  state.cfg.initBal = v;
-  rebalanceFromInit();
-  saveState(); render();
-  toast(`✅ 起始分已结转 ${v}，当前余额 ${state.balance}`, 'success');
-});
-$('initQuickFill').addEventListener('click', () => {
-  $('initQuickInput').value = 1294;
-  $('initQuickSet').click();
-});
+// v2.5.7（fix_sum）：首页快捷入口已撤——起始分属一次性后台配置，
+// 普通用户看到「填 1294」这种别家的数字会懵，只在家长后台保留。
 
 $('cfgExpireOn').addEventListener('click', () => {
   state.cfg.expireOn = !state.cfg.expireOn;
