@@ -1069,7 +1069,7 @@ html[data-theme="funny"]{
           </div>
         </div>
       </div>
-      <div class="expire-bar">
+      <div class="expire-bar" id="expireBar">
         <div class="expire-bar-label">
           <span>月底 <span id="expireRateLabel">1%</span> 过期倒计时</span>
           <span id="expireDays">30 天</span>
@@ -1675,8 +1675,8 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.5.7';
-const APP_DATE = '2026-10-22';
+const APP_VER = 'v2.5.8';
+const APP_DATE = '2026-10-26';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
   document.addEventListener('DOMContentLoaded', () => {
@@ -2071,6 +2071,7 @@ function wizSkip(){
 }
 function wizClose(){
   $('wiz').classList.remove('show');
+  showView('tasks');   // v2.5.8（fix_newuser）：「开始赚 Credits」按钮言行一致——直接落到任务页，不用自己找第一步
   render();
   toast(`🎉 欢迎来到 ${childName()}'s Credits Plan！`);
   setTimeout(function(){toast('⚙ 设置入口：点击顶栏「爸妈」按钮（或右下角 ⚙）', 'success');}, 1800);
@@ -2320,6 +2321,19 @@ function renderBalance(){
   $('expireRateLabel').textContent = state.cfg.expireRate + '%';   // v2.1.0：跟随设置（默认 1%）
   $('expireFill').style.width   = ((total - left) / total * 100) + '%';
   $('expireSoon').textContent   = pendingExpire();
+
+  // v2.5.8（fix_newuser）首屏减负：全 0 数据不占版面——攒到第一笔自动出现
+  const pIn   = document.querySelector('.balance-stats .stat-pill.in');
+  const pOut  = document.querySelector('.balance-stats .stat-pill.out');
+  const pWarn = document.querySelector('.balance-stats .stat-pill.warn');
+  const bs    = document.querySelector('.balance-stats');
+  const noIn  = state.monthIn === 0, noOut = state.monthOut === 0, noExp = pendingExpire() === 0;
+  if(pIn)   pIn.style.display  = noIn  ? 'none' : '';
+  if(pOut)  pOut.style.display = noOut ? 'none' : '';
+  if(pWarn) pWarn.style.display = noExp ? 'none' : '';
+  if(bs)    bs.style.display = (noIn && noOut && noExp) ? 'none' : '';
+  const eb  = $('expireBar');
+  if(eb)    eb.style.display = state.balance === 0 ? 'none' : '';   // 余额 0 不看「扣分倒计时」——新用户第一眼不该是扣钱
 
   $('taskCount').textContent = activeTasks().length + ' 项';
   $('shopCount').textContent = activeRewards().length + ' 件';
@@ -4705,6 +4719,17 @@ function runSelfTest(){
     assert('v1.2.3 七大分类齐全', ['daily','study','fit','honor','challenge','class','behav'].every(g => Object.values(TASKS).some(t => t.group === g))),
     assert('旧版条目默认停用', TASKS.filter(t => t.legacy).every(t => mergedTasks().find(x => x.id === t.id).off) && REWARDS.filter(r => r.legacy).every(r => mergedRewards().find(x => x.id === r.id).off)),
     assert('过期最低扣 1', ((bal) => { state.balance = 50; const a = pendingExpire() === 1; state.balance = 0; const b = pendingExpire() === 0; state.balance = 500; const c = pendingExpire() === 5; state.balance = bal; return a && b && c; })(state.balance)),
+    assert('首屏减负-0值隐藏', ((bal, mIn, mOut) => {
+      state.balance = 0; state.monthIn = 0; state.monthOut = 0;
+      renderBalance();
+      const a = document.querySelector('.balance-stats').style.display === 'none' && $('expireBar').style.display === 'none';
+      state.balance = 100; state.monthIn = 30; state.monthOut = 5;
+      renderBalance();
+      const b = document.querySelector('.balance-stats').style.display === '' && $('expireBar').style.display === '';
+      state.balance = bal; state.monthIn = mIn; state.monthOut = mOut;
+      renderBalance();
+      return a && b;
+    })(state.balance, state.monthIn, state.monthOut)),
     assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
     assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
     assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),
