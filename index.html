@@ -1423,7 +1423,7 @@ html[data-theme="funny"]{
           </div>
           <div class="rule-col-head" style="margin-top:16px">② 分数阶梯（≥ 分数线 给多少 Credits，留空=0）</div>
           <div class="dt-wrap"><table class="dt" id="srBandsTable" style="min-width:420px">
-            <thead><tr><th>小考 分数线</th><th>小考 Credits</th><th>大考 分数线</th><th>大考 Credits</th></tr></thead>
+            <thead><tr><th>单元测验 分数线</th><th>单元测验 Credits</th><th>月考 分数线</th><th>月考 Credits</th></tr></thead>
             <tbody id="srBandsBody"></tbody>
           </table></div>
           <div class="dt-actions" style="margin-top:10px">
@@ -1455,6 +1455,7 @@ html[data-theme="funny"]{
         </div>
         <div class="card-body">
           <div class="rule-col-head">① 填入你的 Supabase 项目（凭证只存本机，不进入导出文件）</div>
+          <div class="dt-hint" style="margin:6px 0 10px">首次使用：去 <b>supabase.com</b> 免费注册并新建一个项目，建完在「Project Settings → API」页复制下面的 URL 和 Key</div>
           <div class="setting-row">
             <div>
               <div class="setting-label">项目 URL</div>
@@ -1497,6 +1498,7 @@ html[data-theme="funny"]{
             </div>
             <div class="toggle" id="cloudAuto"></div>
           </div>
+          <div class="rule-col-head" style="margin-top:14px">③ 保存并验证：填完上面几样 → 保存云配置 → 测试连接，看到绿灯即配置成功（另一台设备填同样的家庭码 + 密钥即可共联）</div>
           <div class="admin-actions row" style="margin-top:14px">
             <button class="btn" id="btnCloudSave" style="background:var(--mc-green);color:#fff"><span>💾 保存云配置</span></button>
             <button class="btn" id="btnCloudSql"><span>📋 复制建表 SQL</span></button>
@@ -1675,7 +1677,7 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.6.0';
+const APP_VER = 'v2.6.1';
 const APP_DATE = '2026-10-26';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
@@ -3756,10 +3758,10 @@ function dtTable(){
 }
 const dtRid = () => 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-// 类型归一：中文/英文都吃，"大考/big/b" → b，其余 → s
+// 类型归一：中文/英文都吃，"大考/月考/big/b" → b，其余 → s（v2.6.1：下拉改名「单元测验/月考」后，新名也要归对档）
 const normType = v => {
   const s = String(v ?? '').trim().toLowerCase();
-  return (s === 'b' || s === 'big' || s.includes('大')) ? 'b' : 's';
+  return (s === 'b' || s === 'big' || s.includes('大') || s.includes('月考')) ? 'b' : 's';
 };
 // v2.5.0：规则取自后台「评分规则」卡（家长可改），不再写死常量
 function scoreRules(){
@@ -3925,8 +3927,8 @@ function renderDataTable(){
                 return `<select data-k="grade">${opts.map(g => `<option value="${g}"${cur === g ? ' selected' : ''}>${g || '—'}</option>`).join('')}</select>`;
               })()
             : `<select data-k="type">
-                 <option value="s"${normType(r.type) !== 'b' ? ' selected' : ''}>小考</option>
-                 <option value="b"${normType(r.type) === 'b' ? ' selected' : ''}>大考</option>
+                 <option value="s"${normType(r.type) !== 'b' ? ' selected' : ''}>单元测验</option>
+                 <option value="b"${normType(r.type) === 'b' ? ' selected' : ''}>月考</option>
                </select>`}</td>
       <td class="num"><input data-k="score" type="number" value="${isGrade ? '' : esc(String(r.score ?? ''))}" placeholder="${isGrade ? (gradeToScore(r.grade) ? gradeToScore(r.grade) + '·折算' : '—') : '96'}" style="width:74px" ${isGrade ? 'disabled' : ''}></td>
       <td class="num"><input data-k="full" type="number" value="${esc(String(r.full ?? scoreRules().standard))}" style="width:74px" ${isGrade ? 'disabled' : ''}></td>
@@ -4732,6 +4734,8 @@ function runSelfTest(){
     })(state.balance, state.monthIn, state.monthOut)),
     // v2.6.0 术语守卫：页面源码不得再出现裸「积分」旧文案（词组拼接防断言自噬；CSV 表头/映射不含这些词组）
     assert('术语统一Credits', !['扣' + '积分', '奖励' + '积分', '积分走' + '势', '积分入' + '账', '积分宇' + '宙', '积分是 ' + '0', '积分都是 ' + '0', '大于 0 的' + '积分'].some(t => document.documentElement.outerHTML.includes(t))),
+    // v2.6.1 下拉改名「单元测验/月考」后，新旧名都要归对档（CSV 粘贴/手输兼容）
+    assert('测验类型归一兼容', normType('月考') === 'b' && normType('单元测验') === 's' && normType('大考') === 'b' && normType('小考') === 's' && normType('b') === 'b' && normType('单元测') === 's'),
     assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
     assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
     assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),
