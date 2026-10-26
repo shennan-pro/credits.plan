@@ -1122,7 +1122,7 @@ html[data-theme="funny"]{
       <div class="dash-col-2">
         <div class="card">
           <div class="card-head">
-            <div class="card-title blue"><span class="dot"></span>本周积分走势</div>
+            <div class="card-title blue"><span class="dot"></span>本周 Credits 走势</div>
           </div>
           <div class="card-body">
             <div class="chart" id="homeChart"></div>
@@ -1227,7 +1227,7 @@ html[data-theme="funny"]{
           <div class="card-title blue"><span class="dot"></span>数据统计</div>
         </div>
         <div class="card-body">
-          <div class="rule-col-head">近 7 天积分入账</div>
+          <div class="rule-col-head">近 7 天 Credits 入账</div>
           <div class="chart" id="weekChart"></div>
           <div class="rule-col-head" style="margin-top:16px">完成任务 TOP 5</div>
           <div id="topTasks"><div class="empty">还没有任务记录</div></div>
@@ -1308,7 +1308,7 @@ html[data-theme="funny"]{
           <div class="setting-row">
             <div>
               <div class="setting-label">启用过期机制</div>
-              <div class="setting-desc">关闭后积分永久有效</div>
+              <div class="setting-desc">关闭后 Credits 永久有效</div>
             </div>
             <div class="toggle on" id="cfgExpireOn"></div>
           </div>
@@ -1364,7 +1364,7 @@ html[data-theme="funny"]{
           <div class="tag tag-yellow" id="dtCount">0 行</div>
         </div>
         <div class="card-body">
-          <div class="rule-col-head">📊 表格（可直接编辑；积分按 v1.2.3 阶梯自动算，可手改）</div>
+          <div class="rule-col-head">📊 表格（可直接编辑；Credits 按 v1.2.3 阶梯自动算，可手改）</div>
           <div class="dt-actions">
             <button class="btn" id="dtAddRow"><span>＋ 加一行</span></button>
             <button class="btn" id="dtTemplate"><span>📄 下载 CSV 模板</span></button>
@@ -1389,7 +1389,7 @@ html[data-theme="funny"]{
             · <b>等级制</b>：方式选「等级制」→ 类型列变等级下拉（A++/A+/A/B/C/D/E/缺考），Credits 按等级映射表自动算<br>
             · <b>堂听·语文 / 英语</b>属<b>课堂表现类</b>：等级代号 A++=120分 · A+=110 · A=100 · B=90 · C=80 · D=70 · **E=&lt;70 不及格**（120/110 只是代号）；实际入账 Credits = <b>A++ +10 / A+ +5 / A +1 / B −1 / C −2 / D −5 / E（&lt;70）−10 / 缺考 不记分</b><br>
             · <b>&lt;70 分 = 不及格（E）扣 10</b>：分数制填 0~69 自动判 E；或等级制下拉直接选 E<br>
-            · <b>入账</b>：该行积分会变成一条正式记录，出现在「记录」页并计入余额；状态变 ✅ 已入账<br>
+            · <b>入账</b>：该行 Credits 会变成一条正式记录，出现在「记录」页并计入余额；状态变 ✅ 已入账<br>
             · <b>改已入账的行</b>：状态变 <span class="st-dirty">⟳ 需重记</span>，点「重记」自动撤销旧记录再按新值入账（不会重复加分）<br>
             · 没有现成表格？先点「📄 下载 CSV 模板」，Excel 打开填好再从「📥 导入」传回来
           </div>
@@ -1421,9 +1421,9 @@ html[data-theme="funny"]{
             </div>
             <input type="number" class="setting-input" id="srStandard" style="width:110px" min="1" max="999">
           </div>
-          <div class="rule-col-head" style="margin-top:16px">② 分数阶梯（≥ 分数线 给多少积分，留空=0）</div>
+          <div class="rule-col-head" style="margin-top:16px">② 分数阶梯（≥ 分数线 给多少 Credits，留空=0）</div>
           <div class="dt-wrap"><table class="dt" id="srBandsTable" style="min-width:420px">
-            <thead><tr><th>小考 分数线</th><th>小考 积分</th><th>大考 分数线</th><th>大考 积分</th></tr></thead>
+            <thead><tr><th>小考 分数线</th><th>小考 Credits</th><th>大考 分数线</th><th>大考 Credits</th></tr></thead>
             <tbody id="srBandsBody"></tbody>
           </table></div>
           <div class="dt-actions" style="margin-top:10px">
@@ -1570,7 +1570,7 @@ html[data-theme="funny"]{
         <div class="card-body">
           <div class="admin-actions row">
             <button class="btn warn" id="btnAddBonus">
-              <span>🎁 发放奖励积分</span>
+              <span>🎁 发放奖励 Credits</span>
               <span class="arrow">→</span>
             </button>
             <button class="btn" id="btnExport">
@@ -1625,11 +1625,11 @@ html[data-theme="funny"]{
 <div class="wiz-mask" id="wiz">
   <div class="wiz-box">
     <div class="wiz-brand"><span class="coin coin-lg" id="wizCoin">M</span><b id="wizBrand">CREDITS PLAN</b></div>
-    <div class="wiz-sub">三步建好你家专属的积分宇宙 ✨</div>
+    <div class="wiz-sub">三步建好你家专属的 Credits 宇宙 ✨</div>
 
     <div class="wiz-step" id="wizStep1">
       <div class="wiz-title">① 孩子档案</div>
-      <div class="wiz-hint">孩子是积分的主人：完成任务、兑换奖励。先给孩子起个英文名（必填）。</div>
+      <div class="wiz-hint">孩子是积分（Credits）的主人：完成任务、兑换奖励。先给孩子起个英文名（必填）。</div>
       <div class="wiz-row">
         <input type="text" id="wizChild" placeholder="孩子英文名，如 Max / Tom / Lily" maxlength="12">
         <button class="btn" style="background:var(--mc-blue);color:#fff" onclick="wizNext1()">下一步 →</button>
@@ -1675,7 +1675,7 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.5.8';
+const APP_VER = 'v2.6.0';
 const APP_DATE = '2026-10-26';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
@@ -1729,15 +1729,15 @@ const REWARD_CATS = {
 // legacy:true = 旧版条目，默认停用，后台工坊可勾选启用（"备选项"机制）
 const TASKS = [
   // ── 作息与家庭类 ──
-  {id:'t_dawn', emoji:'⏰', type:'晨起作息', text:'每天 7 点半前主动起床（工作日）；超过 7 点半不起床扣积分', val:-1, group:'daily', note:'周末/假期除外；家长不必须提供唤醒服务'},
+  {id:'t_dawn', emoji:'⏰', type:'晨起作息', text:'每天 7 点半前主动起床（工作日）；超过 7 点半不起床扣 Credits', val:-1, group:'daily', note:'周末/假期除外；家长不必须提供唤醒服务'},
   {id:'t_home', emoji:'🏠', type:'家务', text:'简单家务：摆放碗筷、洗碗、丢垃圾、倒米等', val:1, group:'daily', note:'单日完成一项即可记，不累积'},
-  {id:'t_screen', emoji:'📱', type:'电子产品管理', text:'工作日看电视/电子游戏，单日总计不超过半小时，超时扣积分', val:-10, group:'daily', note:'必须先完成当日学习任务；家长可提醒一次，提醒后再超时免除一周~一月电视/游戏时间'},
+  {id:'t_screen', emoji:'📱', type:'电子产品管理', text:'工作日看电视/电子游戏，单日总计不超过半小时，超时扣 Credits', val:-10, group:'daily', note:'必须先完成当日学习任务；家长可提醒一次，提醒后再超时免除一周~一月电视/游戏时间'},
   {id:'t_brush', emoji:'🪥', type:'个人卫生', text:'早上未刷牙（默认已养成，违规扣分）', val:-1, group:'daily', note:'连续不刷第二天-2', legacy:true},
 
   // ── 学习习惯类 ──
   {id:'t_eng_p', emoji:'📖', type:'学习惯做', text:'额外布置任务：英语背句子、抄句子、做练习', val:2, group:'study', note:'针对薄弱项；表现优秀视情况额外加 1~3'},
-  {id:'t_read', emoji:'📚', type:'阅读习惯', text:'每天阅读（文字为主）累计 ≥ 30 分钟；不阅读或不足时间扣积分', val:-2, group:'study', note:'书店、家里的纸质书'},
-  {id:'t_check', emoji:'✅', type:'作业习惯', text:'每日常规作业完成后自己检查一遍，然后家长检查、全对奖励积分', val:5, group:'study', note:'一科 +5；单日，可累积'},
+  {id:'t_read', emoji:'📚', type:'阅读习惯', text:'每天阅读（文字为主）累计 ≥ 30 分钟；不阅读或不足时间扣 Credits', val:-2, group:'study', note:'书店、家里的纸质书'},
+  {id:'t_check', emoji:'✅', type:'作业习惯', text:'每日常规作业完成后自己检查一遍，然后家长检查、全对奖励 Credits', val:5, group:'study', note:'一科 +5；单日，可累积'},
   {id:'t_eng_col', emoji:'📋', type:'作业习惯', text:'英语常规表，单张单周一周全对', val:5, group:'study', note:'仅限手写部分'},
   {id:'t_careless', emoji:'❌', type:'粗心大意', text:'因粗心大意发生 2 次以上的错误', val:-1, group:'study', note:'每次 -1；单科、单日、可累积'},
   {id:'t_eng_week', emoji:'🗓️', type:'英语周全对', text:'单周每一竖列一周全对', val:5, group:'study', note:'周末结算', legacy:true},
@@ -1754,7 +1754,7 @@ const TASKS = [
   {id:'t_test_s', emoji:'🎯', type:'小考', text:'单元测试、常规测验等打分小考，单科成绩 ≥ 90 分起奖励', val:20, group:'challenge', note:'90~94 分 +20；95~97 +50；98~99 +80；100 +100'},
   {id:'t_test_b', emoji:'🏆', type:'大考', text:'期中、期末等大考，单科成绩 ≥ 90 分起奖励', val:50, group:'challenge', note:'90~94 分 +50；95~97 +80；98~99 +120；100 +200'},
   {id:'t_delta_up', emoji:'📊', type:'环比奖惩', text:'大小考/卷子小测，距上次分数提高', val:1, group:'challenge', note:'提高几分加几分（分值可改）；单科单独计算'},
-  {id:'t_delta_dn', emoji:'📉', type:'环比奖惩', text:'大小考/卷子小测，距上次分数下降', val:-1, group:'challenge', note:'下降积分-几（分值可改）；单科单独计算'},
+  {id:'t_delta_dn', emoji:'📉', type:'环比奖惩', text:'大小考/卷子小测，距上次分数下降', val:-1, group:'challenge', note:'下降扣 Credits（分值可改）；单科单独计算'},
   {id:'t_compete', emoji:'🥇', type:'挑战成就', text:'正式比赛、竞赛、考试、考级取得名次或优秀', val:50, group:'challenge', note:'根据实际成就酌情翻倍（最高可翻四倍）；根据表现状态（意志、策略、调整等）酌情奖励 +5~10'},
   {id:'t_white', emoji:'🌟', type:'挑战成就', text:'教育部白名单竞赛取得名次', val:200, group:'challenge', note:'根据实际成就酌情翻倍（最高可翻五倍）；根据表现状态酌情奖励 +50~100'},
 
@@ -1772,7 +1772,7 @@ const TASKS = [
 
   // ── 行为规范类 ──
   {id:'t_excuse', emoji:'⚠️', type:'行为扣分', text:'找借口逃避任务、拖延时间', val:-10, group:'behav', note:'与任务本身扣分不叠加'},
-  {id:'t_cheat', emoji:'🚫', type:'行为扣分', text:'作弊/撒谎', val:-100, group:'behav', note:'如有积分奖励则取消'},
+  {id:'t_cheat', emoji:'🚫', type:'行为扣分', text:'作弊/撒谎', val:-100, group:'behav', note:'如有 Credits 奖励则取消'},
   {id:'t_temper', emoji:'😤', type:'发脾气', text:'辱骂/发脾气', val:-5, group:'behav', note:'冷静后可申请复议', legacy:true},
 ];
 
@@ -3215,7 +3215,7 @@ $('cfgExpireOn').addEventListener('click', () => {
 $('btnAddBonus').addEventListener('click', () => {
   showModal({
     emoji:'🎁',
-    title:'发放奖励积分',
+    title:'发放奖励 Credits',
     sub:'直接给 Max 发放一笔 Bonus C，不绑定任务。',
     input:{value:10, min:1, max:9999},
     actions:[
@@ -3223,7 +3223,7 @@ $('btnAddBonus').addEventListener('click', () => {
       {label:'发放', cls:'primary', onClick:v => {
         const n = parseInt(v, 10) || 0;
         if(n <= 0){
-          toast('请输入大于 0 的积分', 'error');
+          toast('请输入大于 0 的 Credits', 'error');
           return;
         }
         addRecord('in', n, `🎁 爸妈奖励 +${n}`);
@@ -3880,7 +3880,7 @@ function dtPost(row){
     toast(`${row.grade || '缺考'}不记分，这一行只留痕不入账`, 'error');
     return;
   }
-  if(reward === 0){ toast('这一行积分是 0，不入账（分数/等级未达奖励线）', 'error'); return; }
+  if(reward === 0){ toast('这一行 Credits 是 0，不入账（分数/等级未达奖励线）', 'error'); return; }
   if(row.recId){
     const i = state.records.findIndex(r => r.id === row.recId);
     if(i >= 0){ revertRecord(state.records[i]); state.records.splice(i, 1); }
@@ -4144,7 +4144,7 @@ $('dtImport').addEventListener('click', () => {
 $('dtPostAll').addEventListener('click', () => {
   const rows = dtTable().rows;
   const todo = rows.filter(r => !r.recId && Number(r.reward) > 0);
-  if(!todo.length){ toast('没有待入账的行（或积分都是 0）', 'error'); return; }
+  if(!todo.length){ toast('没有待入账的行（或 Credits 都是 0）', 'error'); return; }
   showModal({
     emoji:'⚡',
     title:`批量入账 ${todo.length} 行？`,
@@ -4730,6 +4730,8 @@ function runSelfTest(){
       renderBalance();
       return a && b;
     })(state.balance, state.monthIn, state.monthOut)),
+    // v2.6.0 术语守卫：页面源码不得再出现裸「积分」旧文案（词组拼接防断言自噬；CSV 表头/映射不含这些词组）
+    assert('术语统一Credits', !['扣' + '积分', '奖励' + '积分', '积分走' + '势', '积分入' + '账', '积分宇' + '宙', '积分是 ' + '0', '积分都是 ' + '0', '大于 0 的' + '积分'].some(t => document.documentElement.outerHTML.includes(t))),
     assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
     assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
     assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),

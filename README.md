@@ -1,4 +1,4 @@
-# Kid's Credits Plan · v2.5.8
+# Kid's Credits Plan · v2.6.0
 
 给小学生设计的**好习惯积分系统**（品牌名 = 孩子英文名 + Credits Plan，默认 Max）：完成任务赚 Credits，商店兑换奖励，月底未花的 Credits 自动过期 10%（倒逼消费，也倒逼「赚」）。
 
