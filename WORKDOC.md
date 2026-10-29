@@ -33,7 +33,7 @@
 ├─ header.topbar          品牌 + nav.topnav（🏠首页 📋任务 🏪商店 📊记录）+ mini-balance + MAX/爸妈切换 + 版本标
 ├─ section.hero-row       桌面端：余额大卡 .balance + 今日推荐卡 并排；移动端：上下堆叠
 ├─ main.content
-│  ├─ .view[data-view=home]     仪表盘：dashStats 四宫格 + 快捷任务/最近兑换 + 本周走势/任务TOP3
+│  ├─ .view[data-view=home]     仪表盘：dashStats 四宫格 + 最近兑换 + 本周走势（v2.7.0 纯看板，任务卡已撤）
 │  ├─ .view[data-view=tasks]    任务墙（6 分组，分类横幅 + 卡片列）
 │  ├─ .view[data-view=shop]     奖励商店（4 梯度，网格卡片）
 │  ├─ .view[data-view=records]  全部记录（多列瀑布）
@@ -261,7 +261,8 @@
 - 线上地址：https://shennan-pro.github.io/credits.plan/ （仓库 `shennan-pro/credits.plan`，public；显示名 "Kid's Credits Plan"）
 - ⚠️ 对外 URL **不带孩子名**（曾用 max-credits-plan，已改；其他用户看到不会懵）
 - ⚠️ 历史地址全部 404（改名不重定向 Pages）：`shennanjaysn-cmyk.github.io/max-credits-plan/`、`shennan-pro.github.io/max-credits-plan/`、`shennan-pro.github.io/kids-credits-plan/`
-- 冻结面：卡通视觉、动效、Baloo 2、localStorage 键名与 schema —— 动前先问
+- 冻结面：**动效**、Baloo 2、localStorage 键名与 schema —— 动前先问
+  - ⚠️ **卡通视觉已于 v2.7.0 解封**（用户口令：视觉与交互体验优化；目标=炫酷不幼稚 + 透气感）。改动走全局变量（`--shadow-*` / `--border` / `--radius`）+ 内联 SVG 图标库，一次生效全站
 - 每版必更：版本号（title/tag/footer/console）+ changelog + README
 
 ### 已踩过的坑（动手前必读）
@@ -272,3 +273,8 @@
 - 动效冻结面（飞字/金币/粒子/音效）改动后必须真机复验，headless 截图会漏动效问题
 - **parent 视角是会话态不是持久态**（v2.1.0 修复）：落盘只写 `view:'max'`；任何「刷新/重开保持在后台」的需求都是安全倒退，别改回去
 - 无家长账号时后台入口必须走 `noAdminGuide()` 引导创建，禁止直接 `setViewMode('parent')` 放行
+- **v2.7.0 视觉批**：
+  - 全站质感改 4 个全局变量即可：`--shadow-1/2/3`（硬偏移实色 → 淡硬边 + 大柔影）、`--border`/`--border-thin`（4/3px → 2px）、`--radius`/`--radius-sm`
+  - **headless 移动截图「右侧被裁」是假阳性**：Windows Chrome 最小窗宽 ≈500px，`--window-size=420` 时布局视口仍 497，截图只截左边 420 → 看着像溢出。判据用 `documentElement.clientWidth` vs `scrollWidth`（实测 497/497，零溢出）
+  - **同特异性后写的断点赢**：`.dash-col-2` 原 1024 断点 `1.4fr 1fr` 会被 768 断点的 `1fr 1fr` 覆盖（后者在文件里更靠后）——加规则要按「文件顺序」而非「断点大小」想
+  - 删 DOM 元素必须连带删 JS 渲染引用，否则 `$('el')` 为 null 直接中断整个 render（现象像页面白屏）

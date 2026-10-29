@@ -54,14 +54,16 @@
   --purple:#9B5DE5;
   --pink:#FF5DA2;
 
-  --shadow-1: 3px 3px 0 var(--mc-ink);
-  --shadow-2: 5px 5px 0 var(--mc-ink);
-  --shadow-3: 8px 8px 0 var(--mc-ink);
-  --shadow-hover: 1px 1px 0 var(--mc-ink);
-  --border:4px solid var(--mc-ink);
-  --border-thin:3px solid var(--mc-ink);
-  --radius:14px;
-  --radius-sm:10px;
+  /* v2.7.0 透气感：硬偏移实色阴影 → 淡硬边 + 大柔影（保留 ink 色调，游戏感不减精致度提升） */
+  --shadow-1: 0 1px 0 rgba(58,46,31,.10), 0 3px 10px rgba(58,46,31,.08);
+  --shadow-2: 0 2px 0 rgba(58,46,31,.08), 0 10px 28px rgba(58,46,31,.10);
+  --shadow-3: 0 3px 0 rgba(58,46,31,.08), 0 18px 44px rgba(58,46,31,.12);
+  --shadow-hover: 0 1px 0 rgba(58,46,31,.12), 0 4px 12px rgba(58,46,31,.10);
+  /* v2.7.0 透气感：描边减硬（4/3px → 2px），保留轮廓去掉笨重感 */
+  --border:2px solid var(--mc-ink);
+  --border-thin:2px solid var(--mc-ink);
+  --radius:16px;
+  --radius-sm:12px;
 
   --pixel-font:'Courier New', ui-monospace, 'SFMono-Regular', monospace;
   /* 圆润展示字体：数字 / 品牌 / 大标题用；正文保持系统字体 */
@@ -72,7 +74,7 @@
 html,body{height:100%;}
 body{
   font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,-apple-system,sans-serif;
-  background:linear-gradient(180deg, var(--mc-sky) 0%, var(--mc-sky-2) 60%, #E8F7C9 100%);
+  background:linear-gradient(180deg, #8FCEF0 0%, #CFEFFB 55%, #EEF8E2 100%);
   color:var(--text);
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
@@ -177,9 +179,12 @@ body{overflow-x:auto;}
   cursor:pointer;transition:all .15s;white-space:nowrap;
 }
 .tn-tab .tn-icon{font-size:17px;line-height:1;filter:drop-shadow(0 1px 0 rgba(0,0,0,.25));}
+.tn-svg{width:21px;height:21px;display:block;filter:drop-shadow(0 1px 0 rgba(0,0,0,.22));flex:none;}
+.ft-svg{width:22px;height:22px;display:block;}
+.bm-svg{width:20px;height:20px;display:block;transform:rotate(6deg);filter:drop-shadow(0 2px 0 rgba(0,0,0,.25));}
 .tn-tab .tn-label{display:none;}
 @media (min-width:420px){.tn-tab{padding:8px 12px;}.tn-tab .tn-label{display:inline;}}
-@media (min-width:520px){.tn-tab{padding:9px 16px;font-size:13px;gap:7px;}}
+@media (min-width:520px){.tn-tab{padding:10px 18px;font-size:14px;gap:8px;}}
 .tn-tab.active{
   background:var(--mc-yellow);color:var(--mc-ink);border-color:var(--mc-ink);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 3px 0 var(--mc-ink);
@@ -487,6 +492,23 @@ body{overflow-x:auto;}
    爸妈控制台
    ============================================================ */
 .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.admin-banner{
+  display:flex;align-items:center;gap:12px;
+  background:var(--mc-ink);color:var(--mc-cream);
+  border:3px solid var(--mc-ink);border-radius:16px;
+  padding:12px 16px;margin-bottom:12px;
+  box-shadow:var(--shadow-2), inset 0 2px 0 rgba(255,255,255,.12);
+}
+.admin-banner .ab-svg{width:26px;height:26px;flex:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3));}
+.admin-banner .ab-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.admin-banner .ab-text b{font-family:var(--font-round);font-size:15px;color:var(--mc-yellow);letter-spacing:.03em;}
+.admin-banner .ab-text span{font-size:11.5px;color:rgba(255,244,221,.75);line-height:1.5;}
+.admin-banner .ab-badge{
+  flex:none;font-family:var(--font-round);font-weight:900;font-size:10px;letter-spacing:.12em;
+  background:var(--mc-yellow);color:var(--mc-ink);
+  border:2px solid var(--mc-yellow);border-radius:999px;padding:4px 10px;
+  box-shadow:0 2px 0 rgba(0,0,0,.35);
+}
 
 .admin-actions{display:flex;flex-direction:column;gap:10px;}
 .btn{
@@ -748,6 +770,9 @@ body{overscroll-behavior-y:contain;}
   .balance-wrap{max-width:none;margin:0;padding-left:0;padding-right:0;}
   .hero-hint{margin:0 0 16px;}
   .reward-grid{grid-template-columns:repeat(2,1fr);}
+  /* v2.7.0 对齐修复：平板起双列并排，栅格内卡片去自带 margin 防底部双重间距 */
+  .dash-col-2{grid-template-columns:1fr 1fr;}
+  .dash-col-2 > .card{margin-bottom:0;}
 }
 @media (min-width:1024px){
   .hero-row,.topbar,.bottombar{max-width:1180px;}
@@ -768,7 +793,12 @@ body{overscroll-behavior-y:contain;}
 
   .view.active[data-view=admin]{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
   .view.active[data-view=admin] > .card.wide{grid-column:1 / -1;}
+  /* v2.7.0 对齐修复：管理员横幅与 tabs 在 admin 栅格里通栏（不然各占半宽挤压） */
+  .view.active[data-view=admin] > .admin-banner,
+  .view.active[data-view=admin] > .ag-tabs{grid-column:1 / -1;}
   .admin-grid{grid-template-columns:repeat(3,1fr);}
+  /* v2.7.0 对齐修复：桌面恢复原设计的 1.4fr:1fr（最近兑换宽/走势窄），覆盖平板断点的等分 */
+  .dash-col-2{grid-template-columns:1.4fr 1fr;}
 
   .card-body{padding:20px 22px;}
   .card-head{padding:14px 22px;}
@@ -1017,19 +1047,65 @@ html[data-theme="funny"]{
 </style>
 </head>
 
+<!-- v2.7.0 图标库：内联填色 SVG，替代系统 emoji（各平台渲染不一/黑白感重）；撞色 + 深棕硬描边呼应品牌基因 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <symbol id="ic-home" viewBox="0 0 24 24">
+    <path d="M4.6 9.6 12 4l7.4 5.6v8.8c0 .8-.6 1.4-1.4 1.4H6c-.8 0-1.4-.6-1.4-1.4z" fill="#FFF4DD" stroke="#3A2E1F" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M3.4 10.8 12 3.4l8.6 7.4" fill="none" stroke="#3A2E1F" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M3.4 10.8 12 3.4l8.6 7.4" fill="none" stroke="#E52521" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="10.1" y="13.6" width="3.8" height="6.2" rx="1" fill="#E52521" stroke="#3A2E1F" stroke-width="1.3"/>
+  </symbol>
+  <symbol id="ic-tasks" viewBox="0 0 24 24">
+    <rect x="4.5" y="3.5" width="15" height="17" rx="2.5" fill="#049CD8" stroke="#3A2E1F" stroke-width="1.6"/>
+    <rect x="8.5" y="2.2" width="7" height="3.4" rx="1.7" fill="#FBD000" stroke="#3A2E1F" stroke-width="1.4"/>
+    <rect x="7.6" y="8.4" width="8.8" height="2.1" rx="1" fill="#fff" opacity=".92"/>
+    <rect x="7.6" y="12.3" width="8.8" height="2.1" rx="1" fill="#fff" opacity=".92"/>
+    <path d="M7.9 16.9l1.7 1.7 3-3.2" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".35"/>
+    <path d="M7.9 16.9l1.7 1.7 3-3.2" fill="none" stroke="#43B047" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-shop" viewBox="0 0 24 24">
+    <path d="M8.6 7.6h6.8a1 1 0 0 1 1 .8l1.5 10.5a1.9 1.9 0 0 1-1.9 2.1H8a1.9 1.9 0 0 1-1.9-2.1L7.6 8.4a1 1 0 0 1 1-.8z" fill="#E52521" stroke="#3A2E1F" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M9 7.6V6a3 3 0 0 1 6 0v1.6" fill="none" stroke="#3A2E1F" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M9 7.6V6a3 3 0 0 1 6 0v1.6" fill="none" stroke="#FBD000" stroke-width="2.1" stroke-linecap="round"/>
+    <circle cx="9.2" cy="10.6" r="1.1" fill="#3A2E1F"/>
+    <circle cx="14.8" cy="10.6" r="1.1" fill="#3A2E1F"/>
+  </symbol>
+  <symbol id="ic-chart" viewBox="0 0 24 24">
+    <rect x="4" y="11" width="4" height="8.6" rx="1.2" fill="#049CD8" stroke="#3A2E1F" stroke-width="1.4"/>
+    <rect x="10" y="6.5" width="4" height="13.1" rx="1.2" fill="#E52521" stroke="#3A2E1F" stroke-width="1.4"/>
+    <rect x="16" y="13.8" width="4" height="5.8" rx="1.2" fill="#43B047" stroke="#3A2E1F" stroke-width="1.4"/>
+    <path d="M3.2 20.6h17.6" stroke="#3A2E1F" stroke-width="1.8" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-up" viewBox="0 0 24 24">
+    <path d="M12 3.8 19.4 12h-3.5v7.6H8.1V12H4.6z" fill="#43B047" stroke="#3A2E1F" stroke-width="1.5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-down" viewBox="0 0 24 24">
+    <path d="M12 20.2 4.6 12h3.5V4.4h7.8V12h3.5z" fill="#049CD8" stroke="#3A2E1F" stroke-width="1.5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24">
+    <path d="M19.4 13.6c.1-.5.2-1 .2-1.6s0-1.1-.2-1.6l2-1.5-2-3.4-2.3.9a7.2 7.2 0 0 0-2.9-1.4L14 2.6h-4l-.4 2.4a7.2 7.2 0 0 0-2.9 1.4l-2.3-.9-2 3.4 2 1.5a7.5 7.5 0 0 0 0 3.2l-2 1.5 2 3.4 2.3-.9c.8.7 1.8 1.2 2.9 1.4l.4 2.4h4l.4-2.4c1.1-.2 2.1-.7 2.9-1.4l2.3.9 2-3.4z" fill="#FBD000" stroke="#3A2E1F" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="12" cy="12" r="3.2" fill="#FFF4DD" stroke="#3A2E1F" stroke-width="1.5"/>
+  </symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24">
+    <path d="M13.4 2.4 4.9 13.6h4.7l-1.5 8 9.6-11.6h-4.9z" fill="#FBD000" stroke="#3A2E1F" stroke-width="1.5" stroke-linejoin="round"/>
+  </symbol>
+</defs>
+</svg>
+
 <div id="app">
   <!-- 顶栏：品牌 + 顶部导航 + 视角切换 -->
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark"><span>⚡</span></div>
+      <div class="brand-mark"><svg class="bm-svg" aria-hidden="true"><use href="#ic-bolt"/></svg></div>
       <div class="brand-text" id="brandText">MAX<em>'S</em> CREDITS PLAN</div>
     </div>
 
     <nav class="topnav" id="topnav">
-      <button class="tn-tab active" data-tab="home"><span class="tn-icon">🏠</span><span class="tn-label">首页</span></button>
-      <button class="tn-tab" data-tab="tasks"><span class="tn-icon">📋</span><span class="tn-label">任务</span></button>
-      <button class="tn-tab" data-tab="shop"><span class="tn-icon">🏪</span><span class="tn-label">商店</span></button>
-      <button class="tn-tab" data-tab="records"><span class="tn-icon">📊</span><span class="tn-label">记录</span></button>
+      <button class="tn-tab active" data-tab="home"><svg class="tn-svg" aria-hidden="true"><use href="#ic-home"/></svg><span class="tn-label">首页</span></button>
+      <button class="tn-tab" data-tab="tasks"><svg class="tn-svg" aria-hidden="true"><use href="#ic-tasks"/></svg><span class="tn-label">任务</span></button>
+      <button class="tn-tab" data-tab="shop"><svg class="tn-svg" aria-hidden="true"><use href="#ic-shop"/></svg><span class="tn-label">商店</span></button>
+      <button class="tn-tab" data-tab="records"><svg class="tn-svg" aria-hidden="true"><use href="#ic-chart"/></svg><span class="tn-label">记录</span></button>
     </nav>
 
     <div class="topbar-right">
@@ -1101,25 +1177,15 @@ html[data-theme="funny"]{
         <!-- 动态注入四宫格 -->
       </div>
 
+      <!-- v2.7.0：首页纯看板——快捷任务/任务TOP3 移出首页（任务操作统一去「任务」页，nav 图标已强化） -->
       <div class="dash-col-2">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="dot"></span>快捷任务</div>
-          </div>
-          <div class="card-body">
-            <div class="task-list" id="quickTasks"></div>
-          </div>
-        </div>
-
         <div class="card">
           <div class="card-head">
             <div class="card-title green"><span class="dot"></span>最近兑换</div>
           </div>
           <div class="card-body" id="recentRedeem"></div>
         </div>
-      </div>
 
-      <div class="dash-col-2">
         <div class="card">
           <div class="card-head">
             <div class="card-title blue"><span class="dot"></span>本周 Credits 走势</div>
@@ -1127,13 +1193,6 @@ html[data-theme="funny"]{
           <div class="card-body">
             <div class="chart" id="homeChart"></div>
           </div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title red"><span class="dot"></span>任务 TOP 3</div>
-          </div>
-          <div class="card-body" id="homeTopTasks"><div class="empty">还没有任务记录</div></div>
         </div>
       </div>
     </div>
@@ -1172,6 +1231,15 @@ html[data-theme="funny"]{
 
     <!-- 爸妈控制台 -->
     <div class="view" data-view="admin">
+      <!-- v2.7.0 管理员地盘横幅：深棕底 + PARENT ZONE 徽章，和孩子侧浅色卡片一眼区分开 -->
+      <div class="admin-banner">
+        <svg class="ab-svg" aria-hidden="true"><use href="#ic-gear"/></svg>
+        <div class="ab-text">
+          <b>管理员模式</b>
+          <span>这里是爸妈的地盘——改规则、调奖励、管云端，改动全家生效。孩子看不到这一页。</span>
+        </div>
+        <span class="ab-badge">PARENT ZONE</span>
+      </div>
       <div class="ag-tabs wide">
         <button class="ag-pill active" data-ag="ops">📊 运营</button>
         <button class="ag-pill" data-ag="custom">🎨 定制工坊</button>
@@ -1664,9 +1732,9 @@ html[data-theme="funny"]{
 
 <!-- 浮按钮组：web 端可见，移动隐藏；卡通立体圆按钮 -->
 <div class="floats" id="floats">
-  <button class="float-btn go"     onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部">▲</button>
-  <button class="float-btn down"   onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="滚到底部">▼</button>
-  <button class="float-btn"        onclick="goAdmin()" title="管理员后台">⚙️</button>
+  <button class="float-btn go"     onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部"><svg class="ft-svg" aria-hidden="true"><use href="#ic-up"/></svg></button>
+  <button class="float-btn down"   onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="滚到底部"><svg class="ft-svg" aria-hidden="true"><use href="#ic-down"/></svg></button>
+  <button class="float-btn"        onclick="goAdmin()" title="管理员后台"><svg class="ft-svg" aria-hidden="true"><use href="#ic-gear"/></svg></button>
 </div>
 
 <input type="file" id="fileInput" accept=".json" style="display:none;">
@@ -1677,8 +1745,8 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.6.1';
-const APP_DATE = '2026-10-26';
+const APP_VER = 'v2.7.0';
+const APP_DATE = '2026-10-29';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
   document.addEventListener('DOMContentLoaded', () => {
@@ -1807,7 +1875,7 @@ const REWARDS = [
   {id:'r_cs', emoji:'🔫', name:'真人CS一次', cost:200, cat:'big', legacy:true},
 ];
 
-// ----- 默认快捷任务（首页显示） -----
+// ----- 默认快捷任务（v2.7.0 前首页快捷区用；首页瘦身后不再渲染，常量保留供自检断言） -----
 const QUICK_IDS = ['t_dawn','t_home','t_eng_p','t_read','t_fit_full'];
 
 // ---------- ② 状态存取 ----------
@@ -2373,11 +2441,6 @@ function renderHomeCards(){
       <div class="val ${s.cls}">${s.val}</div>
     </div>`).join('');
 
-  $('quickTasks').innerHTML = QUICK_IDS
-    .map(id => mergedTasks().find(t => t.id === id))
-    .filter(t => t && !t.off)
-    .map(taskItemHTML).join('');
-
   const recent = state.records
     .filter(r => r.type === 'out' && (r.name.includes('兑换') || r.name.includes('过期')))
     .slice(0, 3);
@@ -2385,9 +2448,8 @@ function renderHomeCards(){
     ? recent.map(recordHTML).join('')
     : '<div class="empty">还没有兑换记录，去商店看看吧 →</div>';
 
-  // 本周走势 + 任务 TOP 3
+  // 本周走势（v2.7.0：快捷任务/任务TOP3 已撤出首页，任务操作统一去任务页）
   renderWeekChartInto($('homeChart'));
-  renderRankList($('homeTopTasks'), 3);
 }
 
 function renderWeekChartInto(el){
@@ -4734,6 +4796,8 @@ function runSelfTest(){
     })(state.balance, state.monthIn, state.monthOut)),
     // v2.6.0 术语守卫：页面源码不得再出现裸「积分」旧文案（词组拼接防断言自噬；CSV 表头/映射不含这些词组）
     assert('术语统一Credits', !['扣' + '积分', '奖励' + '积分', '积分走' + '势', '积分入' + '账', '积分宇' + '宙', '积分是 ' + '0', '积分都是 ' + '0', '大于 0 的' + '积分'].some(t => document.documentElement.outerHTML.includes(t))),
+    // v2.7.0 首页纯看板 + 填色 SVG 图标 + 管理员横幅
+    assert('首页纯看板与SVG图标', !document.getElementById('quickTasks') && !document.getElementById('homeTopTasks') && document.querySelectorAll('.tn-svg').length === 4 && !!document.querySelector('.admin-banner')),
     // v2.6.1 下拉改名「单元测验/月考」后，新旧名都要归对档（CSV 粘贴/手输兼容）
     assert('测验类型归一兼容', normType('月考') === 'b' && normType('单元测验') === 's' && normType('大考') === 'b' && normType('小考') === 's' && normType('b') === 'b' && normType('单元测') === 's'),
     assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
