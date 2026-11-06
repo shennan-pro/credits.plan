@@ -69,7 +69,9 @@
 {
   balance, monthIn, monthOut, totalIn, totalOut,
   records: [{time, type:'in'|'out', val, name, taskId?}],   // 倒序，最新在前
-  doneToday: {taskId: 'YYYY-MM-DD'},
+  doneToday: {taskId: 'YYYY-MM-DD'},        // v2.8.0 保留（兼容：老逻辑/今日统计仍读它）
+  doneCount: {taskId: {d: 'YYYY-MM-DD', n: 次数}},   // v2.8.0 新增：当日完成次数（可重复累计）
+  cfg.taskCap: {taskId: 每日上限},            // v2.8.0：缺省=不限；1=不可累计
   view: 'max'|'parent', lastResetMonth: 'YYYY-MM',
   updatedAt: 0,           // v2.2.0：本地最后修改时间戳（云同步 LWW 用）
   cfg: {
@@ -279,3 +281,9 @@
   - **headless 移动截图「右侧被裁」是假阳性**：Windows Chrome 最小窗宽 ≈500px，`--window-size=420` 时布局视口仍 497，截图只截左边 420 → 看着像溢出。判据用 `documentElement.clientWidth` vs `scrollWidth`（实测 497/497，零溢出）
   - **同特异性后写的断点赢**：`.dash-col-2` 原 1024 断点 `1.4fr 1fr` 会被 768 断点的 `1fr 1fr` 覆盖（后者在文件里更靠后）——加规则要按「文件顺序」而非「断点大小」想
   - 删 DOM 元素必须连带删 JS 渲染引用，否则 `$('el')` 为 null 直接中断整个 render（现象像页面白屏）
+
+- **v2.8.0 多重奖励批**：
+  - **flex 项目 `flex:1` 的 basis=0 不会换行**：窄屏想让 nav 独占第二行必须写 `flex:0 0 100%`，否则它压缩到 0 并把 tab 推出视口（v2.7.0 窄屏挤掉「首页/记录」的根因）
+  - **改交互语义必须同步删旧提示**：把「再点=撤销」改成「点击=+1」后，`.task.done::after{content:'↩ 撤销'}` 角标要删，否则文案与行为相反
+  - 计数与上限写成**纯函数**（`doneCountToday` / `taskCap` / `bumpDoneCount` / `decDoneCount`），自检只测纯函数、不碰 completeTask（有音效/飞字副作用）
+  - 存档迁移放 `hydrate()`（localStorage / 云端 / 导入三条入口共用），别只改 loadState

@@ -383,7 +383,24 @@ body{overflow-x:auto;}
 .task:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-1);}
 .task:active{transform:translate(0,0);box-shadow:none;}
 .task.done{background:var(--mc-yellow);border-color:var(--mc-ink);}
-.task.done .task-text{text-decoration:line-through;}
+/* v2.8.0：只有「已达每日上限 / 不可累计」的任务才划线；可重复累计的任务保持可读 */
+.task.done.capped .task-text{text-decoration:line-through;}
+.task-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none;}
+.task-meta{display:flex;align-items:center;gap:6px;}
+.task-count{
+  font-family:var(--pixel-font);font-size:10px;font-weight:900;letter-spacing:.02em;
+  background:var(--mc-ink);color:var(--mc-yellow);
+  border-radius:999px;padding:3px 8px;line-height:1.3;white-space:nowrap;
+}
+.task-undo{
+  width:24px;height:24px;flex:none;border-radius:50%;
+  border:2px solid var(--mc-ink);background:var(--mc-cream);
+  color:var(--mc-ink);font-size:12px;font-weight:900;line-height:1;padding:0;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 0 var(--mc-ink);transition:transform .1s, box-shadow .1s, background .1s;
+}
+.task-undo:hover{background:var(--mc-cream-2);}
+.task-undo:active{transform:translateY(2px);box-shadow:none;}
 .task-emoji{
   width:44px;height:44px;
   background:var(--mc-cream);
@@ -733,18 +750,22 @@ body{overscroll-behavior-y:contain;}
   .brand-mark{width:32px;height:32px;font-size:17px;}
   .mini-balance{padding:5px 10px;font-size:14px;}
 }
-
-/* ---- 已完成任务：提示再点一次撤销 ---- */
-.task.done{cursor:pointer;}
-.task.done::after{
-  content:'↩ 撤销';
-  position:absolute;top:-8px;right:10px;
-  font-size:9px;font-weight:900;letter-spacing:.08em;
-  padding:2px 8px;
-  background:var(--mc-ink);color:var(--mc-yellow);
-  border-radius:999px;border:2px solid var(--mc-cream);
-  opacity:.85;
+/* v2.8.0 窄屏导航：nav 独占第二行（品牌+余额一行，4 个 tab 一行）——
+   修 v2.7.0 回归：nav 加大后窄屏挤掉「首页/记录」两个 tab */
+@media (max-width:559px){
+  .topbar{flex-wrap:wrap;row-gap:6px;}
+  .brand{flex:1 1 auto;}
+  .topbar-right{flex:none;}
+  /* flex:1 的 basis=0 会压缩而不换行 → 窄屏强制 0 0 100% 让 nav 独占第二行 */
+  .topnav{order:10;flex:0 0 100%;width:100%;justify-content:space-between;gap:4px;overflow-x:visible;}
+  .tn-tab{flex:1;justify-content:center;padding:9px 4px;gap:5px;}
+  .tn-tab .tn-label{display:inline !important;font-size:12px;}
+  .tn-svg{width:22px;height:22px;}
 }
+
+/* ---- 已完成任务：v2.8.0 起不再显示「↩ 撤销」角标 ----
+   旧逻辑是「再点一次 = 撤销」，与 v2.8.0 的「点击 = +1 累计」冲突，且与卡内独立撤销按钮重复 */
+.task.done{cursor:pointer;}
 
 /* ---- 卡片 hover 立体浮起（桌面） ---- */
 @media (hover:hover){
@@ -973,6 +994,14 @@ html[data-theme="funny"]{
   border:var(--border-thin);border-radius:8px;background:var(--mc-cream);color:var(--text);
 }
 .rule-item .ri-val:focus{outline:none;background:var(--mc-yellow);}
+/* v2.8.0 每日上限输入框：留空=不限（可重复累计），填 1=不可累计 */
+.rule-item .ri-cap{
+  width:46px;flex:0 0 46px;padding:6px 2px;text-align:center;
+  font-size:12px;font-weight:900;font-family:var(--pixel-font);
+  border:var(--border-thin);border-radius:8px;background:var(--mc-cream);color:var(--text);
+}
+.rule-item .ri-cap:focus{outline:none;background:var(--mc-yellow);}
+.rule-item .ri-cap::placeholder{color:var(--text-3);opacity:.55;}
 .rule-item .ri-val:disabled{opacity:.4;}
 .rule-item .ri-unit{font-size:10px;font-weight:900;color:var(--text-3);}
 
@@ -1745,8 +1774,8 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.7.0';
-const APP_DATE = '2026-10-29';
+const APP_VER = 'v2.8.0';
+const APP_DATE = '2026-11-06';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
   document.addEventListener('DOMContentLoaded', () => {
@@ -1885,6 +1914,7 @@ const defaultState = () => ({
   balance: 0,
   records: [],            // {time, type:'in'|'out', val, name, taskId?}
   doneToday: {},          // {taskId:'YYYY-MM-DD'} 当日已完成；跨天自动失效
+  doneCount: {},          // v2.8.0：{taskId:{d:'YYYY-MM-DD', n:次数}} 当日完成次数（可重复累计）；旧档由 doneToday 自动迁移
   monthIn: 0,             // 本月入账（不含余额结转）
   monthOut: 0,
   totalIn: 0,
@@ -1903,6 +1933,7 @@ const defaultState = () => ({
     customTasks: [],  // 自定义任务（工坊新增）
     customRewards: [],// 自定义奖励（工坊新增）
     taskOv: {},       // 任务覆盖：{taskId: {val?, off?}}
+    taskCap: {},      // v2.8.0：任务每日上限 {taskId: 数字}；缺省=不限（可重复累计），1=不可累计（每天只算一次）
     rewardOv: {},     // 奖励覆盖：{rewardId: {cost?, off?}}
     tables: {},       // v2.3.0：数据表格（如成绩批量录入），与 records 双向锚定
     // v2.4.0 评分规则：支持「分数制 / 等级制」两种来源 + 可编辑映射表
@@ -1951,10 +1982,19 @@ function hydrate(saved){
     cfg.scoreRules = JSON.parse(JSON.stringify(base.cfg.scoreRules));
     cfg._lvFix = true;
   }
+  // v2.8.0：老存档迁移 —— doneToday（布尔：今天做过）→ doneCount（计数：今天做了几次）
+  // 老档没有 doneCount 时，今天做过的任务按 1 次计入（保证「上限 1」的任务仍拦得住）
+  const doneCount = (saved.doneCount && typeof saved.doneCount === 'object') ? saved.doneCount : {};
+  const doneToday = (saved.doneToday && typeof saved.doneToday === 'object') ? saved.doneToday : {};
+  const todayStr = dayStr();
+  for(const id in doneToday){
+    if(doneToday[id] === todayStr && !doneCount[id]) doneCount[id] = {d: todayStr, n: 1};
+  }
   return Object.assign(base, saved, {
     cfg,
     records: Array.isArray(saved.records) ? saved.records : base.records,
-    doneToday: (saved.doneToday && typeof saved.doneToday === 'object') ? saved.doneToday : {},
+    doneToday,
+    doneCount,
   });
 }
 
@@ -2020,6 +2060,32 @@ const pendingExpire   = () => {
   return Math.max(1, Math.floor(state.balance * state.cfg.expireRate / 100));   // v1.2.3：最低扣 1
 };
 const isDoneToday     = id => state.doneToday[id] === dayStr();
+// ---- v2.8.0 多重奖励：一天可多次完成 ----
+// 当日次数（跨天自动归零）；每日上限（缺省不限；1 = 不可累计）；计数增减为纯逻辑，便于自检
+const doneCountToday  = id => (state.doneCount[id] && state.doneCount[id].d === dayStr()) ? (state.doneCount[id].n || 0) : 0;
+const taskCap         = id => {
+  const raw = state.cfg.taskCap ? state.cfg.taskCap[id] : undefined;
+  if(raw === undefined || raw === null || raw === '') return Infinity;
+  const n = Number(raw);
+  return (Number.isFinite(n) && n >= 1) ? Math.floor(n) : Infinity;
+};
+const capReached      = id => doneCountToday(id) >= taskCap(id);
+function bumpDoneCount(id){
+  const cur = state.doneCount[id];
+  if(cur && cur.d === dayStr()) cur.n = (cur.n || 0) + 1;
+  else state.doneCount[id] = {d: dayStr(), n: 1};
+  state.doneToday[id] = dayStr();   // 保留布尔位：老逻辑（done 态/今日统计）继续可用
+  return state.doneCount[id].n;
+}
+function decDoneCount(id){
+  const cur = state.doneCount[id];
+  if(cur && cur.d === dayStr()){
+    cur.n = Math.max(0, (cur.n || 0) - 1);
+    if(cur.n === 0) delete state.doneCount[id];
+  }
+  if(!state.doneCount[id]) delete state.doneToday[id];   // 次数归零才清布尔位
+  return doneCountToday(id);
+}
 const signed          = n => (n >= 0 ? '+' : '') + n;
 
 // 规则可被后台覆盖：未覆盖时回落到内置常量
@@ -2276,11 +2342,18 @@ function checkMilestone(before, after){
 
 function completeTask(task, sourceEl){
   // v2.1.0：作弊/撒谎按 v1.2.3 规则统一 -100（旧版「×3 扣除」弹窗已移除）
+  // v2.8.0：多重奖励——达到每日上限则拦截（上限缺省=不限，可重复累计；上限 1 = 不可累计）
+  if(capReached(task.id)){
+    const cap = taskCap(task.id);
+    toast(cap === 1 ? `「${task.type}」今天只能算一次，已经做过了` : `「${task.type}」今天已达上限（${cap} 次）`, 'error');
+    sfx.undo();
+    return;
+  }
   const val = taskVal(task);
   const before = state.balance;
   addRecord(val >= 0 ? 'in' : 'out', val,
             `${task.emoji} ${task.text} ${signed(val)}`, task.id);
-  state.doneToday[task.id] = dayStr();
+  bumpDoneCount(task.id);
   saveState();   // v1.2 漏了这步 → 刷新后当天任务可重复点、无限刷分
   if(navigator.vibrate) try{navigator.vibrate(10);}catch(e){}   // 移动端触感反馈（不支持自动跳过）
 
@@ -2296,7 +2369,9 @@ function completeTask(task, sourceEl){
   render();
 
   const comboTip = combo >= 2 ? `　🔥 ${combo} 连击!` : '';
-  toast(`${signed(val)}${COIN} · ${task.text}${comboTip}`, val > 0 ? 'success' : 'error');
+  const cnt = doneCountToday(task.id);
+  const cntTip = cnt > 1 ? `　今日第 ${cnt} 次` : '';
+  toast(`${signed(val)}${COIN} · ${task.text}${cntTip}${comboTip}`, val > 0 ? 'success' : 'error');
   checkMilestone(before, state.balance);
 }
 
@@ -2491,15 +2566,25 @@ function renderRankList(el, limit){
     : '<div class="empty">还没有任务记录</div>';
 }
 
-const taskItemHTML = t => `
-  <div class="task ${isDoneToday(t.id) ? 'done' : ''}" data-task="${t.id}">
+const taskItemHTML = t => {
+  const n = doneCountToday(t.id);          // v2.8.0：今日已完成次数
+  const capped = capReached(t.id);         // v2.8.0：已达每日上限（不可累计的任务才划线）
+  return `
+  <div class="task ${isDoneToday(t.id) ? 'done' : ''} ${capped ? 'capped' : ''}" data-task="${t.id}">
     <div class="task-emoji">${t.emoji}</div>
     <div class="task-body">
       <div class="task-type">${t.type}</div>
       <div class="task-text">${t.text}${t.note ? `<br><span style="font-size:10px;color:var(--text-3);font-weight:700">· ${t.note}</span>` : ''}</div>
     </div>
-    <div class="task-val ${taskVal(t) >= 0 ? 'pos' : 'neg'}">${signed(taskVal(t))}${COIN}</div>
+    <div class="task-side">
+      <div class="task-val ${taskVal(t) >= 0 ? 'pos' : 'neg'}">${signed(taskVal(t))}${COIN}</div>
+      ${n > 0 ? `<div class="task-meta">
+        <span class="task-count" title="今日已完成 ${n} 次">今日 ×${n}</span>
+        <button class="task-undo" data-undo="${t.id}" title="撤销一次">↩</button>
+      </div>` : ''}
+    </div>
   </div>`;
+};
 
 function renderTaskWall(){
   let html = '';
@@ -2575,12 +2660,14 @@ function renderAdmin(){
 function renderAdminRules(){
   $('ruleTasks').innerHTML = mergedTasks().map(t => {
     const isCustom = String(t.id).startsWith('c_');
+    const cap = state.cfg.taskCap ? state.cfg.taskCap[t.id] : undefined;   // v2.8.0：每日上限（缺省不限）
     return `<div class="rule-item">
       <button class="ri-edit" data-edit-task="${t.id}" title="编辑内容">✏️</button>
       ${isCustom ? `<button class="ri-edit ri-del" data-del-task="${t.id}" title="删除此自定义任务">🗑</button>` : ''}
       <span class="ri-name ${t.off ? 'off' : ''}" title="${esc(t.text)}">${t.emoji} ${esc(t.type)}</span>
       <input type="number" class="ri-val" data-task-val="${t.id}" value="${t.val}" ${t.off ? 'disabled' : ''}>
       <span class="ri-unit">${COIN}</span>
+      <input type="number" class="ri-cap" data-task-cap="${t.id}" value="${cap === undefined || cap === null ? '' : cap}" min="1" placeholder="∞" ${t.off ? 'disabled' : ''} title="每日上限：留空 = 不限（可重复累计）；填 1 = 不可累计">
       <div class="toggle sm ${t.off ? '' : 'on'}" data-task-off="${t.id}"></div>
     </div>`;
   }).join('');
@@ -2853,13 +2940,13 @@ function undoLast(){
   }
   revertRecord(r);
   state.records.shift();
-  if(r.taskId) delete state.doneToday[r.taskId];
+  if(r.taskId) decDoneCount(r.taskId);   // v2.8.0：只减一次次数（不再清零当天累计）
   saveState(); render();
   sfx.undo();
   toast(`已撤销：${r.name}`, 'error');
 }
 
-// 计分卡二次点击：定向撤销该任务今天这笔记录
+// 计分卡撤销：撤销该任务今天的**最近一笔**（v2.8.0：只减一次次数，不清零当天已累计的其他次）
 function undoTask(taskId){
   const idx = state.records.findIndex(r => r.taskId === taskId && dayStr(new Date(r.time)) === dayStr());
   if(idx === -1){
@@ -2869,10 +2956,11 @@ function undoTask(taskId){
   const r = state.records[idx];
   revertRecord(r);
   state.records.splice(idx, 1);
-  delete state.doneToday[taskId];
+  decDoneCount(taskId);
   saveState(); render();
   sfx.undo();
-  toast(`↩️ 已撤销：${r.name}`, 'error');
+  const left = doneCountToday(taskId);
+  toast(`↩️ 已撤销：${r.name}${left > 0 ? `（今日还剩 ${left} 次）` : ''}`, 'error');
 }
 
 function clearTodayDone(){
@@ -2889,7 +2977,10 @@ function clearTodayDone(){
     actions:[
       {label:'取消'},
       {label:'确认清空', cls:'danger', onClick:() => {
-        ids.forEach(id => delete state.doneToday[id]);
+        ids.forEach(id => {
+          delete state.doneToday[id];
+          if(state.doneCount[id] && state.doneCount[id].d === today) delete state.doneCount[id];   // v2.8.0：清次数
+        });
         saveState(); render();
         toast(`已清空今日 ${ids.length} 条完成记录`);
         closeModal();
@@ -3176,12 +3267,13 @@ document.addEventListener('click', e => {
     confirmDelReward(delRewardEl.dataset.delReward);
     return;
   }
+  const undoEl = e.target.closest('[data-undo]');
+  if(undoEl){ undoTask(undoEl.dataset.undo); return; }   // v2.8.0：独立撤销按钮（撤销一次）
   const taskEl = e.target.closest('.task');
   if(taskEl){
     const t = mergedTasks().find(x => x.id === taskEl.dataset.task);
     if(!t) return;
-    if(taskEl.classList.contains('done')) undoTask(t.id);   // 二次点击 = 撤销
-    else completeTask(t, taskEl);
+    completeTask(t, taskEl);   // v2.8.0：点击 = +1 累计（不再二次点击就归零）
     return;
   }
   const rewardEl = e.target.closest('.reward');
@@ -3331,6 +3423,22 @@ $('fileInput').addEventListener('change', e => {
 
 // 规则调参：改分值/价格（change 事件，避免边输边重渲染丢焦点）
 $('ruleTasks').addEventListener('change', e => {
+  // v2.8.0：每日上限（留空 = 不限，可重复累计；填 1 = 不可累计）
+  const capId = e.target.dataset.taskCap;
+  if(capId){
+    const raw = String(e.target.value || '').trim();
+    state.cfg.taskCap = Object.assign({}, state.cfg.taskCap);
+    if(raw === ''){
+      delete state.cfg.taskCap[capId];
+    }else{
+      state.cfg.taskCap[capId] = Math.max(1, parseInt(raw, 10) || 1);
+    }
+    saveState(); render();
+    const ct = mergedTasks().find(x => x.id === capId);
+    const cv = state.cfg.taskCap[capId];
+    toast(`${ct ? ct.emoji + ' ' + ct.type : '任务'} 每日上限：${cv ? `每天最多 ${cv} 次` : '不限（可重复累计）'}`);
+    return;
+  }
   const id = e.target.dataset.taskVal;
   if(!id) return;
   const v = parseInt(e.target.value, 10);
@@ -4839,6 +4947,26 @@ function runSelfTest(){
     })(state.balance, state.cfg.initBal)),
     assert('权重模式可切', (state.cfg.scoreRules.mode = 'raw', state.cfg.scoreRules.standard = 120, scoreReward({mode:'score', type:'s', score:114, full:120}) === 50) && (state.cfg.scoreRules.mode = 'percent', state.cfg.scoreRules.standard = 100, true)),
     assert('CSV 模板 9 列', dtHeader.length === 9 && dtHeader.join(',') === '日期,名称,科目,方式,类型/等级,分数,满分,积分,备注'),
+    // v2.8.0 多重奖励：计数累计 / 每日上限 / 撤销一次 / 老档迁移
+    assert('多重奖励计数与上限', (() => {
+      const tid = 't_dawn';
+      const saveDC = JSON.parse(JSON.stringify(state.doneCount || {}));
+      const saveDT = Object.assign({}, state.doneToday || {});
+      const saveCap = Object.assign({}, state.cfg.taskCap || {});
+      state.doneCount = state.doneCount || {};
+      state.cfg.taskCap = state.cfg.taskCap || {};
+      delete state.cfg.taskCap[tid];
+      bumpDoneCount(tid); bumpDoneCount(tid);
+      const a = doneCountToday(tid) === 2 && taskCap(tid) === Infinity && !capReached(tid);
+      state.cfg.taskCap[tid] = 1;
+      const b = taskCap(tid) === 1 && capReached(tid) === true;
+      decDoneCount(tid);
+      const c = doneCountToday(tid) === 1 && !!state.doneToday[tid];   // 撤销一次不清零当天其他次
+      const h = hydrate({doneToday: {[tid]: dayStr()}, cfg: {}});
+      const d = !!(h.doneCount && h.doneCount[tid] && h.doneCount[tid].n === 1);   // 老档迁移：布尔→计数 1
+      state.doneCount = saveDC; state.doneToday = saveDT; state.cfg.taskCap = saveCap;
+      return a && b && c && d;
+    })()),
   ];
 
   // 业务链路：改一笔账，验证余额/累计同步，再还原
