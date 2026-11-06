@@ -663,10 +663,10 @@ body{overscroll-behavior-y:contain;}
 }
 
 /* ============================================================
-   v1.5.0 追加 · M-Coin 货币符号 / 吸顶余额 / 得分动画强化 / 音效
+   v1.5.0 追加 · T-Coin 货币符号 / 吸顶余额 / 得分动画强化 / 音效
    ============================================================ */
 
-/* ---- M-Coin：孩子名字首字母 + 金色硬币（Credits 货币符号） ---- */
+/* ---- T-Coin：孩子名字首字母 + 金色硬币（Credits 货币符号） ---- */
 .coin{
   display:inline-flex;align-items:center;justify-content:center;
   width:1.25em;height:1.25em;border-radius:50%;
@@ -1392,7 +1392,7 @@ html[data-theme="funny"]{
               <div class="setting-label">孩子英文名</div>
               <div class="setting-desc">必填。品牌名「XX's Credits Plan」与货币首字母随之更新</div>
             </div>
-            <input type="text" class="setting-input" id="cfgChildName" placeholder="Max" maxlength="12">
+            <input type="text" class="setting-input" id="cfgChildName" placeholder="The Kid" maxlength="12">
           </div>
           <div class="setting-row">
             <div>
@@ -1701,7 +1701,7 @@ html[data-theme="funny"]{
       <div class="wiz-title">① 孩子档案</div>
       <div class="wiz-hint">孩子是积分（Credits）的主人：完成任务、兑换奖励。先给孩子起个英文名（必填）。</div>
       <div class="wiz-row">
-        <input type="text" id="wizChild" placeholder="孩子英文名，如 Max / Tom / Lily" maxlength="12">
+        <input type="text" id="wizChild" placeholder="孩子英文名，如 The Kid / Tom / Lily" maxlength="12">
         <button class="btn" style="background:var(--mc-blue);color:#fff" onclick="wizNext1()">下一步 →</button>
       </div>
       <div class="wiz-err" id="wizErr1"></div>
@@ -1813,7 +1813,7 @@ const TASKS = [
   {id:'t_eng_week', emoji:'🗓️', type:'英语周全对', text:'单周每一竖列一周全对', val:5, group:'study', note:'周末结算', legacy:true},
 
   // ── 体能训练类 ──
-  {id:'t_fit_full', emoji:'💪', type:'体能训练', text:'每天完成完整一整套体能训练（俯卧撑、仰卧起坐等）', val:10, group:'fit', note:'可分次完成；在家；标准动作；全套见《Max在家体能训练》表'},
+  {id:'t_fit_full', emoji:'💪', type:'体能训练', text:'每天完成完整一整套体能训练（俯卧撑、仰卧起坐等）', val:10, group:'fit', note:'可分次完成；在家；标准动作；全套见《The Kid 在家体能训练》表'},
   {id:'t_fit_one', emoji:'🏋️', type:'体能训练', text:'每天完成单项体能训练（平板撑、跳绳等）', val:1, group:'fit', note:'在家；标准动作'},
 
   // ── 个人荣誉与进步类 ──
@@ -2057,8 +2057,8 @@ const activeTasks   = () => mergedTasks().filter(t => !t.off);
 const activeRewards = () => mergedRewards().filter(r => !r.off);
 
 // Credits 货币符号 = 孩子名字首字母 + 金色硬币
-// 孩子英文名：默认 Max，后台「系统设置 → 孩子英文名」可改（必填，留空回落默认）
-const CHILD_NAME = 'Max';
+// 孩子英文名：默认 The Kid，后台「系统设置 → 孩子英文名」可改（必填，留空回落默认）
+const CHILD_NAME = 'The Kid';
 const childName = () => (String(state.cfg.childName || '').trim() || CHILD_NAME);
 const childInitial = () => childName()[0].toUpperCase();
 const COIN = '🪙';
@@ -2072,7 +2072,7 @@ function renderBrand(){
   if(uc) uc.textContent = childInitial();
   const mc = $('miniCoin');
   if(mc) mc.textContent = childInitial();
-  document.title = n + 's Credits Plan · ' + APP_VER;
+  document.title = n + "'s Credits Plan · " + APP_VER;   // v2.7.0：补撇号（默认名 "The Kid" 时避免拼成 "The Kids"）
 }
 
 // ---------- 初始向导：孩子档案 + 家长账号 ----------
@@ -3280,7 +3280,7 @@ $('btnAddBonus').addEventListener('click', () => {
   showModal({
     emoji:'🎁',
     title:'发放奖励 Credits',
-    sub:'直接给 Max 发放一笔 Bonus C，不绑定任务。',
+    sub:'直接给 The Kid 发放一笔 Bonus C，不绑定任务。',
     input:{value:10, min:1, max:9999},
     actions:[
       {label:'取消'},
@@ -4575,7 +4575,7 @@ function flyScore(fromEl, text, positive){
   setTimeout(() => el.remove(), 2500);
 }
 
-// 金色 M-Coin 从卡片弹出，旋转上升渐隐
+// 金色 T-Coin 从卡片弹出，旋转上升渐隐
 function coinPop(fromEl){
   if(!fromEl || state.cfg.fx === 'off') return;
   const r = fromEl.getBoundingClientRect();

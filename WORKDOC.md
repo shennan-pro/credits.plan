@@ -1,4 +1,4 @@
-# Max's Credits Plan · 工作文档（WORKDOC）
+# Kid's Credits Plan · 工作文档（WORKDOC）
 
 > 协作交接用。新人读本文件 + `changelog.md` 即可接手。  
 > 当前版本：**v2.5.0 已上线 main**（规则包 v1.2.3 + 数据表格批量录入 + 评分规则可自定义 + 云同步分行/表级权限）｜主线：main(v2.1.0) → `_feature01_Supabase`(v2.2.0)
@@ -210,7 +210,7 @@
 | 导航  | .topnav > .tn-tab                                 | 桌面胶囊；<420px 图标-only     |
 | 图表  | .chart > .bar-col > .bar                          | 纯 CSS 柱状图               |
 | 排行  | .rank-list > .rank-item                           | TOP 榜                   |
-| 货币  | .coin(.lg/.sm)                                    | M-Coin，字母=孩子首字母         |
+| 货币  | .coin(.lg/.sm)                                    | T-Coin，字母=孩子首字母         |
 | 动效  | .fly-score / .coin-pop / .particle / .toast       | 冻结面，勿改                  |
 
 ---
@@ -259,6 +259,7 @@
 - 改功能走 `fix/_refactor/_feature` 分支，验收后合 main；**远端上传必须用户口令**
 - **2026-10-16 起：每次迭代收口后及时 push main**（用户授权长期有效，不用每次再问）；Pages 自动重建，多端即时可用
 - 线上地址：https://shennan-pro.github.io/credits.plan/ （仓库 `shennan-pro/credits.plan`，public；显示名 "Kid's Credits Plan"）
+- **项目位置（2026-11-06 起）**：`S:\SoloPro\Kids_Credits_Plan\`（原 T 盘百度同步盘路径 `Seeeeelf TEMP\【自制】教育、家庭文件\Max积分计划\` 已废弃——跨盘拖拽失败进了回收站，现从回收站原样恢复；回收站副本仍保留作备份，确认后可清）
 - ⚠️ 对外 URL **不带孩子名**（曾用 max-credits-plan，已改；其他用户看到不会懵）
 - ⚠️ 历史地址全部 404（改名不重定向 Pages）：`shennanjaysn-cmyk.github.io/max-credits-plan/`、`shennan-pro.github.io/max-credits-plan/`、`shennan-pro.github.io/kids-credits-plan/`
 - 冻结面：**动效**、Baloo 2、localStorage 键名与 schema —— 动前先问
