@@ -994,6 +994,13 @@ html[data-theme="funny"]{
   border:var(--border-thin);border-radius:8px;background:var(--mc-cream);color:var(--text);
 }
 .rule-item .ri-val:focus{outline:none;background:var(--mc-yellow);}
+/* v2.9.0 云端版本历史行 */
+.hist-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:2px dotted var(--mc-cream-3);}
+.hist-row:last-child{border-bottom:none;}
+.hist-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.hist-info b{font-size:13px;font-weight:900;color:var(--text);}
+.hist-info span{font-size:11px;color:var(--text-3);font-weight:700;}
+
 /* v2.8.0 每日上限输入框：留空=不限（可重复累计），填 1=不可累计 */
 .rule-item .ri-cap{
   width:46px;flex:0 0 46px;padding:6px 2px;text-align:center;
@@ -1613,6 +1620,18 @@ html[data-theme="funny"]{
         </div>
       </div>
 
+      <!-- v2.9.0 云端版本历史：Supabase 免费版没有 PITR，产品自己造版本历史（覆盖前自动留档 + 一键回滚） -->
+      <div class="card ag-custom" id="historyCard">
+        <div class="card-head">
+          <div class="card-title purple"><span class="dot"></span>云端版本历史</div>
+          <button class="btn" id="btnHistoryList"><span>📜 刷新列表</span></button>
+        </div>
+        <div class="card-body">
+          <div class="dt-hint" style="margin-bottom:10px">每次「用本地覆盖云端」前，系统都会自动把云端旧版本存进历史（最多留 50 版）——误同步、空档覆盖都能从这里一键回滚。需先在 Supabase 执行 <b>supabase-v2.9-history.sql</b>。</div>
+          <div id="historyBody"><div class="empty">点「刷新列表」查看历史版本</div></div>
+        </div>
+      </div>
+
       <div class="card ag-custom">
         <div class="card-head">
           <div class="card-title blue"><span class="dot"></span>外观与体验</div>
@@ -1774,7 +1793,7 @@ html[data-theme="funny"]{
    单一版本源：改这里，全站（标题/顶栏/页脚/控制台/云卡）自动同步
    —— 之前版本号散落 5 处，每次改版漏一处就出现「明明发布了却还是旧版」
    ============================================================ */
-const APP_VER = 'v2.8.2';
+const APP_VER = 'v2.9.0';
 const APP_DATE = '2026-11-06';
 window.__APP_VER = APP_VER;   // 便于 DevTools / 体检报告里自报版本
 (function(){
@@ -1908,7 +1927,31 @@ const REWARDS = [
 const QUICK_IDS = ['t_dawn','t_home','t_eng_p','t_read','t_fit_full'];
 
 // ---------- ② 状态存取 ----------
-const STORAGE_KEY = 'max_credits_v12';   // 沿用 v1.2 键名，升级不丢数据
+// ---- v2.9.0 本地存档按「家庭码」分区 ----
+// 同一台设备可以并存多套家庭数据，互不覆盖（配合云端家庭码切换）
+// ⚠️ 这几个符号必须在 loadState() 调用之前定义，且不能依赖后面才初始化的 const（TDZ 教训）
+const STORAGE_KEY_BASE = 'max_credits_v12';   // 沿用 v1.2 键名（默认分区），升级不丢数据
+const CLOUD_KEY_BASE  = 'max_credits_cloud';  // 云配置全局单份（记录「当前是哪个家庭」）
+const famHash = code => {                    // 家庭码 → 短哈希（分区键用）
+  let h = 2166136261; const t = String(code || '');
+  for(let i = 0; i < t.length; i++){ h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(36).slice(0, 8);
+};
+const peekFamilyCode = () => {               // 只读 localStorage，不依赖其它 const
+  try{ const raw = localStorage.getItem(CLOUD_KEY_BASE); return raw ? ((JSON.parse(raw).familyCode) || '') : ''; }
+  catch(e){ return ''; }
+};
+const storageKey = () => {                   // 当前家庭分区的存档键
+  const c = peekFamilyCode();
+  if(!c) return STORAGE_KEY_BASE;            // 未配置云 → 用默认键（老存档原地可见）
+  const k = `${STORAGE_KEY_BASE}_f_${famHash(c)}`;
+  try{                                        // 一次性迁移：老存档（默认键）→ 首个分区键
+    if(!localStorage.getItem(k) && localStorage.getItem(STORAGE_KEY_BASE))
+      localStorage.setItem(k, localStorage.getItem(STORAGE_KEY_BASE));
+  }catch(e){}
+  return k;
+};
+const partitionTag = () => storageKey().slice(STORAGE_KEY_BASE.length) || '_default';
 
 const defaultState = () => ({
   balance: 0,
@@ -1960,7 +2003,7 @@ let state = loadState();
 
 function loadState(){
   try{
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if(!raw) return defaultState();
     return hydrate(JSON.parse(raw) || {});
   }catch(e){
@@ -1969,7 +2012,7 @@ function loadState(){
     //       ③ saveState/cloudPush 见标记即拒绝写入/推送 ④ 明确告知用户
     console.error('[MAX] 存档读取失败，已保留原始数据（未覆盖、未推云）', e);
     try{
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(storageKey());
       if(raw) localStorage.setItem('max_credits_broken_' + Date.now(), raw);
     }catch(e2){ console.warn('[MAX] 原始存档备份失败', e2); }
     const s = defaultState();
@@ -2020,7 +2063,7 @@ function saveState(){
   }
   state.updatedAt = Date.now();   // v2.2.0：本地修改时间戳，云同步 LWW 比较用
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(storageKey(), JSON.stringify(state));
   }catch(e){
     // 隐私模式 / 配额满：宁可报错，也不能让用户以为数据已存下
     toast('⚠️ 保存失败：浏览器存储不可用', 'error');
@@ -3628,12 +3671,11 @@ $('btnAdminSave').addEventListener('click', async () => {
    冲突策略：整包 last-write-wins（按 state.updatedAt 比较本地时钟）
    拉取前自动把当前本地存档备份到 max_credits_backup_<时间戳>
    ============================================================ */
-const CLOUD_KEY = 'max_credits_cloud';
 const cloudCfg = () => {
-  try{ return Object.assign({url:'', anonKey:'', familyCode:'', secret:'', autoSync:false, lastSync:0}, JSON.parse(localStorage.getItem(CLOUD_KEY) || '{}')); }
+  try{ return Object.assign({url:'', anonKey:'', familyCode:'', secret:'', autoSync:false, lastSync:0}, JSON.parse(localStorage.getItem(CLOUD_KEY_BASE) || '{}')); }
   catch(e){ return {url:'', anonKey:'', familyCode:'', secret:'', autoSync:false, lastSync:0}; }
 };
-const saveCloudCfg = c => { try{ localStorage.setItem(CLOUD_KEY, JSON.stringify(c)); }catch(e){} };
+const saveCloudCfg = c => { try{ localStorage.setItem(CLOUD_KEY_BASE, JSON.stringify(c)); }catch(e){} };
 const cloudReady = () => { const c = cloudCfg(); return !!(c.url && c.anonKey && c.familyCode); };
 // v2.5.1：家庭码是「地址」，密钥才是「钥匙」。
 //   传给云端的是「凭证」= md5(家庭码:密钥)，不是密钥本身 → 密钥明文永不进云端
@@ -3725,8 +3767,16 @@ function saveCloudFromInputs(silent){
   if(url && !cloudUrlLooksOk(url)){ toast('URL 需要是 https 开头的完整地址，如 https://xxx.supabase.co', 'error'); return false; }
   if(familyCode && !/^[A-Z0-9]{4,8}$/.test(familyCode)){ toast('家庭码是 4-8 位字母/数字（点 🎲 生成）', 'error'); return false; }
   if(secret && !/^[A-Za-z0-9]{6,32}$/.test(secret)){ toast('访问密钥是 6-32 位字母/数字（点 🔑 生成）', 'error'); return false; }
+  const prevCode = (cloudCfg().familyCode || '');
   saveCloudCfg({...cloudCfg(), url, anonKey, familyCode, secret});
   renderCloudCard();
+  // v2.9.0：家庭码变了 = 换家庭 → 切到该家庭的独立存档分区重新读档（同机多家庭不互踩）
+  if(familyCode && familyCode !== prevCode){
+    state = loadState();
+    render();
+    toast(`已切换到家庭 ${familyCode} 的独立存档分区`, 'success');
+    return true;
+  }
   if(url && !cloudUrlLooksSupabase(url) && !silent) toast('已保存（域名不含 supabase，确认是 Supabase 实例地址即可）');
   if(!silent) toast('💾 云配置已保存（只存本机）', 'success');
   return true;
@@ -3780,6 +3830,44 @@ async function cloudPull(){
 }
 
 // v2.5.1 推送：整包 upsert（仅当本地不旧于云端，避免覆盖别人的新数据）
+// v2.9.0：覆盖云端前自动留档（Supabase 免费版无 PITR，产品自己造版本历史）
+// 失败不阻塞推送（用户可能还没执行 supabase-v2.9-history.sql）
+async function cloudSnapshot(st, label){
+  if(!st || !cloudReady()) return false;
+  try{
+    const cred = cloudSecret();
+    const res = await cloudFetch(cloudRpcUrl('family_history_push'), {
+      method: 'POST',
+      headers: cloudHeaders({family: true}),
+      body: JSON.stringify({p_code: cloudCfg().familyCode, p_auth: cred, p_new: cred, p_state: st, p_label: label || ''}),
+    });
+    if(res.ok){ trimLocalBackups(); return true; }
+    console.warn('[credits] 云端留档未生效（可能未执行 v2.9 history SQL）', res.status);
+  }catch(e){ console.warn('[credits] 云端留档失败', e); }
+  return false;
+}
+
+// v2.9.0：推送前本地备份（滚动保留最近 10 版，可手动导出）
+function backupLocalBeforePush(){
+  try{
+    const bk = `max_credits_backup_${partitionTag()}_${dayStr()}_${clockStr().replace(':','')}`;
+    localStorage.setItem(bk, JSON.stringify(state));
+    trimLocalBackups();
+    return bk;
+  }catch(e){ console.warn('[credits] 本地备份失败', e); return null; }
+}
+function trimLocalBackups(keep){
+  try{
+    const k = keep || 10;
+    const bks = Object.keys(localStorage).filter(x => x.startsWith('max_credits_backup_'));
+    if(bks.length > k){
+      bks.sort();
+      bks.slice(0, bks.length - k).forEach(x => localStorage.removeItem(x));
+    }
+  }catch(e){}
+}
+
+// v2.9.0：推送前把【云端当前版本】存进历史表 —— 覆盖是不可逆的，必须留退路
 async function cloudPush(){
   // v2.8.2 P0 防线：读档失败保护态下禁止推云（空档推上去 = 覆盖真实数据）
   if(state && state.__loadFailed){
@@ -3792,6 +3880,9 @@ async function cloudPush(){
   if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
     return {skipped:true, remoteAt: remote.state.updatedAt};
   }
+  // v2.9.0：① 云端旧版本留档（覆盖前留退路）② 本地备份
+  if(remote && remote.state) await cloudSnapshot(remote.state, '覆盖前自动留档');
+  backupLocalBeforePush();
   const cred = cloudSecret();
   await cloudFetch(cloudRpcUrl('family_push'), {
     method: 'POST',
@@ -3808,6 +3899,78 @@ async function cloudPush(){
   return {skipped:false};
 }
 
+// v2.9.0：云端版本历史列表（覆盖前自动留档的版本都在这）
+async function renderCloudHistory(){
+  const box = $('historyBody');
+  if(!box) return;
+  if(!cloudReady()){ box.innerHTML = '<div class="empty">未配置云同步</div>'; return; }
+  try{
+    const cred = cloudSecret();
+    const res = await cloudFetch(cloudRpcUrl('family_history_list'), {
+      method: 'POST',
+      headers: cloudHeaders({family: true}),
+      body: JSON.stringify({p_code: cloudCfg().familyCode, p_secret: cred, p_limit: 20}),
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if(!rows || !rows.length){
+      box.innerHTML = '<div class="empty">还没有历史版本（覆盖云端前会自动留档）</div>';
+      return;
+    }
+    box.innerHTML = rows.map(r => `
+      <div class="hist-row">
+        <div class="hist-info">
+          <b>${new Date(r.at).toLocaleString('zh-CN',{hour12:false})}</b>
+          <span>${r.records} 条记录 · 余额 ${r.balance}${r.label ? ' · ' + esc(r.label) : ''}</span>
+        </div>
+        <button class="btn" data-hist-restore="${r.id}"><span>↩ 恢复此版本</span></button>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML = `<div class="empty">读取失败：${esc(e.message)}<br>若提示 404，请先在 Supabase 执行 supabase-v2.9-history.sql</div>`;
+  }
+}
+
+// v2.9.0：从历史版本恢复（先给当前版本留档，再写本地并推回云端）
+async function restoreHistoryVersion(id){
+  if(!window.confirm('确定把这个版本恢复到本地并推回云端？\n当前数据会先自动留档，不会直接丢。')) return;
+  try{
+    const cred = cloudSecret();
+    const res = await cloudFetch(cloudRpcUrl('family_history_get'), {
+      method: 'POST',
+      headers: cloudHeaders({family: true}),
+      body: JSON.stringify({p_code: cloudCfg().familyCode, p_secret: cred, p_id: Number(id)}),
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const st = await res.json();
+    if(!st || !Array.isArray(st.records)) throw new Error('该版本无数据');
+    await cloudSnapshot(state, '恢复前自动留档');
+    backupLocalBeforePush();
+    state = hydrate(st);
+    saveState(); render();
+    await cloudPush();
+    renderCloudHistory();
+    toast('✅ 已恢复该历史版本', 'success');
+  }catch(e){ toast('恢复失败：' + e.message, 'error'); }
+}
+
+// v2.9.0：同步前的覆盖确认——云端记录数明显多于本地时，先问一句
+// （这次事故就是「手抖同步」把本地空档推上去覆盖了云端真实数据）
+async function confirmCloudOverwrite(){
+  if(!cloudReady()) return true;
+  try{
+    const remote = await cloudPull();
+    if(!remote || !remote.state) return true;
+    const rc = (remote.state.records || []).length;
+    const lc = (state.records || []).length;
+    if(rc <= lc) return true;
+    return window.confirm(
+      `⚠️ 云端有 ${rc} 条记录，本地只有 ${lc} 条。\n\n` +
+      `继续同步会用【云端】数据覆盖【本地】（本地这 ${lc} 条会先自动留档，不会直接丢）。\n` +
+      `确定继续吗？`
+    );
+  }catch(e){ return true; }
+}
+
 async function cloudSyncNow(){
   // v2.8.2 P0 防线：读档失败保护态下，整个同步流程都停（拉取覆盖也会毁本地）
   if(state && state.__loadFailed){
@@ -3818,7 +3981,7 @@ async function cloudSyncNow(){
   const remote = await cloudPull();
   if(remote && remote.state && (remote.state.updatedAt || 0) > (state.updatedAt || 0)){
     // 云端更新 → 备份本地后拉取
-    const bk = `max_credits_backup_${dayStr()}_${clockStr().replace(':','')}`;
+    const bk = `max_credits_backup_${partitionTag()}_${dayStr()}_${clockStr().replace(':','')}`;
     try{ localStorage.setItem(bk, JSON.stringify(state)); }catch(e){}
     state = hydrate(remote.state);   // 深合并：缺字段回落默认，不崩渲染
     saveState(); render();
@@ -4630,8 +4793,14 @@ $('btnCloudTest').addEventListener('click', () => {
   testCloud();
 });
 $('btnCloudDoctor').addEventListener('click', () => { cloudDoctor(); });
+$('btnHistoryList').addEventListener('click', renderCloudHistory);
+$('historyBody').addEventListener('click', e => {
+  const btn = e.target.closest('[data-hist-restore]');
+  if(btn) restoreHistoryVersion(btn.dataset.histRestore);
+});
 $('btnCloudSync').addEventListener('click', async () => {
   if(!saveCloudFromInputs(true)) return;
+  if(!(await confirmCloudOverwrite())) return;   // v2.9.0：覆盖前确认
   try{ await cloudSyncNow(); }catch(e){ toast('同步失败：' + e.message, 'error'); }
   renderCloudCard();
 });
@@ -4865,7 +5034,7 @@ if(state.cfg.admin && state.cfg.admin.email) rememberAccount(state.cfg.admin.ema
 
 // 初始向导：全新存档（无任何记录且未完成向导）或地址栏 ?register 时进入
 (function(){
-  const fresh = !localStorage.getItem(STORAGE_KEY) && !state.cfg.setupDone;
+  const fresh = !localStorage.getItem(storageKey()) && !state.cfg.setupDone;
   const blank = state.cfg.setupDone === false && state.balance === 0 && state.records.length === 0;
   if(fresh || blank || location.search.includes('register')) wizShow();
 })();
@@ -4898,7 +5067,7 @@ window.MAX = {
 };
 
 console.log('%c ' + childName().toUpperCase() + "'S CREDITS PLAN " + APP_VER + ' ', 'background:#FF4D2E;color:#000;font-size:14px;font-weight:900;padding:4px 12px');
-console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', STORAGE_KEY, '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
+console.log('品牌：', childName() + "'s Credits Plan", '｜存档键：', storageKey(), '｜调试：window.MAX.doTask("t_dawn") / doReward("r_cash") / reset()');
 
 // 自检：打开 index.html?selftest 会在控制台打印核心规则校验结果
 function runSelfTest(){
@@ -4919,7 +5088,7 @@ function runSelfTest(){
     assert('主题值合法', ['arcade', 'sweet', 'funny'].includes(state.cfg.theme || 'arcade')),
     assert('导航四锚点齐全', ['home', 'tasks', 'shop', 'records'].every(v => document.querySelector(`#topnav .tn-tab[data-tab="${v}"]`))),
     assert('邮箱记忆读写往返', (rememberAccount('__t@t.co'), loadAccounts()[0] === '__t@t.co') && (saveAccounts(loadAccounts().filter(e => e !== '__t@t.co')), !loadAccounts().includes('__t@t.co'))),
-    assert('parent 会话态不落盘', (setViewMode('parent'), JSON.parse(localStorage.getItem(STORAGE_KEY)).view === 'max') && (setViewMode('max'), true)),
+    assert('parent 会话态不落盘', (setViewMode('parent'), JSON.parse(localStorage.getItem(storageKey())).view === 'max') && (setViewMode('max'), true)),
     assert('v1.2.3 七大分类齐全', ['daily','study','fit','honor','challenge','class','behav'].every(g => Object.values(TASKS).some(t => t.group === g))),
     assert('旧版条目默认停用', TASKS.filter(t => t.legacy).every(t => mergedTasks().find(x => x.id === t.id).off) && REWARDS.filter(r => r.legacy).every(r => mergedRewards().find(x => x.id === r.id).off)),
     assert('过期最低扣 1', ((bal) => { state.balance = 50; const a = pendingExpire() === 1; state.balance = 0; const b = pendingExpire() === 0; state.balance = 500; const c = pendingExpire() === 5; state.balance = bal; return a && b && c; })(state.balance)),
@@ -4940,7 +5109,7 @@ function runSelfTest(){
     assert('首页纯看板与SVG图标', !document.getElementById('quickTasks') && !document.getElementById('homeTopTasks') && document.querySelectorAll('.tn-svg').length === 4 && !!document.querySelector('.admin-banner')),
     // v2.6.1 下拉改名「单元测验/月考」后，新旧名都要归对档（CSV 粘贴/手输兼容）
     assert('测验类型归一兼容', normType('月考') === 'b' && normType('单元测验') === 's' && normType('大考') === 'b' && normType('小考') === 's' && normType('b') === 'b' && normType('单元测') === 's'),
-    assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(STORAGE_KEY)).updatedAt > 0)),
+    assert('updatedAt 落盘', (saveState(), JSON.parse(localStorage.getItem(storageKey())).updatedAt > 0)),
     assert('云配置读写往返', (saveCloudCfg({...cloudCfg(), familyCode: 'ZZ99'}), cloudCfg().familyCode === 'ZZ99') && (saveCloudCfg({...cloudCfg(), familyCode: ''}), true)),
     assert('云URL多形态兼容', normalizeCloudUrl('spb-abc.supabase.opentrust.net') === 'https://spb-abc.supabase.opentrust.net' && normalizeCloudUrl('https://x.supabase.co/rest/v1/') === 'https://x.supabase.co' && cloudUrlLooksOk('https://x.supabase.co') && !cloudUrlLooksOk('javascript:alert(1)')),
     // v2.5.0 分行 + 表级权限
@@ -5012,11 +5181,29 @@ function runSelfTest(){
     assert('读档失败保护拒写', (()=>{
       const old = state.__loadFailed;
       state.__loadFailed = true;
-      const before = localStorage.getItem(STORAGE_KEY);
+      const before = localStorage.getItem(storageKey());
       saveState();
-      const after = localStorage.getItem(STORAGE_KEY);
+      const after = localStorage.getItem(storageKey());
       state.__loadFailed = old;
       return before === after;
+    })()),
+    // v2.9.0 守卫：本地存档按家庭码分区（同机多家庭互不覆盖）
+    assert('存档按家庭码分区', (()=>{
+      const save = localStorage.getItem(CLOUD_KEY_BASE);
+      let k1 = '', k2 = '';
+      try{
+        localStorage.setItem(CLOUD_KEY_BASE, JSON.stringify({familyCode:'ZZTEST1'}));
+        k1 = storageKey();
+        localStorage.setItem(CLOUD_KEY_BASE, JSON.stringify({familyCode:'ZZTEST2'}));
+        k2 = storageKey();
+        localStorage.setItem(CLOUD_KEY_BASE, JSON.stringify({familyCode:''}));
+        const k3 = storageKey();
+        return k1 !== k2 && k1.indexOf('_f_') > 0 && k2.indexOf('_f_') > 0 && k3 === STORAGE_KEY_BASE;
+      }finally{
+        if(save === null) localStorage.removeItem(CLOUD_KEY_BASE);
+        else localStorage.setItem(CLOUD_KEY_BASE, save);
+        try{ if(k1) localStorage.removeItem(k1); if(k2) localStorage.removeItem(k2); }catch(e){}
+      }
     })()),
   ];
 

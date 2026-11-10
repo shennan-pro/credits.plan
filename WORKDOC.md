@@ -109,7 +109,8 @@
 | 拉取保护 | 拉取前自动把本地旧档写入 `max_credits_backup_<时间戳>`                                                  |
 | 凭证存储 | 独立键 `max_credits_cloud`（url / anonKey / familyCode / **secret** / autoSync / lastSync），只存本机；**不进导出 JSON** |
 | 入口   | 后台「云同步 · Supabase」卡：保存/复制建表SQL/测试连接/立即同步/**🩺 环境体检**/自动同步开关 + 🎲家庭码 + 🔑访问密钥 |
-| 建表   | `supabase-setup.sql`（带注释）/ `supabase-setup.paste.sql`（**纯 ASCII 无注释，推荐粘贴**） |
+| 建表   | `supabase-setup.sql`（带注释，v2.9 起含云端历史表）/ `supabase-setup.paste.sql`（**纯 ASCII 无注释，推荐粘贴**） |
+| 历史表 | `supabase-v2.9-history.sql`（v2.9.0 云端版本历史，已并入 setup.sql 末尾；**需在 SQL Editor 单独执行一次**） |
 | 错误翻译 |  BAD_SECRET / EMPTY_SECRET / EMPTY_CODE / 缺函数(PGRST202) / 缺表(PGRST205) / **ADB 禁用 DEFINER 专属提示** / 401·403 / 5xx |
 
 #### v2.5.1 表级权限（关键改动：不提权也能校验）
@@ -290,3 +291,9 @@
   - 🔴 **但 hydrate 只能依赖「已初始化」的符号**：它在 `let state = loadState()` 处就被调用（早于后面所有 const 箭头函数定义）→ 引用 `dayStr/now/pad2` 会 TDZ 崩。**v2.8.2 P0 事故**：读档失败被静默 catch → 回退空档 → 用户一同步就把空档推上云覆盖真实数据
   - **铁律：初始化路径必须单独测**——selftest 只测运行期，测不出「加载即崩」。用两阶段测试：预置 localStorage → 重新加载页面 → 验证余额/记录正确读出且无 JS 错误
   - **读档失败必须 fail-safe**：原始字节另存 + `__loadFailed` 标记 + saveState/cloudPush 全部拒写拒推，只有显式「重置」才解锁
+- **v2.9.0 数据安全三件套 + 多家庭分区**：
+  - **云端版本历史**（自建，替代付费版 PITR）：`family_state_history` 表 + RPC `family_history_push/list/get`；每次「用本地覆盖云端」前自动把**云端旧版本**存进历史；后台「云端版本历史」卡列版本并可**一键回滚**（回滚前当前版本也先留档）；每家自动裁剪保留 50 版
+  - **推送前本地备份**：`max_credits_backup_<分区>_<日期>_<时分>`，滚动保留最近 10 版
+  - **覆盖二次确认**：点「立即同步」时若云端记录数 > 本地 → 弹确认（说明「云端 N 条 / 本地 M 条」）
+  - **本地存档按家庭码分区**：`storageKey()` = `max_credits_v12_f_<hash8(家庭码)>`；`peekFamilyCode()` 只读 localStorage（**不依赖后面才初始化的 const，否则又是 TDZ**）；切换家庭码 → 自动 `state = loadState()` 重读该分区；未配云时仍用旧键（老存档原地可见，首次自动复制到首个分区）；备份键也带分区
+  - ⚠️ headless 测分区：预置 A 家数据 + 改 `max_credits_cloud.familyCode` → 加载 → 断言读到 A 的数据、切换后读到 B 的空档（互不串）
