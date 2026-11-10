@@ -287,3 +287,6 @@
   - **改交互语义必须同步删旧提示**：把「再点=撤销」改成「点击=+1」后，`.task.done::after{content:'↩ 撤销'}` 角标要删，否则文案与行为相反
   - 计数与上限写成**纯函数**（`doneCountToday` / `taskCap` / `bumpDoneCount` / `decDoneCount`），自检只测纯函数、不碰 completeTask（有音效/飞字副作用）
   - 存档迁移放 `hydrate()`（localStorage / 云端 / 导入三条入口共用），别只改 loadState
+  - 🔴 **但 hydrate 只能依赖「已初始化」的符号**：它在 `let state = loadState()` 处就被调用（早于后面所有 const 箭头函数定义）→ 引用 `dayStr/now/pad2` 会 TDZ 崩。**v2.8.2 P0 事故**：读档失败被静默 catch → 回退空档 → 用户一同步就把空档推上云覆盖真实数据
+  - **铁律：初始化路径必须单独测**——selftest 只测运行期，测不出「加载即崩」。用两阶段测试：预置 localStorage → 重新加载页面 → 验证余额/记录正确读出且无 JS 错误
+  - **读档失败必须 fail-safe**：原始字节另存 + `__loadFailed` 标记 + saveState/cloudPush 全部拒写拒推，只有显式「重置」才解锁
